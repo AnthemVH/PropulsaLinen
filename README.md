@@ -9,22 +9,14 @@ Router on Vercel, Shopify Storefront API for commerce, Shopify-hosted checkout.
 npm install && npm run dev
 ```
 
-The site runs without any Shopify credentials. When `SHOPIFY_STORE_DOMAIN` and
-`SHOPIFY_STOREFRONT_ACCESS_TOKEN` are absent — or when `SHOPIFY_USE_MOCK=1` is
-set — every data function falls back to the mock catalogue, which is *generated
-from the product blueprints* in `src/lib/content/designs.ts`. It is therefore
-also the specification for how the Shopify products should be set up: ten
-pieces, their categories, options, prices and motif assignments. A few variants
-are deliberately sold out so the disabled-variant UI is visible.
+Shopify credentials are required — see below. **There is no fallback
+catalogue.** Every product, price, image, variant and category on the site
+comes from the store; nothing is invented to fill a gap. A category with no
+products says so, and a product with no image renders an empty tonal panel
+rather than borrowing a stock photograph.
 
-Placeholder imagery renders as tonal blocks rather than hitting the network;
-each one is a slot waiting for real photography.
-
-Mock mode has no checkout, and the cart says so rather than pretending.
-
-> `SHOPIFY_USE_MOCK=1` is currently set in `.env.local`, because the live store
-> holds a single unrelated test product. Remove that line once the ten pieces
-> exist in Shopify.
+The one exception is the collection artwork in `public/motifs`, which is the
+real Botanica Nocturne plate from `design-system/assets/motifs`.
 
 ## Connecting Shopify
 
@@ -111,16 +103,23 @@ Nocturne is one botanical family (olive) and nothing else; a second botanical
 is recorded in `reservedBotanicals` so the decision is documented in code and
 cannot be picked up by accident. It is never rendered.
 
-**Product blueprints** — the ten pieces, each declaring its category, options,
-pricing and which motif form it carries *and where*. The blueprint drives the
-mock catalogue, supplies material and care copy when the Shopify metafields are
-empty, and is keyed by the intended Shopify handle.
+**Product blueprints** — the planned range: ten pieces, each declaring its
+category and which motif form it carries *and where*. This is a specification,
+not a catalogue: it never produces a product on the site. It labels a real
+product's motif once that product exists (matched by Shopify handle), and lists
+the intended range on the collection page as work in preparation.
+
+It deliberately carries no prices, options, imagery or material claims. Those
+are facts about a physical product, and asserting them here would put
+unverified specifications in front of a customer.
 
 ### Two browsing models
 
-**By product type** (`/shop/[type]`) maps to Shopify's `productType` field,
-matched singular/plural tolerantly. Categories not yet live render as "in
-preparation" rather than being hidden.
+**By product type** (`/shop/[type]`) is derived from the `productType` values
+actually present in the store, matched against the house's planned categories
+singular/plural tolerantly. A product whose type matches no planned category
+still gets a category of its own — nothing in the store can fall out of the
+navigation. Planned categories with no products show as "in preparation".
 
 **By design collection** (`/designs/[handle]`) is the editorial route: the
 story, then the motif system, then the pieces grouped by category. It is built
