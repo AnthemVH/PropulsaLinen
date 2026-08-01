@@ -12,12 +12,7 @@ import {
   SectionHeading,
   TextLink,
 } from "@/components/ui/primitives";
-import { pendingBlueprints } from "@/lib/catalog";
-import {
-  getFeaturedDesigns,
-  getMotifForm,
-  MOTIF_FORMS,
-} from "@/lib/content/designs";
+import { getFeaturedDesigns, MOTIF_FORMS } from "@/lib/content/designs";
 import { getProducts } from "@/lib/shopify";
 
 /**
@@ -31,7 +26,6 @@ import { getProducts } from "@/lib/shopify";
 export default async function HomePage() {
   const products = await getProducts({ sort: "featured" });
   const collection = getFeaturedDesigns()[0];
-  const pending = pendingBlueprints(products);
 
   if (!collection) return null;
 
@@ -164,7 +158,7 @@ export default async function HomePage() {
             ) : (
               <EmptyState
                 title="The first pieces are being prepared"
-                body="Botanica Nocturne is being executed across the range below. Pieces appear here as they are published to the store."
+                body="Pieces appear here as they are published to the store."
               />
             )}
           </div>
@@ -176,41 +170,6 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* The range in preparation */}
-      {pending.length ? (
-        <section className="pb-section">
-          <Container width="wide">
-            <Rule />
-            <div className="pt-16 md:pt-24">
-              <SectionHeading
-                eyebrow="In preparation"
-                title="The range"
-                lede="Each piece is listed with the motif form it will carry."
-              />
-              <ul className="mt-14 divide-y divide-stone/60 border-y hairline">
-                {pending.map((blueprint) => (
-                  <li
-                    key={blueprint.handle}
-                    className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 py-5"
-                  >
-                    <span className="font-display text-xl text-espresso-soft">
-                      {blueprint.title}
-                    </span>
-                    <span className="eyebrow text-espresso-muted">
-                      {blueprint.motifs
-                        .map(
-                          (motif) =>
-                            `${getMotifForm(motif.form)?.name ?? motif.form} — ${motif.placement}`,
-                        )
-                        .join(" · ")}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Container>
-        </section>
-      ) : null}
     </>
   );
 }

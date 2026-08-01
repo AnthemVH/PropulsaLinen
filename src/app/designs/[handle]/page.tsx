@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Colorways } from "@/components/brand/colorways";
@@ -13,14 +12,12 @@ import {
 } from "@/components/ui/primitives";
 import {
   deriveCategories,
-  pendingBlueprints,
   productsByDesign,
   productsInCategory,
 } from "@/lib/catalog";
 import {
   DESIGN_COLLECTIONS,
   getDesign,
-  getMotifForm,
   MOTIF_FORMS,
 } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
@@ -73,9 +70,6 @@ export default async function DesignPage({
   const categories = deriveCategories(products).filter(
     (category) => !category.planned,
   );
-
-  // Pieces in the plan that the store has not published yet, stated plainly.
-  const pending = pendingBlueprints(allProducts);
 
   return (
     <>
@@ -236,41 +230,6 @@ export default async function DesignPage({
           />
         )}
 
-        {pending.length ? (
-          <div className="mt-24 border-t hairline pt-12">
-            <Eyebrow>In preparation</Eyebrow>
-            <p className="mt-5 max-w-2xl text-espresso-soft">
-              The collection is being executed across these pieces. Each is
-              listed with the motif form it will carry.
-            </p>
-            <ul className="mt-9 divide-y divide-stone/60 border-y hairline">
-              {pending.map((blueprint) => (
-                <li
-                  key={blueprint.handle}
-                  className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 py-4"
-                >
-                  <span className="font-display text-xl text-espresso-soft">
-                    {blueprint.title}
-                  </span>
-                  <span className="eyebrow text-espresso-muted">
-                    {blueprint.motifs
-                      .map(
-                        (motif) =>
-                          `${getMotifForm(motif.form)?.name ?? motif.form} — ${motif.placement}`,
-                      )
-                      .join(" · ")}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/shop"
-              className="eyebrow link-underline mt-9 inline-block text-gold"
-            >
-              What is available now
-            </Link>
-          </div>
-        ) : null}
       </Container>
     </>
   );

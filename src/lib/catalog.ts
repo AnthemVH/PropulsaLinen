@@ -4,7 +4,6 @@ import {
   getMotifForm,
   getProductTypeByShopifyType,
   MOTIF_FORMS,
-  PRODUCT_BLUEPRINTS,
   PRODUCT_TYPES,
   type DesignCollection,
   type MotifApplication,
@@ -74,14 +73,6 @@ export function resolveBlueprint(
   product: Product,
 ): ProductBlueprint | undefined {
   return getBlueprint(product.handle);
-}
-
-/** Planned pieces that do not yet exist in the store. */
-export function pendingBlueprints(products: Product[]): ProductBlueprint[] {
-  const existing = new Set(products.map((product) => product.handle));
-  return PRODUCT_BLUEPRINTS.filter(
-    (blueprint) => !existing.has(blueprint.handle),
-  ).sort((a, b) => a.position - b.position);
 }
 
 export { getMotifForm };
