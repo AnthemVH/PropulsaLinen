@@ -81,8 +81,18 @@ export type ProductTypeSlug =
 
 export type ProductTypeDefinition = {
   slug: ProductTypeSlug;
-  /** Matched against Shopify's `productType`, singular/plural tolerant. */
+  /** Canonical Shopify `productType` for pieces in this category. */
   shopifyProductType: string;
+  /**
+   * Other `productType` values that belong in this category.
+   *
+   * Print suppliers set this field to their own product name — "Tea Towels",
+   * "Double Oven Glove" — rather than to a merchandising category. Without
+   * aliases every supplier product becomes its own one-item category and the
+   * navigation fragments. Matching is singular/plural and punctuation
+   * tolerant, so only genuinely new words need adding here.
+   */
+  matches: string[];
   name: string;
   plural: string;
   blurb: string;
@@ -92,6 +102,15 @@ export const PRODUCT_TYPES: ProductTypeDefinition[] = [
   {
     slug: "kitchen-linen",
     shopifyProductType: "Kitchen Linen",
+    matches: [
+      "Tea Towel",
+      "Apron",
+      "Oven Glove",
+      "Double Oven Glove",
+      "Pot Holder",
+      "Napkin",
+      "Table Linen",
+    ],
     name: "Kitchen linen",
     plural: "Kitchen Linen",
     blurb:
@@ -100,6 +119,7 @@ export const PRODUCT_TYPES: ProductTypeDefinition[] = [
   {
     slug: "table",
     shopifyProductType: "Table",
+    matches: ["Placemat", "Coaster", "Mug", "Cup", "Tableware"],
     name: "Table",
     plural: "The Table",
     blurb:
@@ -108,6 +128,13 @@ export const PRODUCT_TYPES: ProductTypeDefinition[] = [
   {
     slug: "serving",
     shopifyProductType: "Serving",
+    matches: [
+      "Chopping Board",
+      "Cutting Board",
+      "Serving Tray",
+      "Serving Board",
+      "Tray",
+    ],
     name: "Serving",
     plural: "Serving",
     blurb: "Boards and trays — the pieces that carry something to the table.",
@@ -115,6 +142,7 @@ export const PRODUCT_TYPES: ProductTypeDefinition[] = [
   {
     slug: "storage",
     shopifyProductType: "Storage",
+    matches: ["Storage Tin", "Tin", "Jar", "Canister"],
     name: "Storage",
     plural: "Storage",
     blurb: "Tins and vessels for the shelf that stays on show.",
@@ -134,15 +162,22 @@ export function getProductTypeByShopifyType(
   shopifyProductType: string,
 ): ProductTypeDefinition | undefined {
   const normalise = (value: string) =>
-    value.trim().toLowerCase().replace(/[\s_-]+/g, " ").replace(/s$/, "");
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, " ")
+      .replace(/s$/, "");
+
   const needle = normalise(shopifyProductType);
   if (!needle) return undefined;
 
-  return PRODUCT_TYPES.find(
-    (type) =>
-      normalise(type.shopifyProductType) === needle ||
-      normalise(type.plural) === needle ||
-      normalise(type.slug) === needle,
+  return PRODUCT_TYPES.find((type) =>
+    [
+      type.shopifyProductType,
+      type.plural,
+      type.slug,
+      ...type.matches,
+    ].some((candidate) => normalise(candidate) === needle),
   );
 }
 
