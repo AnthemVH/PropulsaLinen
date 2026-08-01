@@ -1,0 +1,44 @@
+{
+  "source": "Pulled directly from G:\\Claude\\propulsa\\src\\app\\globals.css (--color-* tokens) so print artwork matches the live site exactly.",
+  "brand": {
+    "ivory": "#f5f0e8",
+    "ivoryLight": "#fbf8f3",
+    "stone": "#d9cfc1",
+    "stoneDark": "#b9ab98",
+    "espresso": "#2a211a",
+    "espressoSoft": "#4a3e33",
+    "espressoMuted": "#6b5d50",
+    "gold": "#a67c3d",
+    "goldLight": "#c9a15e",
+    "goldPale": "#e0cfae"
+  },
+  "collections": {
+    "botanicaNocturne": {
+      "colorways": {
+        "signature": {
+          "name": "Signature (Espresso Ground)",
+          "ground": "#2a211a",
+          "linework": "#f5f0e8",
+          "accent": "#a67c3d"
+        },
+        "inverse": {
+          "name": "Inverse (Ivory Ground)",
+          "ground": "#f5f0e8",
+          "linework": "#2a211a",
+          "accent": "#a67c3d"
+        },
+        "warmStone": {
+          "name": "Warm Stone",
+          "ground": "#d9cfc1",
+          "linework": "#2a211a",
+          "accent": "#a67c3d"
+        }
+      },
+      "accentFinishes": {
+        "gold": "#a67c3d",
+        "goldLight": "#c9a15e"
+      }
+    }
+  },
+  "notes": "Site defines no separate 'bronze' token — use goldLight (#c9a15e) as the lighter metallic variant where a second accent finish is needed (e.g. towel colour variants), rather than inventing a new bronze value."
+}

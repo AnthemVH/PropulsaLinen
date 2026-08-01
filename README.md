@@ -1,36 +1,161 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Propulsa
 
-## Getting Started
+Headless storefront for Propulsa — a heritage lifestyle house. Next.js App
+Router on Vercel, Shopify Storefront API for commerce, Shopify-hosted checkout.
 
-First, run the development server:
+## Running it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install && npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The site runs without any Shopify credentials. When `SHOPIFY_STORE_DOMAIN` and
+`SHOPIFY_STOREFRONT_ACCESS_TOKEN` are absent — or when `SHOPIFY_USE_MOCK=1` is
+set — every data function falls back to the mock catalogue, which is *generated
+from the product blueprints* in `src/lib/content/designs.ts`. It is therefore
+also the specification for how the Shopify products should be set up: ten
+pieces, their categories, options, prices and motif assignments. A few variants
+are deliberately sold out so the disabled-variant UI is visible.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Placeholder imagery renders as tonal blocks rather than hitting the network;
+each one is a slot waiting for real photography.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Mock mode has no checkout, and the cart says so rather than pretending.
 
-## Learn More
+> `SHOPIFY_USE_MOCK=1` is currently set in `.env.local`, because the live store
+> holds a single unrelated test product. Remove that line once the ten pieces
+> exist in Shopify.
 
-To learn more about Next.js, take a look at the following resources:
+## Connecting Shopify
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Copy `.env.example` to `.env.local` and fill in:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Notes |
+| --- | --- |
+| `SHOPIFY_STORE_DOMAIN` | The `*.myshopify.com` domain, not the customer-facing one |
+| `SHOPIFY_STOREFRONT_ACCESS_TOKEN` | Storefront API token. Server-side only — never prefix with `NEXT_PUBLIC_` |
+| `SHOPIFY_API_VERSION` | Optional. Defaults to `2025-07`. This store serves `2026-07` — a version the store does not serve returns 404 on every request |
+| `SHOPIFY_REVALIDATION_SECRET` | Shared secret for the cache-invalidation webhook |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin for metadata, Open Graph and the sitemap |
 
-## Deploy on Vercel
+Nothing else needs to change: the same data functions serve mock and live data,
+and the cart switches from the in-memory mock to real Storefront Cart mutations
+with a live `checkoutUrl`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Shopify-side setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Optional metafields under the `propulsa` namespace let merchandisers write
+per-product editorial copy without a deploy:
+
+- `propulsa.material_story` — the material and craft paragraph on the PDP
+- `propulsa.care` — care instructions
+- `propulsa.design` — the design collection handle (see below)
+
+Point `products/*` and `collections/*` webhooks at `/api/revalidate?secret=…`
+so catalogue changes invalidate the cache on publish rather than on a timer.
+
+**Storefront API scopes.** The token does not need
+`unauthenticated_read_product_inventory`; the catalogue queries deliberately
+avoid `quantityAvailable`, because requesting a field the token lacks access to
+fails the whole query, not just that field. `availableForSale` drives every
+in-stock state in the UI.
+
+**Option naming.** Size and colour options are matched by substring, so
+"Towel Size" and "Edge color" work as well as "Size" and "Colour". Colour
+values map to swatches in `src/lib/utils.ts` — add a hex there for any new
+value, or it falls back to neutral stone.
+
+**Supplier descriptions.** Print-on-demand feeds append a stylesheet to the
+plain-text description field. `cleanDescription` in `src/lib/shopify/index.ts`
+strips it before the copy reaches the PDP or the meta description.
+
+## Architecture
+
+```
+src/
+  app/                      routes
+    page.tsx                homepage
+    shop/                   all products, and /shop/[type] per category
+    products/[handle]/      product detail — variants, add to cart
+    collections/            Shopify collections (the store's own view)
+    designs/                design collections (the house's content model)
+    cart/                   full-page mirror of the drawer
+    api/revalidate/         Shopify webhook target
+  components/
+    brand/                  monogram and wordmark
+    cart/                   context, drawer, page contents
+    layout/                 header, footer
+    product/                card, grid, viewer (gallery + variants)
+    shop/                   URL-driven filter bar
+    ui/                     primitives and the image surface
+  lib/
+    cart/                   cookie handling and Server Actions
+    content/                designs, product types, site copy
+    shopify/                Storefront API client, queries, normalisation, mock
+    catalog.ts              facets, filtering, design resolution
+```
+
+### The content model
+
+`src/lib/content/designs.ts` holds three separate layers.
+
+**Motif forms** — the three permitted renderings of the house artwork: the
+dense field, the single-sprig emblem, and the hairline border. Artwork is never
+reinterpreted per product; every piece is built from one of these three. That
+is a hard brand constraint, so it is modelled explicitly rather than left to a
+design brief. A product resolves its form(s) from a `motif:<form>` tag, then
+its blueprint.
+
+**Design collections** — a collection is a motif, not a product. Botanica
+Nocturne is one botanical family (olive) and nothing else; a second botanical
+is recorded in `reservedBotanicals` so the decision is documented in code and
+cannot be picked up by accident. It is never rendered.
+
+**Product blueprints** — the ten pieces, each declaring its category, options,
+pricing and which motif form it carries *and where*. The blueprint drives the
+mock catalogue, supplies material and care copy when the Shopify metafields are
+empty, and is keyed by the intended Shopify handle.
+
+### Two browsing models
+
+**By product type** (`/shop/[type]`) maps to Shopify's `productType` field,
+matched singular/plural tolerantly. Categories not yet live render as "in
+preparation" rather than being hidden.
+
+**By design collection** (`/designs/[handle]`) is the editorial route: the
+story, then the motif system, then the pieces grouped by category. It is built
+to keep working as one motif spreads across every category the house opens.
+
+A product resolves to its design by, in order: the `propulsa.design` metafield,
+a `design:<handle>` tag, a name match, and — while the house runs a single
+collection — that collection by default.
+
+### Data flow
+
+Everything above `src/lib/shopify` speaks normalised domain types, never raw
+Storefront API shapes — connection nesting and nullable fields are handled in
+one place, which is also what lets the mock satisfy the same contract.
+
+The Storefront client is `server-only` by construction, so importing it into a
+Client Component is a build error rather than a leaked token. The Admin API is
+never used.
+
+Cart mutations are Server Actions. The cart id lives in an httpOnly cookie; the
+client holds the last known cart so the header count and drawer update without
+re-rendering the tree, and every mutation returns the authoritative cart.
+Checkout is a plain link to Shopify's hosted `checkoutUrl` — the storefront
+never touches payment details.
+
+## Design system
+
+Tokens live in `src/app/globals.css` as a Tailwind v4 `@theme` block: ivory and
+stone neutrals, espresso ink, and a warm gold used only as a hairline, a hover
+state and the monogram. Motion is slow by default (550ms, editorial easing).
+
+Three faces: Cormorant Garamond for display, EB Garamond for body, and Pinyon
+Script reserved for the monogram — never body or UI copy.
+
+## Not in this build
+
+Custom upload and personalisation are a deliberate later phase. Fulfilment runs
+through Contrado's Shopify app, so the storefront has nothing to do with it.

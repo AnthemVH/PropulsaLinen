@@ -1,0 +1,370 @@
+import "server-only";
+
+import { getShopifyConfig, shopifyFetch, TAGS } from "./client";
+import {
+  addToCartMutation,
+  createCartMutation,
+  getCartQuery,
+  getCollectionProductsQuery,
+  getCollectionQuery,
+  getCollectionsQuery,
+  getProductHandlesQuery,
+  getProductQuery,
+  getProductsQuery,
+  removeFromCartMutation,
+  updateCartMutation,
+} from "./queries";
+import type {
+  Cart,
+  Collection,
+  Image,
+  Product,
+  ProductVariant,
+  SortKey,
+} from "./types";
+
+export { isShopifyConfigured, ShopifyError } from "./client";
+export type * from "./types";
+
+const PRODUCT_LIMIT = 250;
+
+/* -------------------------------------------------------------------------- */
+/* Reshaping                                                                   */
+/* -------------------------------------------------------------------------- */
+
+type RawImage = {
+  url: string;
+  altText: string | null;
+  width: number | null;
+  height: number | null;
+} | null;
+
+function reshapeImage(image: RawImage, fallbackAlt: string): Image | null {
+  if (!image?.url) return null;
+  return {
+    url: image.url,
+    altText: image.altText ?? fallbackAlt,
+    width: image.width ?? 1200,
+    height: image.height ?? 1200,
+  };
+}
+
+/**
+ * Print-on-demand feeds (Contrado among them) append a stylesheet to the
+ * plain-text `description` field. That text is what the product lede and the
+ * fallback meta description are built from, so the CSS has to come off before
+ * it reaches either.
+ */
+function cleanDescription(raw: string): string {
+  if (!raw) return "";
+
+  const firstRule = raw.indexOf("{");
+  if (firstRule === -1) return raw.replace(/\s+/g, " ").trim();
+
+  return raw
+    .slice(0, firstRule)
+    // Drop the dangling selector that preceded the brace.
+    .replace(/[.#][A-Za-z0-9_-][^\s]*\s*$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+function reshapeProduct(raw: any): Product {
+  const title: string = raw.title ?? "";
+
+  const variants: ProductVariant[] = (raw.variants?.nodes ?? []).map(
+    (variant: any) => ({
+      id: variant.id,
+      title: variant.title,
+      availableForSale: Boolean(variant.availableForSale),
+      selectedOptions: variant.selectedOptions ?? [],
+      price: variant.price,
+      compareAtPrice: variant.compareAtPrice ?? null,
+      image: reshapeImage(variant.image, title),
+      sku: variant.sku ?? null,
+    }),
+  );
+
+  const tags: string[] = raw.tags ?? [];
+  const designTag = tags.find((tag) => tag.startsWith("design:"));
+
+  return {
+    id: raw.id,
+    handle: raw.handle,
+    title,
+    description: cleanDescription(raw.description ?? ""),
+    descriptionHtml: raw.descriptionHtml ?? "",
+    productType: raw.productType ?? "",
+    vendor: raw.vendor ?? "",
+    tags,
+    availableForSale: Boolean(raw.availableForSale),
+    options: (raw.options ?? []).map((option: any) => ({
+      id: option.id,
+      name: option.name,
+      // Storefront API 2025-01+ returns `optionValues`; older versions return
+      // a plain `values` array. Accept both.
+      values:
+        option.optionValues?.map((value: any) => value.name) ??
+        option.values ??
+        [],
+    })),
+    variants,
+    images: (raw.images?.nodes ?? [])
+      .map((image: RawImage) => reshapeImage(image, title))
+      .filter(Boolean) as Image[],
+    featuredImage: reshapeImage(raw.featuredImage, title),
+    priceRange: raw.priceRange,
+    seo: {
+      title: raw.seo?.title ?? null,
+      description: raw.seo?.description ?? null,
+    },
+    materialStory: raw.materialStory?.value ?? null,
+    careInstructions: raw.careInstructions?.value ?? null,
+    designHandle: raw.design?.value ?? designTag?.slice("design:".length) ?? null,
+  };
+}
+
+function reshapeCollection(raw: any): Collection {
+  return {
+    id: raw.id,
+    handle: raw.handle,
+    title: raw.title,
+    description: raw.description ?? "",
+    descriptionHtml: raw.descriptionHtml ?? "",
+    image: reshapeImage(raw.image, raw.title),
+    seo: {
+      title: raw.seo?.title ?? null,
+      description: raw.seo?.description ?? null,
+    },
+    updatedAt: raw.updatedAt ?? "",
+  };
+}
+
+function reshapeCart(raw: any): Cart {
+  return {
+    id: raw.id,
+    checkoutUrl: raw.checkoutUrl,
+    totalQuantity: raw.totalQuantity ?? 0,
+    cost: {
+      subtotalAmount: raw.cost.subtotalAmount,
+      totalAmount: raw.cost.totalAmount,
+      totalTaxAmount: raw.cost.totalTaxAmount ?? null,
+    },
+    lines: (raw.lines?.nodes ?? []).map((line: any) => ({
+      id: line.id,
+      quantity: line.quantity,
+      cost: line.cost,
+      merchandise: {
+        id: line.merchandise.id,
+        title: line.merchandise.title,
+        selectedOptions: line.merchandise.selectedOptions ?? [],
+        image: reshapeImage(
+          line.merchandise.image,
+          line.merchandise.product.title,
+        ),
+        product: line.merchandise.product,
+      },
+    })),
+  };
+}
+
+function unwrapCartMutation(payload: any, operation: string): Cart {
+  const errors = payload?.userErrors ?? [];
+  if (errors.length) {
+    throw new Error(
+      `${operation} failed: ${errors.map((e: any) => e.message).join("; ")}`,
+    );
+  }
+  if (!payload?.cart) {
+    throw new Error(`${operation} returned no cart`);
+  }
+  return reshapeCart(payload.cart);
+}
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+/* -------------------------------------------------------------------------- */
+/* Sorting                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/** `products` root query uses ProductSortKeys. */
+const PRODUCT_SORT: Record<SortKey, { sortKey: string; reverse: boolean }> = {
+  featured: { sortKey: "BEST_SELLING", reverse: false },
+  newest: { sortKey: "CREATED_AT", reverse: true },
+  "price-asc": { sortKey: "PRICE", reverse: false },
+  "price-desc": { sortKey: "PRICE", reverse: true },
+};
+
+/** Collection products use ProductCollectionSortKeys — different enum names. */
+const COLLECTION_SORT: Record<SortKey, { sortKey: string; reverse: boolean }> = {
+  featured: { sortKey: "COLLECTION_DEFAULT", reverse: false },
+  newest: { sortKey: "CREATED", reverse: true },
+  "price-asc": { sortKey: "PRICE", reverse: false },
+  "price-desc": { sortKey: "PRICE", reverse: true },
+};
+
+/* -------------------------------------------------------------------------- */
+/* Products                                                                    */
+/* -------------------------------------------------------------------------- */
+
+export async function getProduct(handle: string): Promise<Product | null> {
+  const data = await shopifyFetch<{ product: unknown }>({
+    query: getProductQuery,
+    variables: { handle },
+    tags: [TAGS.products],
+  });
+
+  return data.product ? reshapeProduct(data.product) : null;
+}
+
+export async function getProducts(
+  options: { query?: string; sort?: SortKey; first?: number } = {},
+): Promise<Product[]> {
+  const { query, sort = "featured", first = PRODUCT_LIMIT } = options;
+  const { sortKey, reverse } = PRODUCT_SORT[sort];
+
+  const data = await shopifyFetch<{ products: { nodes: unknown[] } }>({
+    query: getProductsQuery,
+    variables: { first, query, sortKey, reverse },
+    tags: [TAGS.products],
+  });
+
+  return data.products.nodes.map(reshapeProduct);
+}
+
+export async function getProductHandles(): Promise<string[]> {
+  const data = await shopifyFetch<{
+    products: { nodes: { handle: string }[] };
+  }>({
+    query: getProductHandlesQuery,
+    variables: { first: PRODUCT_LIMIT },
+    tags: [TAGS.products],
+  });
+
+  return data.products.nodes.map((node) => node.handle);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Collections                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export async function getCollection(
+  handle: string,
+): Promise<Collection | null> {
+  const data = await shopifyFetch<{ collection: unknown }>({
+    query: getCollectionQuery,
+    variables: { handle },
+    tags: [TAGS.collections],
+  });
+
+  return data.collection ? reshapeCollection(data.collection) : null;
+}
+
+export async function getCollections(): Promise<Collection[]> {
+  const data = await shopifyFetch<{ collections: { nodes: unknown[] } }>({
+    query: getCollectionsQuery,
+    variables: { first: 100 },
+    tags: [TAGS.collections],
+  });
+
+  return data.collections.nodes
+    .map(reshapeCollection)
+    // Shopify auto-creates a `frontpage` collection that we merchandise
+    // through the homepage instead.
+    .filter((collection) => collection.handle !== "frontpage");
+}
+
+export async function getCollectionProducts(
+  handle: string,
+  sort: SortKey = "featured",
+): Promise<Product[]> {
+  const { sortKey, reverse } = COLLECTION_SORT[sort];
+
+  const data = await shopifyFetch<{
+    collection: { products: { nodes: unknown[] } } | null;
+  }>({
+    query: getCollectionProductsQuery,
+    variables: { handle, first: PRODUCT_LIMIT, sortKey, reverse },
+    tags: [TAGS.collections, TAGS.products],
+  });
+
+  return (data.collection?.products.nodes ?? []).map(reshapeProduct);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Cart                                                                        */
+/* -------------------------------------------------------------------------- */
+
+export async function createCart(
+  lines: { merchandiseId: string; quantity: number }[] = [],
+): Promise<Cart> {
+  const data = await shopifyFetch<{ cartCreate: unknown }>({
+    query: createCartMutation,
+    variables: { lines },
+    revalidate: false,
+  });
+
+  return unwrapCartMutation(data.cartCreate, "cartCreate");
+}
+
+export async function getCart(cartId: string): Promise<Cart | null> {
+  const data = await shopifyFetch<{ cart: unknown }>({
+    query: getCartQuery,
+    variables: { cartId },
+    revalidate: false,
+  });
+
+  // Shopify expires carts after ~10 days; a stale cookie resolves to null.
+  return data.cart ? reshapeCart(data.cart) : null;
+}
+
+export async function addCartLines(
+  cartId: string,
+  lines: { merchandiseId: string; quantity: number }[],
+): Promise<Cart> {
+  const data = await shopifyFetch<{ cartLinesAdd: unknown }>({
+    query: addToCartMutation,
+    variables: { cartId, lines },
+    revalidate: false,
+  });
+
+  return unwrapCartMutation(data.cartLinesAdd, "cartLinesAdd");
+}
+
+export async function updateCartLines(
+  cartId: string,
+  lines: { id: string; quantity: number }[],
+): Promise<Cart> {
+  const data = await shopifyFetch<{ cartLinesUpdate: unknown }>({
+    query: updateCartMutation,
+    variables: { cartId, lines },
+    revalidate: false,
+  });
+
+  return unwrapCartMutation(data.cartLinesUpdate, "cartLinesUpdate");
+}
+
+export async function removeCartLines(
+  cartId: string,
+  lineIds: string[],
+): Promise<Cart> {
+  const data = await shopifyFetch<{ cartLinesRemove: unknown }>({
+    query: removeFromCartMutation,
+    variables: { cartId, lineIds },
+    revalidate: false,
+  });
+
+  return unwrapCartMutation(data.cartLinesRemove, "cartLinesRemove");
+}
+
+/** Surfaced in the UI so an unconfigured deployment is obvious. */
+export function storeStatus() {
+  const config = getShopifyConfig();
+  return {
+    configured: config !== null,
+    domain: config?.domain ?? null,
+    apiVersion: config?.apiVersion ?? null,
+  };
+}
