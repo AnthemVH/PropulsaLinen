@@ -39,7 +39,7 @@ const pinyon = Pinyon_Script({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} — ${SITE.tagline}`,
+    default: `${SITE.name} — Botanica Nocturne`,
     template: `%s — ${SITE.name}`,
   },
   description: SITE.description,

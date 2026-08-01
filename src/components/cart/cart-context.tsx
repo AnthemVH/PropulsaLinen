@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -41,6 +42,7 @@ export function CartProvider({
   initialCart: Cart | null;
   children: ReactNode;
 }) {
+  const router = useRouter();
   const [cart, setCart] = useState<Cart | null>(initialCart);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,18 +54,27 @@ export function CartProvider({
     setError(null);
   }, []);
 
-  const run = useCallback<CartContextValue["run"]>((action, options) => {
-    setError(null);
-    startTransition(async () => {
-      const result = await action();
-      if (result.ok) {
-        setCart(result.cart);
-        if (options?.open) setIsOpen(true);
-      } else {
+  const run = useCallback<CartContextValue["run"]>(
+    (action, options) => {
+      setError(null);
+      startTransition(async () => {
+        const result = await action();
+        if (result.ok) {
+          setCart(result.cart);
+          if (options?.open) setIsOpen(true);
+          return;
+        }
+
         setError(result.error);
-      }
-    });
-  }, []);
+
+        // The page was built from catalogue data that has since changed. The
+        // action has already expired the cache, so pull the corrected page in
+        // rather than leaving the customer on a listing that cannot be bought.
+        if (result.stale) router.refresh();
+      });
+    },
+    [router],
+  );
 
   const value = useMemo(
     () => ({ cart, isOpen, pending, error, openCart, closeCart, run }),

@@ -165,8 +165,26 @@ export type DesignCollection = {
    */
   reservedBotanicals: string[];
   palette: { name: string; hex: string }[];
+  /**
+   * The permitted colorways. Ground and linework pairs are fixed — a Signature
+   * ground is never combined with Inverse linework — and gold is the accent in
+   * all three rather than a fourth colour relationship.
+   */
+  colorways: Colorway[];
   shopifyCollectionHandle: string | null;
   featured: boolean;
+};
+
+export type ColorwaySlug = "signature" | "inverse" | "warm-stone";
+
+export type Colorway = {
+  slug: ColorwaySlug;
+  name: string;
+  ground: { name: string; hex: string };
+  linework: { name: string; hex: string };
+  accent: { name: string; hex: string };
+  /** When this colorway is the right choice. */
+  use: string;
 };
 
 export const DESIGN_COLLECTIONS: DesignCollection[] = [
@@ -189,6 +207,32 @@ export const DESIGN_COLLECTIONS: DesignCollection[] = [
       { name: "Ecru", hex: "#E4DACA" },
       { name: "Espresso", hex: "#2A211A" },
       { name: "Antique Gold", hex: "#A67C3D" },
+    ],
+    colorways: [
+      {
+        slug: "signature",
+        name: "Signature",
+        ground: { name: "Espresso", hex: "#2a211a" },
+        linework: { name: "Ivory", hex: "#f5f0e8" },
+        accent: { name: "Gold", hex: "#a67c3d" },
+        use: "The hero colorway. Default for lead imagery and the pieces the collection is judged on.",
+      },
+      {
+        slug: "inverse",
+        name: "Inverse",
+        ground: { name: "Ivory", hex: "#f5f0e8" },
+        linework: { name: "Espresso", hex: "#2a211a" },
+        accent: { name: "Gold", hex: "#a67c3d" },
+        use: "The same logic on a light ground, for pieces where a dark ground is impractical.",
+      },
+      {
+        slug: "warm-stone",
+        name: "Warm Stone",
+        ground: { name: "Stone", hex: "#d9cfc1" },
+        linework: { name: "Espresso", hex: "#2a211a" },
+        accent: { name: "Gold", hex: "#a67c3d" },
+        use: "A quieter third option — softer contrast than either Signature or Inverse.",
+      },
     ],
     shopifyCollectionHandle: "botanica-nocturne",
     featured: true,

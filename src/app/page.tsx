@@ -1,10 +1,9 @@
 import Link from "next/link";
 
+import { Colorways } from "@/components/brand/colorways";
 import { Monogram } from "@/components/brand/logo";
 import { MotifArt } from "@/components/brand/motif-art";
-import { ProductGrid } from "@/components/product/product-grid";
-import { EmptyState } from "@/components/product/product-grid";
-import { Media } from "@/components/ui/media";
+import { EmptyState, ProductGrid } from "@/components/product/product-grid";
 import {
   ButtonLink,
   Container,
@@ -13,24 +12,32 @@ import {
   SectionHeading,
   TextLink,
 } from "@/components/ui/primitives";
-import { deriveCategories } from "@/lib/catalog";
-import { getFeaturedDesigns, MOTIF_FORMS } from "@/lib/content/designs";
-import { HOUSE_NOTE } from "@/lib/content/site";
+import { pendingBlueprints } from "@/lib/catalog";
+import {
+  getFeaturedDesigns,
+  getMotifForm,
+  MOTIF_FORMS,
+} from "@/lib/content/designs";
 import { getProducts } from "@/lib/shopify";
 
+/**
+ * The homepage is the collection.
+ *
+ * The house runs one collection at a time, so there is nothing to gain from a
+ * generic storefront that treats Botanica Nocturne as one option among many.
+ * The page follows the collection's own logic: the plate, the three forms it
+ * may take, the three colorways it may take, then the pieces.
+ */
 export default async function HomePage() {
   const products = await getProducts({ sort: "featured" });
-  const categories = deriveCategories(products);
-  const lead = getFeaturedDesigns()[0];
+  const collection = getFeaturedDesigns()[0];
+  const pending = pendingBlueprints(products);
 
-  // The hero is the collection plate itself — real artwork from the design
-  // package, not a stock photograph standing in for one.
-  const secondaryImage =
-    products[0]?.images[1] ?? products[1]?.featuredImage ?? null;
+  if (!collection) return null;
 
   return (
     <>
-      {/* Hero — the header floats over this. */}
+      {/* Hero — the plate itself, under a floating header. */}
       <section className="relative -mt-20 flex min-h-[92vh] items-end overflow-hidden md:-mt-24">
         <div className="absolute inset-0 bg-espresso">
           <MotifArt
@@ -46,123 +53,63 @@ export default async function HomePage() {
         <Container width="wide" className="relative pb-20 md:pb-28">
           <div className="fade-up max-w-3xl">
             <Monogram size={68} className="text-gold-light" />
-            <h1 className="mt-5 text-display-xl text-balance text-ivory-light">
-              Goods for a house
-              <span className="block font-display italic">
-                that keeps its things
-              </span>
+            <Eyebrow className="mt-6 text-gold-light">
+              Collection {collection.reference} · {collection.botanical}
+            </Eyebrow>
+            <h1 className="mt-4 text-display-xl text-balance text-ivory-light">
+              {collection.name}
             </h1>
-            <p className="mt-8 max-w-xl text-lede text-pretty text-ivory-light/85">
-              An engraved olive branch, drawn as a naturalist&rsquo;s plate and
-              set across the pieces a kitchen uses every day. Made to order,
-              finished by hand.
+            <p className="mt-6 max-w-xl text-lede text-pretty text-ivory-light/85">
+              {collection.tagline}. Made to order, finished by hand.
             </p>
             <div className="mt-11 flex flex-wrap items-center gap-8">
               <ButtonLink
-                href="/shop"
+                href={`/designs/${collection.handle}`}
                 className="border-ivory-light/50 text-ivory-light hover:border-gold-light hover:bg-gold/20"
               >
-                The collection
+                Enter the collection
               </ButtonLink>
               <Link
-                href="/designs"
+                href="/shop"
                 className="eyebrow link-underline text-ivory-light"
               >
-                The motif
+                What is available
               </Link>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* House statement */}
+      {/* The plate */}
       <section className="py-section">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
-            <Eyebrow>Est. Anno MMXXVI</Eyebrow>
+            <Eyebrow>The plate</Eyebrow>
             <p className="mt-8 font-display text-display-md text-balance">
-              We began in the kitchen, because it is the room a house uses most
-              and decorates least.
+              A record, not an ornament.
             </p>
             <p className="mt-8 text-lede text-pretty text-espresso-soft">
-              {HOUSE_NOTE}
+              {collection.introduction}
             </p>
             <div className="mt-10 flex justify-center">
-              <TextLink href="/about" className="eyebrow">
-                Read the house story
+              <TextLink
+                href={`/designs/${collection.handle}`}
+                className="eyebrow"
+              >
+                Read the collection story
               </TextLink>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* The collection */}
-      {lead ? (
-        <section className="py-section">
-          <Container width="wide">
-            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-24">
-              <Link
-                href={`/designs/${lead.handle}`}
-                className="group relative block aspect-[4/5] overflow-hidden bg-stone/30"
-              >
-                <div className="absolute inset-0 transition-transform duration-[1600ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] group-hover:scale-[1.04]">
-                  {secondaryImage ? (
-                    <Media
-                      image={secondaryImage}
-                      alt={`${lead.name} — the engraved plate`}
-                      sizes="(min-width: 1024px) 45vw, 100vw"
-                    />
-                  ) : (
-                    <MotifArt
-                      form="single-sprig"
-                      colorway="inverse"
-                      alt={`${lead.name} — the single-sprig emblem`}
-                    />
-                  )}
-                </div>
-              </Link>
-
-              <div>
-                <Eyebrow>Collection {lead.reference}</Eyebrow>
-                <h2 className="mt-5 text-display-lg">{lead.name}</h2>
-                <p className="mt-3 font-display text-display-sm italic text-espresso-soft">
-                  {lead.tagline}
-                </p>
-                <Rule className="my-9 max-w-xs" />
-                <p className="text-lede text-pretty text-espresso-soft">
-                  {lead.introduction}
-                </p>
-
-                <ul className="mt-9 flex flex-wrap gap-3">
-                  {lead.palette.map((colour) => (
-                    <li key={colour.name} className="flex items-center gap-2.5">
-                      <span
-                        className="size-4 rounded-full border border-espresso/15"
-                        style={{ backgroundColor: colour.hex }}
-                      />
-                      <span className="eyebrow text-espresso-muted">
-                        {colour.name}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <ButtonLink href={`/designs/${lead.handle}`} className="mt-11">
-                  Enter the collection
-                </ButtonLink>
-              </div>
-            </div>
-          </Container>
-        </section>
-      ) : null}
-
-      {/* The motif system */}
+      {/* Three forms */}
       <section className="py-section">
         <Container width="wide">
           <SectionHeading
             eyebrow="The motif system"
             title="Three forms, one plate"
-            lede="Every piece is built from one of three forms taken from the same engraved plate. Nothing is redrawn per product."
+            lede="Every piece is built from one of these three. Nothing is redrawn per product — which is what keeps a mug and a serving tray recognisably the same collection."
           />
           <ol className="mt-14 grid gap-px border hairline bg-stone/40 md:grid-cols-3">
             {MOTIF_FORMS.map((form, index) => (
@@ -184,21 +131,35 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* Everything currently in the store */}
+      {/* Three colorways */}
       <section className="py-section">
         <Container width="wide">
           <SectionHeading
-            eyebrow="The current range"
-            title="Pieces in the house"
-            lede="Everything the house makes today. Each is printed to order."
+            eyebrow="The colorways"
+            title="Three grounds, one accent"
+            lede="Gold is an accent in all three — a single leaf, a vein, or the hairline itself. It is never a fill and never a ground."
+          />
+          <div className="mt-14">
+            <Colorways colorways={collection.colorways} />
+          </div>
+        </Container>
+      </section>
+
+      {/* The pieces */}
+      <section className="py-section">
+        <Container width="wide">
+          <SectionHeading
+            eyebrow="The pieces"
+            title="Available now"
+            lede="Everything published to the store, printed to order."
           />
           <div className="mt-16">
             {products.length ? (
               <ProductGrid products={products} />
             ) : (
               <EmptyState
-                title="The range is being prepared"
-                body="Pieces will appear here as they are published to the store."
+                title="The first pieces are being prepared"
+                body="Botanica Nocturne is being executed across the range below. Pieces appear here as they are published to the store."
               />
             )}
           </div>
@@ -210,53 +171,41 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* Categories */}
-      <section className="py-section">
-        <Container width="wide">
-          <SectionHeading
-            eyebrow="By category"
-            title="Where it goes in the house"
-            align="center"
-            className="mx-auto items-center"
-          />
-          <ul className="mt-16 grid gap-px border hairline bg-stone/40 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
-              <li key={category.slug} className="bg-ivory p-10">
-                {category.planned ? (
-                  <div>
-                    <h3 className="font-display text-display-sm text-espresso-muted">
-                      {category.label}
-                    </h3>
-                    {category.blurb ? (
-                      <p className="mt-4 text-espresso-muted/80">
-                        {category.blurb}
-                      </p>
-                    ) : null}
-                    <span className="eyebrow mt-7 inline-block text-espresso-muted/60">
-                      In preparation
+      {/* The range in preparation */}
+      {pending.length ? (
+        <section className="pb-section">
+          <Container width="wide">
+            <Rule />
+            <div className="pt-16 md:pt-24">
+              <SectionHeading
+                eyebrow="In preparation"
+                title="The range"
+                lede="Each piece is listed with the motif form it will carry."
+              />
+              <ul className="mt-14 divide-y divide-stone/60 border-y hairline">
+                {pending.map((blueprint) => (
+                  <li
+                    key={blueprint.handle}
+                    className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 py-5"
+                  >
+                    <span className="font-display text-xl text-espresso-soft">
+                      {blueprint.title}
                     </span>
-                  </div>
-                ) : (
-                  <Link href={`/shop/${category.slug}`} className="group block">
-                    <h3 className="font-display text-display-sm transition-colors duration-500 group-hover:text-gold">
-                      {category.label}
-                    </h3>
-                    {category.blurb ? (
-                      <p className="mt-4 text-espresso-muted">
-                        {category.blurb}
-                      </p>
-                    ) : null}
-                    <span className="eyebrow mt-7 inline-block text-gold">
-                      {category.count}{" "}
-                      {category.count === 1 ? "piece" : "pieces"}
+                    <span className="eyebrow text-espresso-muted">
+                      {blueprint.motifs
+                        .map(
+                          (motif) =>
+                            `${getMotifForm(motif.form)?.name ?? motif.form} — ${motif.placement}`,
+                        )
+                        .join(" · ")}
                     </span>
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Container>
+        </section>
+      ) : null}
     </>
   );
 }

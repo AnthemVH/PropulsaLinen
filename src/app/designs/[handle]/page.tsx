@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Colorways } from "@/components/brand/colorways";
 import { MotifArt } from "@/components/brand/motif-art";
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
 import {
@@ -181,6 +182,21 @@ export default async function DesignPage({
               </li>
             ))}
           </ol>
+        </div>
+      </Container>
+
+      {/* The colorways */}
+      <Container width="wide" className="pb-section">
+        <Rule />
+        <div className="py-16 md:py-24">
+          <SectionHeading
+            eyebrow="The colorways"
+            title="Three grounds, one accent"
+            lede="Ground and linework pairs are fixed — a Signature ground is never combined with Inverse linework. Where a range needs more variety than three grounds allow, the accent metal varies rather than the ground."
+          />
+          <div className="mt-14">
+            <Colorways colorways={design.colorways} />
+          </div>
         </div>
       </Container>
 

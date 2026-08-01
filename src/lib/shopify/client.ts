@@ -63,11 +63,22 @@ type FetchOptions = {
   revalidate?: number | false;
 };
 
+/**
+ * Catalogue cache lifetime.
+ *
+ * Kept short because a stale catalogue is not merely out of date — it offers
+ * variants that may no longer exist, and add-to-cart fails on them. The
+ * `/api/revalidate` webhook is the precise mechanism; this is the backstop for
+ * changes that arrive without one, which is the normal case for a
+ * print-on-demand app republishing its catalogue.
+ */
+const CATALOGUE_REVALIDATE_SECONDS = 60;
+
 export async function shopifyFetch<T>({
   query,
   variables,
   tags,
-  revalidate = 900,
+  revalidate = CATALOGUE_REVALIDATE_SECONDS,
 }: FetchOptions): Promise<T> {
   const config = getShopifyConfig();
 

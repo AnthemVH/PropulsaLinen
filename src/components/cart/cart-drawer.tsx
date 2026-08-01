@@ -19,22 +19,55 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
   const { cart, isOpen, closeCart, pending, error, run } = useCart();
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Close on Escape, and lock the page behind the drawer.
+  // Modal behaviour: lock the page behind the drawer, close on Escape, keep
+  // Tab inside the panel, and hand focus back to whatever opened it.
   useEffect(() => {
     if (!isOpen) return;
 
+    const panel = panelRef.current;
+    const opener = document.activeElement as HTMLElement | null;
+
+    const focusable = () =>
+      Array.from(
+        panel?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((element) => element.offsetParent !== null);
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeCart();
+      if (event.key === "Escape") {
+        closeCart();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const elements = focusable();
+      if (!elements.length) return;
+
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || active === panel)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
-    panelRef.current?.focus();
+    panel?.focus();
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", onKeyDown);
+      // Only pull focus back if it is still inside the closing panel.
+      if (panel?.contains(document.activeElement)) opener?.focus?.();
     };
   }, [isOpen, closeCart]);
 
@@ -45,6 +78,9 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
     <div
       className={cn("fixed inset-0 z-50", !isOpen && "pointer-events-none")}
       aria-hidden={!isOpen}
+      // Keeps the closed drawer out of the tab order and the accessibility
+      // tree — `aria-hidden` alone still leaves its links focusable.
+      inert={!isOpen}
     >
       <button
         type="button"

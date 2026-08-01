@@ -1,11 +1,14 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
+
 import {
   addCartLines,
   createCart,
   removeCartLines,
   updateCartLines,
 } from "@/lib/shopify";
+import { TAGS } from "@/lib/shopify/client";
 import type { Cart } from "@/lib/shopify/types";
 
 import { clearCartId, readCart, readCartId, writeCartId } from "./cookies";
@@ -17,12 +20,38 @@ import { clearCartId, readCart, readCartId, writeCartId } from "./cookies";
 
 export type CartResult =
   | { ok: true; cart: Cart }
-  | { ok: false; error: string };
+  | { ok: false; error: string; stale?: boolean };
+
+/**
+ * Shopify reports a variant that has been deleted, unpublished or renumbered
+ * as "does not exist". The customer is not looking at a transient failure —
+ * they are looking at a page built from cached data that is now wrong, so
+ * "please try again" would be false. Detect it, say so plainly, and expire the
+ * catalogue cache so the page corrects itself.
+ */
+function isMissingMerchandise(message: string): boolean {
+  return (
+    /does not exist/i.test(message) ||
+    /merchandise/i.test(message) ||
+    /invalid.*merchandise/i.test(message)
+  );
+}
 
 function failure(error: unknown, fallback: string): CartResult {
-  const message = error instanceof Error ? error.message : fallback;
+  const message = error instanceof Error ? error.message : String(error);
   // Storefront messages are merchant-facing; keep them out of the UI.
   console.error("[cart]", message);
+
+  if (isMissingMerchandise(message)) {
+    revalidateTag(TAGS.products, "max");
+    return {
+      ok: false,
+      stale: true,
+      error:
+        "This piece is no longer available. Refresh the page for the current range.",
+    };
+  }
+
   return { ok: false, error: fallback };
 }
 
@@ -53,10 +82,13 @@ export async function addToCart(
       try {
         return { ok: true, cart: await addCartLines(existing, lines) };
       } catch (error) {
-        console.warn(
-          "[cart] discarding unusable cart id",
-          error instanceof Error ? error.message : error,
-        );
+        const message = error instanceof Error ? error.message : String(error);
+
+        // A missing variant is not the cart's fault, so starting a new cart
+        // would fail identically. Report it instead of retrying.
+        if (isMissingMerchandise(message)) return failure(error, "");
+
+        console.warn("[cart] discarding unusable cart id", message);
       }
     }
 

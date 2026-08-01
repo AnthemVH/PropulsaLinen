@@ -4,7 +4,7 @@ export const SITE = {
   name: "Propulsa",
   tagline: "Heritage goods for the modern house",
   description:
-    "Propulsa makes heritage goods for the kitchen and table. Botanica Nocturne — an engraved olive branch drawn as a naturalist's plate — executed across ten pieces, made to order and finished by hand.",
+    "Botanica Nocturne by Propulsa — an engraved olive branch drawn as a nineteenth-century naturalist's plate, executed across the kitchen and table in three forms and three colorways. Made to order, finished by hand.",
   /** Used for canonical URLs and Open Graph. Override per environment. */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://propulsa.com",
   locale: "en_GB",
@@ -32,9 +32,13 @@ export const DESIGN_NAV: NavItem[] = DESIGN_COLLECTIONS.map((design) => ({
   description: design.tagline,
 }));
 
+/**
+ * The house runs one collection at a time, so the nav points at that
+ * collection rather than at an index of one.
+ */
 export const PRIMARY_NAV: NavItem[] = [
   { label: "Shop", href: "/shop" },
-  { label: "Collections", href: "/designs" },
+  { label: DESIGN_COLLECTIONS[0]?.name ?? "Collections", href: DESIGN_COLLECTIONS[0] ? `/designs/${DESIGN_COLLECTIONS[0].handle}` : "/designs" },
   { label: "The House", href: "/about" },
 ];
 
