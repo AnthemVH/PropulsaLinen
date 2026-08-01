@@ -4,7 +4,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/product/product-grid";
 import { Media } from "@/components/ui/media";
 import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
-import { getCollections } from "@/lib/shopify";
+import { safeGetCollections } from "@/lib/shopify/safe";
 
 export const metadata: Metadata = {
   title: "All collections",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
  * which is the house's own content model; this page is the store's own view.
  */
 export default async function CollectionsIndexPage() {
-  const collections = await getCollections();
+  const collections = await safeGetCollections();
 
   return (
     <Container width="wide" className="pt-16 pb-section md:pt-24">

@@ -4,7 +4,7 @@ import { EmptyState, ProductGrid } from "@/components/product/product-grid";
 import { FilterBar } from "@/components/shop/filter-bar";
 import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
 import { buildFacets, matchesFilters, toArray } from "@/lib/catalog";
-import { getProducts } from "@/lib/shopify";
+import { safeGetProducts } from "@/lib/shopify/safe";
 import type { SortKey } from "@/lib/shopify/types";
 
 export const metadata: Metadata = {
@@ -30,7 +30,7 @@ export default async function ShopPage({
     ? (sortParam as SortKey)
     : "featured";
 
-  const all = await getProducts({ sort });
+  const all = await safeGetProducts({ sort });
 
   const filters = {
     type: toArray(params.type),

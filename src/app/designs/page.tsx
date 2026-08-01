@@ -6,7 +6,7 @@ import { Media } from "@/components/ui/media";
 import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
 import { productsByDesign } from "@/lib/catalog";
 import { DESIGN_COLLECTIONS } from "@/lib/content/designs";
-import { getProducts } from "@/lib/shopify";
+import { safeGetProducts } from "@/lib/shopify/safe";
 
 export const metadata: Metadata = {
   title: "The collections",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DesignsPage() {
-  const products = await getProducts({ sort: "featured" });
+  const products = await safeGetProducts({ sort: "featured" });
 
   return (
     <Container width="wide" className="pt-16 pb-section md:pt-24">

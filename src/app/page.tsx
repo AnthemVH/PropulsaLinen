@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/primitives";
 import { getFeaturedDesigns } from "@/lib/content/designs";
 import { HOUSE_STANDARDS } from "@/lib/content/site";
-import { getProducts } from "@/lib/shopify";
+import { safeGetProducts } from "@/lib/shopify/safe";
 
 /**
  * The homepage is the collection.
@@ -25,7 +25,7 @@ import { getProducts } from "@/lib/shopify";
  * may take, the three colorways it may take, then the pieces.
  */
 export default async function HomePage() {
-  const products = await getProducts({ sort: "featured" });
+  const products = await safeGetProducts({ sort: "featured" });
   const collection = getFeaturedDesigns()[0];
 
   if (!collection) return null;

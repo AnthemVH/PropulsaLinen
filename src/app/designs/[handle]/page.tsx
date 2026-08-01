@@ -21,7 +21,7 @@ import {
   MOTIF_FORMS,
 } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
-import { getProducts } from "@/lib/shopify";
+import { safeGetProducts } from "@/lib/shopify/safe";
 
 type Params = { handle: string };
 
@@ -65,7 +65,7 @@ export default async function DesignPage({
   const design = getDesign(handle);
   if (!design) notFound();
 
-  const allProducts = await getProducts({ sort: "featured" });
+  const allProducts = await safeGetProducts({ sort: "featured" });
   const products = productsByDesign(allProducts, design.handle);
   const categories = deriveCategories(products).filter(
     (category) => !category.planned,

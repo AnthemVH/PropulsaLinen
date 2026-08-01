@@ -8,7 +8,8 @@ import { Header } from "@/components/layout/header";
 import { readCart } from "@/lib/cart/cookies";
 import { deriveCategories, type Category } from "@/lib/catalog";
 import { SITE } from "@/lib/content/site";
-import { getProducts, isShopifyConfigured } from "@/lib/shopify";
+import { isShopifyConfigured } from "@/lib/shopify";
+import { safeGetProducts } from "@/lib/shopify/safe";
 
 import "./globals.css";
 
@@ -66,16 +67,10 @@ export default async function RootLayout({
   const cart = await readCart();
   const shopifyConfigured = isShopifyConfigured();
 
-  // The nav lists the categories the store can actually fill. A catalogue
-  // failure must not take the whole shell down — the header falls back to the
-  // house's planned categories, all marked as in preparation.
-  let categories: Category[] = [];
-  try {
-    categories = deriveCategories(await getProducts());
-  } catch (error) {
-    console.error("[layout] could not load catalogue for navigation", error);
-    categories = deriveCategories([]);
-  }
+  // The nav lists the categories the store can actually fill. On a catalogue
+  // failure this falls back to the house's planned categories, all marked as
+  // in preparation, rather than taking the whole shell down.
+  const categories: Category[] = deriveCategories(await safeGetProducts());
 
   return (
     <html

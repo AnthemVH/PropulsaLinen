@@ -11,7 +11,11 @@ import {
 } from "@/components/ui/primitives";
 import { getDesign } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
-import { getCollection, getCollectionProducts, getCollections } from "@/lib/shopify";
+import { getCollections } from "@/lib/shopify";
+import {
+  safeGetCollection,
+  safeGetCollectionProducts,
+} from "@/lib/shopify/safe";
 import type { SortKey } from "@/lib/shopify/types";
 
 type Params = { handle: string };
@@ -32,7 +36,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { handle } = await params;
-  const collection = await getCollection(handle);
+  const collection = await safeGetCollection(handle);
   if (!collection) return {};
 
   const title = collection.seo.title ?? collection.title;
@@ -64,7 +68,7 @@ export default async function CollectionPage({
 }) {
   const { handle } = await params;
   const [collection, query] = await Promise.all([
-    getCollection(handle),
+    safeGetCollection(handle),
     searchParams,
   ]);
 
@@ -77,7 +81,7 @@ export default async function CollectionPage({
     ? (sortParam as SortKey)
     : "featured";
 
-  const products = await getCollectionProducts(collection.handle, sort);
+  const products = await safeGetCollectionProducts(collection.handle, sort);
 
   // A Shopify collection that mirrors a design collection links across to the
   // editorial page rather than duplicating its story.

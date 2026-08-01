@@ -12,7 +12,7 @@ import {
   productsInCategory,
   toArray,
 } from "@/lib/catalog";
-import { getProducts } from "@/lib/shopify";
+import { safeGetProducts } from "@/lib/shopify/safe";
 import type { SortKey } from "@/lib/shopify/types";
 
 type Params = { type: string };
@@ -25,7 +25,7 @@ export async function generateMetadata({
   const { type } = await params;
 
   try {
-    const categories = deriveCategories(await getProducts());
+    const categories = deriveCategories(await safeGetProducts());
     const category = findCategory(categories, type);
     if (!category) return {};
 
@@ -59,7 +59,7 @@ export default async function ProductTypePage({
     ? (sortParam as SortKey)
     : "featured";
 
-  const all = await getProducts({ sort });
+  const all = await safeGetProducts({ sort });
   const categories = deriveCategories(all);
   const category = findCategory(categories, type);
   if (!category) notFound();

@@ -18,7 +18,8 @@ import {
   resolveMotifs,
 } from "@/lib/catalog";
 import { SITE } from "@/lib/content/site";
-import { getProduct, getProductHandles, getProducts } from "@/lib/shopify";
+import { getProduct, getProductHandles } from "@/lib/shopify";
+import { safeGetProduct, safeGetProducts } from "@/lib/shopify/safe";
 import { formatPrice, isSizeOption } from "@/lib/utils";
 
 type Params = { handle: string };
@@ -42,7 +43,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { handle } = await params;
-  const product = await getProduct(handle);
+  const product = await safeGetProduct(handle);
   if (!product) return {};
 
   const title = product.seo.title ?? product.title;
@@ -84,7 +85,10 @@ export default async function ProductPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { handle } = await params;
-  const [product, query] = await Promise.all([getProduct(handle), searchParams]);
+  const [product, query] = await Promise.all([
+    safeGetProduct(handle),
+    searchParams,
+  ]);
 
   if (!product) notFound();
 
@@ -98,7 +102,7 @@ export default async function ProductPage({
   const materialStory = product.materialStory;
   const careInstructions = product.careInstructions;
 
-  const allProducts = await getProducts({ sort: "featured" });
+  const allProducts = await safeGetProducts({ sort: "featured" });
   const related = design
     ? productsByDesign(allProducts, design.handle).filter(
         (candidate) => candidate.id !== product.id,
