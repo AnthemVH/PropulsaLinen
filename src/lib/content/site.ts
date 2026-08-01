@@ -67,3 +67,29 @@ export const FOOTER_NAV: { title: string; items: NavItem[] }[] = [
 
 export const HOUSE_NOTE =
   "Every piece is made to order and finished by hand. Nothing is warehoused, and nothing is discounted.";
+
+/**
+ * How the house makes things.
+ *
+ * Deliberately about process and policy rather than specification: fabric
+ * weights, compositions and care are facts about an individual product and
+ * belong on that product's page, where they come from Shopify. Nothing here
+ * asserts a material claim the storefront cannot stand behind.
+ */
+export const HOUSE_STANDARDS: {
+  title: string;
+  body: string;
+}[] = [
+  {
+    title: "Made to order",
+    body: "Nothing is warehoused. Each piece is made after it is bought — slower, and better: no surplus, no clearance, and no season that ends in a sale.",
+  },
+  {
+    title: "Finished by hand",
+    body: "Every piece is made and finished by hand to order, then checked before it is packed. Where a hem, an edge or a seam is involved, a person has handled it.",
+  },
+  {
+    title: "Built for daily use",
+    body: "These are working objects, not display pieces. The tray gets carried and the tea towel goes in the wash, and they are made to be treated that way.",
+  },
+];

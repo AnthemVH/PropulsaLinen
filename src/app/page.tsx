@@ -12,7 +12,8 @@ import {
   SectionHeading,
   TextLink,
 } from "@/components/ui/primitives";
-import { getFeaturedDesigns, MOTIF_FORMS } from "@/lib/content/designs";
+import { getFeaturedDesigns } from "@/lib/content/designs";
+import { HOUSE_STANDARDS } from "@/lib/content/site";
 import { getProducts } from "@/lib/shopify";
 
 /**
@@ -102,31 +103,29 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* Three forms */}
+      {/* How it is made */}
       <section className="py-section">
         <Container width="wide">
           <SectionHeading
-            eyebrow="The motif system"
-            title="Three forms, one plate"
-            lede="Every piece is built from one of these three. Nothing is redrawn per product — which is what keeps a mug and a serving tray recognisably the same collection."
+            eyebrow="The making"
+            title="Made to be used"
+            lede="Not a print run. Each piece is made after it is ordered, to a standard set for daily use rather than for display."
           />
           <ol className="mt-14 grid gap-px border hairline bg-stone/40 md:grid-cols-3">
-            {MOTIF_FORMS.map((form, index) => (
-              <li key={form.slug} className="bg-ivory">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <MotifArt form={form.slug} colorway="signature" alt="" />
-                </div>
-                <div className="p-9 lg:p-11">
-                  <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
-                  <h3 className="mt-4 font-display text-display-sm">
-                    {form.name}
-                  </h3>
-                  <Rule className="my-6 max-w-16" />
-                  <p className="text-espresso-soft">{form.summary}</p>
-                </div>
+            {HOUSE_STANDARDS.map((standard, index) => (
+              <li key={standard.title} className="bg-ivory p-9 lg:p-11">
+                <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
+                <h3 className="mt-4 font-display text-display-sm">
+                  {standard.title}
+                </h3>
+                <Rule className="my-6 max-w-16" />
+                <p className="text-espresso-soft">{standard.body}</p>
               </li>
             ))}
           </ol>
+          <p className="mt-10 max-w-2xl text-espresso-muted">
+            Material composition, dimensions and care are listed on each piece.
+          </p>
         </Container>
       </section>
 
