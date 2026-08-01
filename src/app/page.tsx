@@ -50,7 +50,12 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-espresso/85 via-espresso/45 to-espresso/55" />
         </div>
 
-        <Container width="wide" className="relative pb-20 md:pb-28">
+        {/* Top padding clears the fixed header the hero is pulled under, so
+            short viewports (mobile landscape) cannot collide with it. */}
+        <Container
+          width="wide"
+          className="relative pt-28 pb-20 md:pt-32 md:pb-28"
+        >
           <div className="fade-up max-w-3xl">
             <Monogram size={68} className="text-gold-light" />
             <Eyebrow className="mt-6 text-gold-light">

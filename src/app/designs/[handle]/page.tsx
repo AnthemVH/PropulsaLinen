@@ -91,7 +91,11 @@ export default async function DesignPage({
           <div className="absolute inset-0 bg-gradient-to-t from-espresso/85 via-espresso/45 to-espresso/55" />
         </div>
 
-        <Container width="wide" className="relative pb-16 md:pb-24">
+        {/* Clears the fixed header this hero is pulled under. */}
+        <Container
+          width="wide"
+          className="relative pt-28 pb-16 md:pt-32 md:pb-24"
+        >
           <div className="fade-up max-w-2xl">
             <Eyebrow className="text-gold-light">
               Collection {design.reference}

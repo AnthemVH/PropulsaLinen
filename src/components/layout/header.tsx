@@ -16,6 +16,12 @@ import { cn } from "@/lib/utils";
  * solid once scrolled — the transition is deliberately slow.
  */
 export function Header({ categories }: { categories: Category[] }) {
+  // With one house collection the nav names it rather than offering an index
+  // of one. PRIMARY_NAV holds the same resolution for the mobile drawer.
+  const collectionNav = PRIMARY_NAV.find((item) =>
+    item.href.startsWith("/designs"),
+  ) ?? { label: "Collections", href: "/designs" };
+
   const productTypeNav: NavItem[] = categories.map((category) => ({
     label: category.label,
     href: `/shop/${category.slug}`,
@@ -80,8 +86,8 @@ export function Header({ categories }: { categories: Category[] }) {
                 onOpen={() => setOpenPanel("shop")}
               />
               <NavTrigger
-                label="Collections"
-                href="/designs"
+                label={collectionNav.label}
+                href={collectionNav.href}
                 open={openPanel === "designs"}
                 onOpen={() => setOpenPanel("designs")}
               />
