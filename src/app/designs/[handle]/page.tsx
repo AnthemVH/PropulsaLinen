@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { MotifArt } from "@/components/brand/motif-art";
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
-import { Media } from "@/components/ui/media";
 import {
   Container,
   Eyebrow,
@@ -76,20 +76,18 @@ export default async function DesignPage({
   // Pieces in the plan that the store has not published yet, stated plainly.
   const pending = pendingBlueprints(allProducts);
 
-  const heroImage = products[0]?.featuredImage ?? null;
-
   return (
     <>
       <section className="relative -mt-20 flex min-h-[70vh] items-end overflow-hidden md:-mt-24">
-        <div className="absolute inset-0">
-          <Media
-            image={heroImage}
-            alt={design.name}
-            sizes="100vw"
-            priority
-            quality={92}
+        <div className="absolute inset-0 bg-espresso">
+          <MotifArt
+            form="dense-field"
+            colorway="signature"
+            alt=""
+            loading="eager"
+            className="opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-espresso/75 via-espresso/35 to-espresso/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-espresso/85 via-espresso/45 to-espresso/55" />
         </div>
 
         <Container width="wide" className="relative pb-16 md:pb-24">
@@ -161,16 +159,25 @@ export default async function DesignPage({
           />
           <ol className="mt-14 grid gap-px border hairline bg-stone/40 md:grid-cols-3">
             {MOTIF_FORMS.map((form, index) => (
-              <li key={form.slug} className="bg-ivory p-9 lg:p-11">
-                <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
-                <h3 className="mt-4 font-display text-display-sm">
-                  {form.name}
-                </h3>
-                <Rule className="my-6 max-w-16" />
-                <p className="text-espresso-soft">{form.description}</p>
-                <p className="mt-5 text-sm text-espresso-muted">
-                  {form.appliedTo}
-                </p>
+              <li key={form.slug} className="bg-ivory">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <MotifArt
+                    form={form.slug}
+                    colorway="signature"
+                    alt={`${form.name} — the ${design.botanical.toLowerCase()} plate`}
+                  />
+                </div>
+                <div className="p-9 lg:p-11">
+                  <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
+                  <h3 className="mt-4 font-display text-display-sm">
+                    {form.name}
+                  </h3>
+                  <Rule className="my-6 max-w-16" />
+                  <p className="text-espresso-soft">{form.description}</p>
+                  <p className="mt-5 text-sm text-espresso-muted">
+                    {form.appliedTo}
+                  </p>
+                </div>
               </li>
             ))}
           </ol>

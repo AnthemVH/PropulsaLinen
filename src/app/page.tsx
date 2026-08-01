@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Monogram } from "@/components/brand/logo";
+import { MotifArt } from "@/components/brand/motif-art";
 import { ProductGrid } from "@/components/product/product-grid";
 import { EmptyState } from "@/components/product/product-grid";
 import { Media } from "@/components/ui/media";
@@ -22,10 +23,8 @@ export default async function HomePage() {
   const categories = deriveCategories(products);
   const lead = getFeaturedDesigns()[0];
 
-  // All imagery is real catalogue imagery. With nothing in the store there is
-  // no hero photograph, and the hero renders as a plain tonal panel rather
-  // than borrowing a stock image.
-  const heroImage = products[0]?.featuredImage ?? null;
+  // The hero is the collection plate itself — real artwork from the design
+  // package, not a stock photograph standing in for one.
   const secondaryImage =
     products[0]?.images[1] ?? products[1]?.featuredImage ?? null;
 
@@ -33,15 +32,15 @@ export default async function HomePage() {
     <>
       {/* Hero — the header floats over this. */}
       <section className="relative -mt-20 flex min-h-[92vh] items-end overflow-hidden md:-mt-24">
-        <div className="absolute inset-0">
-          <Media
-            image={heroImage}
-            alt="Propulsa"
-            sizes="100vw"
-            priority
-            quality={92}
+        <div className="absolute inset-0 bg-espresso">
+          <MotifArt
+            form="dense-field"
+            colorway="signature"
+            alt=""
+            loading="eager"
+            className="opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-espresso/75 via-espresso/35 to-espresso/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-espresso/85 via-espresso/45 to-espresso/55" />
         </div>
 
         <Container width="wide" className="relative pb-20 md:pb-28">
@@ -107,11 +106,19 @@ export default async function HomePage() {
                 className="group relative block aspect-[4/5] overflow-hidden bg-stone/30"
               >
                 <div className="absolute inset-0 transition-transform duration-[1600ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] group-hover:scale-[1.04]">
-                  <Media
-                    image={secondaryImage}
-                    alt={`${lead.name} — the engraved plate`}
-                    sizes="(min-width: 1024px) 45vw, 100vw"
-                  />
+                  {secondaryImage ? (
+                    <Media
+                      image={secondaryImage}
+                      alt={`${lead.name} — the engraved plate`}
+                      sizes="(min-width: 1024px) 45vw, 100vw"
+                    />
+                  ) : (
+                    <MotifArt
+                      form="single-sprig"
+                      colorway="inverse"
+                      alt={`${lead.name} — the single-sprig emblem`}
+                    />
+                  )}
                 </div>
               </Link>
 
@@ -159,13 +166,18 @@ export default async function HomePage() {
           />
           <ol className="mt-14 grid gap-px border hairline bg-stone/40 md:grid-cols-3">
             {MOTIF_FORMS.map((form, index) => (
-              <li key={form.slug} className="bg-ivory p-9 lg:p-11">
-                <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
-                <h3 className="mt-4 font-display text-display-sm">
-                  {form.name}
-                </h3>
-                <Rule className="my-6 max-w-16" />
-                <p className="text-espresso-soft">{form.summary}</p>
+              <li key={form.slug} className="bg-ivory">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <MotifArt form={form.slug} colorway="signature" alt="" />
+                </div>
+                <div className="p-9 lg:p-11">
+                  <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
+                  <h3 className="mt-4 font-display text-display-sm">
+                    {form.name}
+                  </h3>
+                  <Rule className="my-6 max-w-16" />
+                  <p className="text-espresso-soft">{form.summary}</p>
+                </div>
               </li>
             ))}
           </ol>

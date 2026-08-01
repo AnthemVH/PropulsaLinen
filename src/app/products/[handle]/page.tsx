@@ -24,8 +24,16 @@ import { formatPrice, isSizeOption } from "@/lib/utils";
 type Params = { handle: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
-  const handles = await getProductHandles();
-  return handles.map((handle) => ({ handle }));
+  // A catalogue outage — or a deployment whose Shopify credentials are not set
+  // yet — must not fail the build. Pages then render on demand instead of
+  // being prerendered.
+  try {
+    const handles = await getProductHandles();
+    return handles.map((handle) => ({ handle }));
+  } catch (error) {
+    console.error("[build] could not prerender product pages", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({

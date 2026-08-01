@@ -17,8 +17,13 @@ import type { SortKey } from "@/lib/shopify/types";
 type Params = { handle: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
-  const collections = await getCollections();
-  return collections.map((collection) => ({ handle: collection.handle }));
+  try {
+    const collections = await getCollections();
+    return collections.map((collection) => ({ handle: collection.handle }));
+  } catch (error) {
+    console.error("[build] could not prerender collection pages", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({

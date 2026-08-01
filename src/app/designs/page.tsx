@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { MotifArt } from "@/components/brand/motif-art";
 import { Media } from "@/components/ui/media";
 import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
 import { productsByDesign } from "@/lib/catalog";
@@ -55,12 +56,21 @@ export default async function DesignsPage() {
                 className="group relative block aspect-[5/4] overflow-hidden bg-stone/30"
               >
                 <div className="absolute inset-0 transition-transform duration-[1600ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] group-hover:scale-[1.04]">
-                  <Media
-                    image={image}
-                    alt={`${design.name} collection`}
-                    sizes="(min-width: 1024px) 48vw, 100vw"
-                    priority={index === 0}
-                  />
+                  {image ? (
+                    <Media
+                      image={image}
+                      alt={`${design.name} collection`}
+                      sizes="(min-width: 1024px) 48vw, 100vw"
+                      priority={index === 0}
+                    />
+                  ) : (
+                    <MotifArt
+                      form="dense-field"
+                      colorway="signature"
+                      alt={`${design.name} — the engraved plate`}
+                      loading={index === 0 ? "eager" : "lazy"}
+                    />
+                  )}
                 </div>
               </Link>
 
