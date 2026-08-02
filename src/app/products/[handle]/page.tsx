@@ -11,12 +11,7 @@ import {
   SectionHeading,
   TextLink,
 } from "@/components/ui/primitives";
-import {
-  getMotifForm,
-  productsByDesign,
-  resolveDesign,
-  resolveMotifs,
-} from "@/lib/catalog";
+import { productsByDesign, resolveDesign } from "@/lib/catalog";
 import { SITE } from "@/lib/content/site";
 import { getProduct, getProductHandles } from "@/lib/shopify";
 import { safeGetProduct, safeGetProducts } from "@/lib/shopify/safe";
@@ -93,7 +88,6 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const design = resolveDesign(product);
-  const motifs = resolveMotifs(product);
   const initialVariantId =
     typeof query.variant === "string" ? query.variant : undefined;
 
@@ -199,29 +193,6 @@ export default async function ProductPage({
                 <p className="text-lede text-pretty text-espresso-soft">
                   {product.description}
                 </p>
-              </section>
-            ) : null}
-
-            {motifs.length ? (
-              <section>
-                <h3 className="eyebrow text-espresso-muted">
-                  How the motif is used
-                </h3>
-                <Rule className="my-5 max-w-24" />
-                <dl className="space-y-5">
-                  {motifs.map((motif) => {
-                    const form = getMotifForm(motif.form);
-                    if (!form) return null;
-                    return (
-                      <div key={motif.form}>
-                        <dt className="font-display text-xl">{form.name}</dt>
-                        <dd className="mt-1 text-espresso-soft">
-                          {motif.placement}. {form.summary}
-                        </dd>
-                      </div>
-                    );
-                  })}
-                </dl>
               </section>
             ) : null}
 

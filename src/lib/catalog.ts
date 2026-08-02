@@ -1,13 +1,8 @@
 import {
   DESIGN_COLLECTIONS,
-  getBlueprint,
-  getMotifForm,
   getProductTypeByShopifyType,
-  MOTIF_FORMS,
   PRODUCT_TYPES,
   type DesignCollection,
-  type MotifApplication,
-  type ProductBlueprint,
 } from "@/lib/content/designs";
 import type { Product } from "@/lib/shopify/types";
 import { isColourOption, isSizeOption } from "@/lib/utils";
@@ -38,44 +33,12 @@ export function resolveDesign(product: Product): DesignCollection | undefined {
 }
 
 /**
- * Which of the three motif forms a piece carries, and where.
- *
- * Resolution order: a `motif:<form>` tag on the Shopify product, then the
- * blueprint for that exact handle. There is no looser fallback — guessing a
- * motif from a product's category would put a claim about the artwork on a
- * page where it might simply be wrong.
+ * The motif forms are no longer surfaced anywhere in the UI — the colorways
+ * carry the collection's visual system on their own. `MOTIF_FORMS` and
+ * `PRODUCT_BLUEPRINTS` stay in the content layer as brand specification, but
+ * nothing resolves them onto a product any more, so the helpers that did are
+ * gone rather than left as dead code.
  */
-export function resolveMotifs(product: Product): MotifApplication[] {
-  const tagged = product.tags
-    .filter((tag) => tag.startsWith("motif:"))
-    .map((tag) => tag.slice("motif:".length).trim());
-
-  const blueprint = getBlueprint(product.handle);
-
-  if (tagged.length) {
-    return tagged
-      .map((form) => {
-        const known = MOTIF_FORMS.find((candidate) => candidate.slug === form);
-        if (!known) return null;
-        // Prefer the blueprint's placement copy when it describes this form.
-        const placement = blueprint?.motifs.find(
-          (motif) => motif.form === known.slug,
-        )?.placement;
-        return { form: known.slug, placement: placement ?? known.appliedTo };
-      })
-      .filter((motif): motif is MotifApplication => motif !== null);
-  }
-
-  return blueprint?.motifs ?? [];
-}
-
-export function resolveBlueprint(
-  product: Product,
-): ProductBlueprint | undefined {
-  return getBlueprint(product.handle);
-}
-
-export { getMotifForm };
 
 export function productsByDesign(
   products: Product[],

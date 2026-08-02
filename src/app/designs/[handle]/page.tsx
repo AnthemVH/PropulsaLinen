@@ -15,11 +15,7 @@ import {
   productsByDesign,
   productsInCategory,
 } from "@/lib/catalog";
-import {
-  DESIGN_COLLECTIONS,
-  getDesign,
-  MOTIF_FORMS,
-} from "@/lib/content/designs";
+import { DESIGN_COLLECTIONS, getDesign } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
 import { safeGetProducts } from "@/lib/shopify/safe";
 
@@ -144,42 +140,6 @@ export default async function DesignPage({
               </p>
             ))}
           </div>
-        </div>
-      </Container>
-
-      {/* The motif system — three forms, one plate. */}
-      <Container width="wide" className="pb-section">
-        <Rule />
-        <div className="py-16 md:py-24">
-          <SectionHeading
-            eyebrow="The motif system"
-            title="Three forms, one plate"
-            lede="Every piece in the collection is built from one of these three. Nothing is redrawn per product — which is what keeps a mug and a serving tray recognisably the same collection."
-          />
-          <ol className="mt-14 grid gap-px border hairline bg-stone/40 md:grid-cols-3">
-            {MOTIF_FORMS.map((form, index) => (
-              <li key={form.slug} className="bg-ivory">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <MotifArt
-                    form={form.slug}
-                    colorway="signature"
-                    alt={`${form.name} — the ${design.botanical.toLowerCase()} plate`}
-                  />
-                </div>
-                <div className="p-9 lg:p-11">
-                  <Eyebrow>{String(index + 1).padStart(2, "0")}</Eyebrow>
-                  <h3 className="mt-4 font-display text-display-sm">
-                    {form.name}
-                  </h3>
-                  <Rule className="my-6 max-w-16" />
-                  <p className="text-espresso-soft">{form.description}</p>
-                  <p className="mt-5 text-sm text-espresso-muted">
-                    {form.appliedTo}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
         </div>
       </Container>
 
