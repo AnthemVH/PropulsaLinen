@@ -3,6 +3,9 @@
 Headless storefront for Propulsa — a heritage lifestyle house. Next.js App
 Router on Vercel, Shopify Storefront API for commerce, Shopify-hosted checkout.
 
+Currently carrying one collection: **Botanica Nocturne**, an engraved olive
+branch drawn as a nineteenth-century naturalist's plate.
+
 ## Running it
 
 ```bash
@@ -30,11 +33,16 @@ Copy `.env.example` to `.env.local` and fill in:
 | `SHOPIFY_REVALIDATION_SECRET` | Shared secret for the cache-invalidation webhook |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin for metadata, Open Graph and the sitemap |
 
-Nothing else needs to change: the same data functions serve mock and live data,
-and the cart switches from the in-memory mock to real Storefront Cart mutations
-with a live `checkoutUrl`.
+Without credentials the site still builds and serves its brand pages; the
+range simply renders empty and the reason is logged.
 
 ### Shopify-side setup
+
+**Publishing.** Products *and collections* must be published to the sales
+channel the Storefront token reads from, and a product must be Active rather
+than Draft. A product created by hand does not inherit the publishing state of
+one created by an app — an unpublished product is invisible to the storefront
+with no error.
 
 Optional metafields under the `propulsa` namespace let merchandisers write
 per-product editorial copy without a deploy:
@@ -52,10 +60,16 @@ avoid `quantityAvailable`, because requesting a field the token lacks access to
 fails the whole query, not just that field. `availableForSale` drives every
 in-stock state in the UI.
 
+**Product types.** Print suppliers set `productType` to their own product name
+("Tea Towels", "Double Oven Glove") rather than to a merchandising category.
+Each house category in `src/lib/content/designs.ts` lists the supplier values
+it absorbs. Anything unrecognised still gets a category of its own, so no
+product falls out of the navigation.
+
 **Option naming.** Size and colour options are matched by substring, so
-"Towel Size" and "Edge color" work as well as "Size" and "Colour". Colour
-values map to swatches in `src/lib/utils.ts` — add a hex there for any new
-value, or it falls back to neutral stone.
+"Tea Towel Fabric" and "Trim Color" work as well as "Size" and "Colour".
+Colour values map to swatches in `src/lib/utils.ts` — add a hex there for any
+new value, or it falls back to neutral stone.
 
 **Supplier descriptions.** Print-on-demand feeds append a stylesheet to the
 plain-text description field. `cleanDescription` in `src/lib/shopify/index.ts`
@@ -66,7 +80,7 @@ strips it before the copy reaches the PDP or the meta description.
 ```
 src/
   app/                      routes
-    page.tsx                homepage
+    page.tsx                homepage — the collection
     shop/                   all products, and /shop/[type] per category
     products/[handle]/      product detail — variants, add to cart
     collections/            Shopify collections (the store's own view)
@@ -74,7 +88,7 @@ src/
     cart/                   full-page mirror of the drawer
     api/revalidate/         Shopify webhook target
   components/
-    brand/                  monogram and wordmark
+    brand/                  monogram, motif artwork, colorways
     cart/                   context, drawer, page contents
     layout/                 header, footer
     product/                card, grid, viewer (gallery + variants)
@@ -82,9 +96,9 @@ src/
     ui/                     primitives and the image surface
   lib/
     cart/                   cookie handling and Server Actions
-    content/                designs, product types, site copy
-    shopify/                Storefront API client, queries, normalisation, mock
-    catalog.ts              facets, filtering, design resolution
+    content/                motif forms, collections, planned range, site copy
+    shopify/                Storefront client, queries, normalisation, safe reads
+    catalog.ts              categories, facets, filtering, design resolution
 ```
 
 ### The content model
@@ -101,13 +115,14 @@ its blueprint.
 **Design collections** — a collection is a motif, not a product. Botanica
 Nocturne is one botanical family (olive) and nothing else; a second botanical
 is recorded in `reservedBotanicals` so the decision is documented in code and
-cannot be picked up by accident. It is never rendered.
+cannot be picked up by accident. It is never rendered. Each collection also
+carries its permitted colorways, in which gold is always an accent and never a
+ground or a fill.
 
-**Product blueprints** — the planned range: ten pieces, each declaring its
-category and which motif form it carries *and where*. This is a specification,
-not a catalogue: it never produces a product on the site. It labels a real
-product's motif once that product exists (matched by Shopify handle), and lists
-the intended range on the collection page as work in preparation.
+**Product blueprints** — the planned range, each piece declaring its category
+and which motif form it carries *and where*. This is a specification, not a
+catalogue: it never produces a product on the site. Its job is to label a real
+product's motif once that product exists, matched by Shopify handle.
 
 It deliberately carries no prices, options, imagery or material claims. Those
 are facts about a physical product, and asserting them here would put
@@ -116,14 +131,13 @@ unverified specifications in front of a customer.
 ### Two browsing models
 
 **By product type** (`/shop/[type]`) is derived from the `productType` values
-actually present in the store, matched against the house's planned categories
-singular/plural tolerantly. A product whose type matches no planned category
-still gets a category of its own — nothing in the store can fall out of the
-navigation. Planned categories with no products show as "in preparation".
+actually present in the store, matched against the house's planned categories.
+Planned categories with no products show as "in preparation".
 
 **By design collection** (`/designs/[handle]`) is the editorial route: the
-story, then the motif system, then the pieces grouped by category. It is built
-to keep working as one motif spreads across every category the house opens.
+story, the motif system, the colorways, then the pieces grouped by category. It
+is built to keep working as one motif spreads across every category the house
+opens.
 
 A product resolves to its design by, in order: the `propulsa.design` metafield,
 a `design:<handle>` tag, a name match, and — while the house runs a single
@@ -132,16 +146,25 @@ collection — that collection by default.
 ### Data flow
 
 Everything above `src/lib/shopify` speaks normalised domain types, never raw
-Storefront API shapes — connection nesting and nullable fields are handled in
-one place, which is also what lets the mock satisfy the same contract.
+Storefront API shapes, so connection nesting and nullable fields are handled in
+one place.
 
 The Storefront client is `server-only` by construction, so importing it into a
 Client Component is a build error rather than a leaked token. The Admin API is
 never used.
 
+Reads in pages go through `lib/shopify/safe.ts`, which logs and returns empty
+on failure: a Shopify outage should not turn the brand pages into a 500. Writes
+are deliberately *not* wrapped — a cart mutation that silently does nothing is
+worse than one that reports failure.
+
 Cart mutations are Server Actions. The cart id lives in an httpOnly cookie; the
 client holds the last known cart so the header count and drawer update without
-re-rendering the tree, and every mutation returns the authoritative cart.
+re-rendering the tree, and every mutation returns the authoritative cart. A
+cart id that Shopify rejects is discarded and the add retried against a fresh
+cart; a variant that no longer exists expires the catalogue cache and refreshes
+the page rather than asking the customer to retry something that is gone.
+
 Checkout is a plain link to Shopify's hosted `checkoutUrl` — the storefront
 never touches payment details.
 
