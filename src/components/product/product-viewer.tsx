@@ -179,7 +179,7 @@ function PurchasePanel({
             ? "Select size and colour"
             : unavailable
               ? "Unavailable in this combination"
-              : "Add to selection"}
+              : "Add to cart"}
       </button>
 
       {error ? (
