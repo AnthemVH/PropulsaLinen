@@ -13,16 +13,16 @@ const SECTIONS = [
   {
     title: "Lead times",
     body: [
-      "Every piece is printed and finished after you order it. Allow 7–10 working days for production before dispatch.",
+      "Every piece is printed and finished after you order it. Most leave the workshop within one to two working days. Weekends and public holidays are not counted.",
       "If an order contains pieces from more than one collection, it ships complete rather than in parts, unless you ask otherwise.",
     ],
   },
   {
     title: "Delivery",
     body: [
-      "United Kingdom — tracked, 2–3 working days from dispatch. Complimentary on orders over £150.",
-      "European Union — tracked, 3–6 working days from dispatch.",
-      "Rest of world — tracked, 5–10 working days from dispatch.",
+      "Tracked, wherever it is going. Most orders arrive three to five days after dispatch; remote addresses can take a few days longer.",
+      "Shipping is calculated at checkout. It varies by destination and by the piece, so the amount is shown in full before you pay — there is no flat rate to quote here and no threshold that makes it free.",
+      "We do not currently ship to the United Kingdom.",
     ],
   },
   {
