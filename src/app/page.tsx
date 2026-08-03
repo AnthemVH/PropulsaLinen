@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Colorways } from "@/components/brand/colorways";
 import { Monogram } from "@/components/brand/logo";
 import { MotifArt } from "@/components/brand/motif-art";
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
@@ -21,8 +20,10 @@ import { safeGetProducts } from "@/lib/shopify/safe";
  *
  * The house runs one collection at a time, so there is nothing to gain from a
  * generic storefront that treats Botanica Nocturne as one option among many.
- * The page follows the collection's own logic: the plate, the three forms it
- * may take, the three colorways it may take, then the pieces.
+ * The page follows the collection's own logic: the plate, how the pieces are
+ * made, then the pieces themselves. The brand's internal specification — the
+ * permitted motif forms and colorways — governs what gets made and is not
+ * merchandised at the customer.
  */
 export default async function HomePage() {
   const products = await safeGetProducts({ sort: "featured" });
@@ -126,20 +127,6 @@ export default async function HomePage() {
           <p className="mt-10 max-w-2xl text-espresso-muted">
             Material composition, dimensions and care are listed on each piece.
           </p>
-        </Container>
-      </section>
-
-      {/* Three colorways */}
-      <section className="py-section">
-        <Container width="wide">
-          <SectionHeading
-            eyebrow="The colorways"
-            title="Three grounds, one accent"
-            lede="Gold is an accent in all three — a single leaf, a vein, or the hairline itself. It is never a fill and never a ground."
-          />
-          <div className="mt-14">
-            <Colorways colorways={collection.colorways} />
-          </div>
         </Container>
       </section>
 

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Colorways } from "@/components/brand/colorways";
 import { MotifArt } from "@/components/brand/motif-art";
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
 import {
@@ -48,8 +47,10 @@ export async function generateMetadata({
 }
 
 /**
- * A design collection page: the story first, the motif system second, the
- * pieces last. This is the page that has to keep working as one motif spreads
+ * A design collection page: the source and the story, then the pieces. The
+ * brand's internal specification — the motif forms, the permitted colorways —
+ * is not shown here; it governs what gets made, and the pieces are the
+ * evidence. This is the page that has to keep working as one motif spreads
  * across every category the house opens.
  */
 export default async function DesignPage({
@@ -143,21 +144,6 @@ export default async function DesignPage({
         </div>
       </Container>
 
-      {/* The colorways */}
-      <Container width="wide" className="pb-section">
-        <Rule />
-        <div className="py-16 md:py-24">
-          <SectionHeading
-            eyebrow="The colorways"
-            title="Three grounds, one accent"
-            lede="Ground and linework pairs are fixed — a Signature ground is never combined with Inverse linework. Where a range needs more variety than three grounds allow, the accent metal varies rather than the ground."
-          />
-          <div className="mt-14">
-            <Colorways colorways={design.colorways} />
-          </div>
-        </div>
-      </Container>
-
       <Container width="wide" className="pb-section">
         <Rule className="mb-16" />
 
@@ -189,7 +175,6 @@ export default async function DesignPage({
             body={`${design.name} pieces are in production. They will appear here as they are published to the store.`}
           />
         )}
-
       </Container>
     </>
   );
