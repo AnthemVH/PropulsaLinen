@@ -28,8 +28,9 @@ const SECTIONS = [
   {
     title: "Duties and taxes",
     body: [
-      "Prices shown include UK VAT. Orders outside the UK may attract import duty and local tax on arrival, which is payable by the recipient.",
-      "Where duties can be prepaid, the option is offered at checkout.",
+      "Import duty and local tax are not collected at checkout. Where a shipment attracts them, they are charged on delivery and are payable by the recipient.",
+      "What you pay us is the price shown plus shipping. Any charge beyond that is levied by the destination country and collected by the carrier, and the amount is set by that country rather than by us.",
+      "Whether anything is due depends on where the order is going and what it is worth. Many shipments attract nothing at all.",
     ],
   },
   {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { removeCartLine, updateCartLine } from "@/lib/cart/actions";
+import { DUTIES_NOTE } from "@/lib/content/site";
 import type { CartLine } from "@/lib/shopify/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { Media } from "@/components/ui/media";
@@ -163,7 +164,7 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
               </dd>
             </dl>
             <p className="mt-2 text-sm text-espresso-muted">
-              Shipping and any duties are calculated at checkout.
+              {DUTIES_NOTE.short}
             </p>
 
             <CheckoutAction

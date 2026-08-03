@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { removeCartLine, updateCartLine } from "@/lib/cart/actions";
+import { DUTIES_NOTE } from "@/lib/content/site";
 import { cn, formatPrice } from "@/lib/utils";
 import { Media } from "@/components/ui/media";
 import { Rule } from "@/components/ui/primitives";
@@ -130,7 +131,20 @@ export function CartPageContents({
             <dt>Shipping</dt>
             <dd>Calculated at checkout</dd>
           </div>
+          {/* Named in the summary rather than only in the small print: it is a
+              cost of the order, and the one the customer cannot see coming. */}
+          <div className="flex items-baseline justify-between gap-6 text-espresso-muted">
+            <dt>{DUTIES_NOTE.summaryLabel}</dt>
+            <dd className="text-right">{DUTIES_NOTE.summaryValue}</dd>
+          </div>
         </dl>
+
+        <p className="mt-5 text-sm text-espresso-muted">
+          {DUTIES_NOTE.short}{" "}
+          <Link href="/shipping-returns" className="link-underline">
+            Shipping &amp; returns
+          </Link>
+        </p>
 
         {error ? (
           <p role="alert" className="mt-6 text-sm text-gold">

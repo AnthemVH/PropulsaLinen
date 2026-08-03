@@ -69,6 +69,25 @@ export const HOUSE_NOTE =
   "Every piece is made to order and finished by hand. Nothing is warehoused, and nothing is discounted.";
 
 /**
+ * What the customer pays, and where.
+ *
+ * The store does not collect import duty or local tax at checkout, so an
+ * order can arrive with a charge attached that the storefront never quoted.
+ * Saying so before payment is the only honest option — a customer who learns
+ * it from a courier learns it too late — so the wording lives here and is
+ * used everywhere money is discussed, rather than being written twice and
+ * drifting apart.
+ */
+export const DUTIES_NOTE = {
+  /** One line, for the cart drawer and anywhere else space is short. */
+  short:
+    "Shipping is calculated at checkout. Import duty and local tax are not — where they apply, they are charged on delivery.",
+  /** The summary row on the cart page. */
+  summaryLabel: "Duty and local tax",
+  summaryValue: "Charged on delivery, if due",
+} as const;
+
+/**
  * How the house makes things.
  *
  * Deliberately about process and policy rather than specification: fabric
