@@ -212,15 +212,42 @@ function reshapeCart(raw: any): Cart {
   };
 }
 
+type CartUserError = { field?: string[] | null; message: string };
+
+/**
+ * A cart mutation Shopify rejected, carrying the errors as it reported them.
+ *
+ * The messages alone cannot be told apart: an expired cart and a withdrawn
+ * variant both come back as "... does not exist", and only `field` says which
+ * — `["cartId"]` against `["input","lines","0","merchandiseId"]`. Those two
+ * need opposite handling, so the structure is kept rather than flattened into
+ * a string for the caller to guess at.
+ */
+export class CartMutationError extends Error {
+  constructor(
+    message: string,
+    readonly userErrors: CartUserError[] = [],
+  ) {
+    super(message);
+    this.name = "CartMutationError";
+  }
+
+  /** Whether Shopify blamed the named input, e.g. `cartId`, `merchandiseId`. */
+  blames(field: string): boolean {
+    return this.userErrors.some((error) => error.field?.includes(field));
+  }
+}
+
 function unwrapCartMutation(payload: any, operation: string): Cart {
-  const errors = payload?.userErrors ?? [];
+  const errors: CartUserError[] = payload?.userErrors ?? [];
   if (errors.length) {
-    throw new Error(
-      `${operation} failed: ${errors.map((e: any) => e.message).join("; ")}`,
+    throw new CartMutationError(
+      `${operation} failed: ${errors.map((e) => e.message).join("; ")}`,
+      errors,
     );
   }
   if (!payload?.cart) {
-    throw new Error(`${operation} returned no cart`);
+    throw new CartMutationError(`${operation} returned no cart`);
   }
   return reshapeCart(payload.cart);
 }

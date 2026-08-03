@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache";
 
 import {
   addCartLines,
+  CartMutationError,
   createCart,
   removeCartLines,
   updateCartLines,
@@ -28,21 +29,34 @@ export type CartResult =
  * they are looking at a page built from cached data that is now wrong, so
  * "please try again" would be false. Detect it, say so plainly, and expire the
  * catalogue cache so the page corrects itself.
+ *
+ * It has to be told apart from an expired *cart*, which Shopify words almost
+ * identically ("The specified cart does not exist"). Matching the message
+ * caught both, so a stale cart cookie told every shopper that every piece had
+ * been withdrawn — and, being a fact about the catalogue rather than the
+ * session, it was not something they could clear by trying again. The field
+ * Shopify blames is the only reliable signal, so classify on that.
  */
-function isMissingMerchandise(message: string): boolean {
-  return (
-    /does not exist/i.test(message) ||
-    /merchandise/i.test(message) ||
-    /invalid.*merchandise/i.test(message)
-  );
+function isMissingMerchandise(error: unknown): boolean {
+  if (error instanceof CartMutationError) return error.blames("merchandiseId");
+  return /merchandise .*does not exist/i.test(messageOf(error));
+}
+
+/** A cart id Shopify will not accept: expired, cleared, or from another store. */
+function isUnusableCart(error: unknown): boolean {
+  if (error instanceof CartMutationError) return error.blames("cartId");
+  return /cart does not exist/i.test(messageOf(error));
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function failure(error: unknown, fallback: string): CartResult {
-  const message = error instanceof Error ? error.message : String(error);
   // Storefront messages are merchant-facing; keep them out of the UI.
-  console.error("[cart]", message);
+  console.error("[cart]", messageOf(error));
 
-  if (isMissingMerchandise(message)) {
+  if (isMissingMerchandise(error)) {
     revalidateTag(TAGS.products, "max");
     return {
       ok: false,
@@ -82,13 +96,19 @@ export async function addToCart(
       try {
         return { ok: true, cart: await addCartLines(existing, lines) };
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-
         // A missing variant is not the cart's fault, so starting a new cart
         // would fail identically. Report it instead of retrying.
-        if (isMissingMerchandise(message)) return failure(error, "");
+        if (isMissingMerchandise(error)) return failure(error, "");
 
-        console.warn("[cart] discarding unusable cart id", message);
+        // Start over only when Shopify blames the id itself. Anything else —
+        // a network blip, an outage mid-mutation — would abandon a cart that
+        // is still perfectly good, and the customer would watch the pieces
+        // they had already chosen disappear.
+        if (!isUnusableCart(error)) {
+          return failure(error, "We could not add that piece. Please try again.");
+        }
+
+        console.warn("[cart] discarding unusable cart id", messageOf(error));
       }
     }
 
