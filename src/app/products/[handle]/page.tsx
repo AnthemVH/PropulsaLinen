@@ -15,7 +15,7 @@ import { productsByDesign, resolveDesign } from "@/lib/catalog";
 import { SITE } from "@/lib/content/site";
 import { getProduct, getProductHandles } from "@/lib/shopify";
 import { safeGetProduct, safeGetProducts } from "@/lib/shopify/safe";
-import { formatPrice, isSizeOption } from "@/lib/utils";
+import { formatPrice, isFetchableImage, isSizeOption } from "@/lib/utils";
 
 type Params = { handle: string };
 
@@ -56,9 +56,9 @@ export async function generateMetadata({
       title: `${title} — ${SITE.name}`,
       description,
       url: `${SITE.url}/products/${product.handle}`,
-      // Mock placeholders are not real URLs, so only advertise live imagery.
+      // Only advertise imagery a scraper can actually fetch.
       images:
-        image && !image.url.startsWith("mock:")
+        isFetchableImage(image)
           ? [
               {
                 url: image.url,

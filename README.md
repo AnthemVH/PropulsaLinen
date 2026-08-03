@@ -44,6 +44,15 @@ than Draft. A product created by hand does not inherit the publishing state of
 one created by an app — an unpublished product is invisible to the storefront
 with no error.
 
+**Domains.** Shopify issues every `checkoutUrl` on the store's *primary*
+domain, and redirects the `myshopify.com` one to it, so the primary domain must
+be a domain Shopify actually serves. It cannot be the domain this storefront is
+deployed on: checkout links would come back to Vercel and land the customer on
+our 404 page at the moment they try to pay. Keep the primary domain as the
+`myshopify.com` one — or a subdomain whose DNS points at Shopify — and serve the
+storefront from the customer-facing name. `resolveCheckoutUrl` in
+`src/lib/shopify/index.ts` detects the clash, drops the dead link and logs it.
+
 Optional metafields under the `propulsa` namespace let merchandisers write
 per-product editorial copy without a deploy:
 

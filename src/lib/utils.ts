@@ -7,6 +7,17 @@ export function cn(
   return values.filter(Boolean).join(" ");
 }
 
+/**
+ * Whether an image url can actually be fetched — by next/image, or by whatever
+ * scrapes an Open Graph tag. Anything else is a placeholder standing in for a
+ * gap in the catalogue, and must be treated as no image at all.
+ */
+export function isFetchableImage<T extends { url: string }>(
+  image: T | null | undefined,
+): image is T {
+  return /^https?:\/\//.test(image?.url ?? "");
+}
+
 export function formatPrice(
   money: Money,
   options: { locale?: string } = {},

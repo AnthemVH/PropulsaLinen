@@ -9,6 +9,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { Media } from "@/components/ui/media";
 import { Rule } from "@/components/ui/primitives";
 
+import { CheckoutAction } from "./checkout-action";
 import { useCart } from "./cart-context";
 
 /**
@@ -123,7 +124,7 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
               Pieces you choose will be held here.
             </p>
             <Link
-              href="/products"
+              href="/shop"
               onClick={closeCart}
               className="eyebrow mt-2 text-gold link-underline"
             >
@@ -165,18 +166,11 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
               Shipping and any duties are calculated at checkout.
             </p>
 
-            {shopifyConfigured && cart.checkoutUrl ? (
-              <a
-                href={cart.checkoutUrl}
-                className="eyebrow mt-6 flex w-full items-center justify-center border hairline bg-espresso px-8 py-4 text-ivory transition-colors duration-500 hover:bg-gold"
-              >
-                Proceed to checkout
-              </a>
-            ) : (
-              <p className="mt-6 border hairline px-6 py-4 text-center text-sm text-espresso-muted">
-                Checkout opens once the Shopify store is connected.
-              </p>
-            )}
+            <CheckoutAction
+              checkoutUrl={cart.checkoutUrl}
+              shopifyConfigured={shopifyConfigured}
+              className="mt-6 px-6 py-4"
+            />
           </footer>
         ) : null}
       </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { Monogram } from "@/components/brand/logo";
-import { Media } from "@/components/ui/media";
+import { MotifArt } from "@/components/brand/motif-art";
 import {
   ButtonLink,
   Container,
@@ -59,17 +59,14 @@ export default function AboutPage() {
           </p>
         </header>
 
-        <div className="relative mt-16 aspect-[16/8] overflow-hidden bg-stone/30 md:mt-24">
-          <Media
-            image={{
-              url: "mock:house-atelier",
-              altText: "The atelier: folded cotton on a marble bench",
-              width: 2800,
-              height: 1400,
-            }}
-            sizes="100vw"
-            priority
-            quality={92}
+        {/* The house's own plate, not a photograph of an atelier we have not
+            photographed yet. */}
+        <div className="relative mt-16 aspect-[16/8] overflow-hidden bg-espresso md:mt-24">
+          <MotifArt
+            form="dense-field"
+            colorway="signature"
+            alt=""
+            loading="eager"
           />
         </div>
       </Container>

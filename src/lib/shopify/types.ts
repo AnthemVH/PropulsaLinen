@@ -99,7 +99,8 @@ export type CartLine = {
 
 export type Cart = {
   id: string;
-  checkoutUrl: string;
+  /** Null when the store's checkout domain is unusable — see `resolveCheckoutUrl`. */
+  checkoutUrl: string | null;
   totalQuantity: number;
   cost: {
     subtotalAmount: Money;

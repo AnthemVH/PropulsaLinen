@@ -1,7 +1,7 @@
 import NextImage from "next/image";
 
 import type { Image } from "@/lib/shopify/types";
-import { cn } from "@/lib/utils";
+import { cn, isFetchableImage } from "@/lib/utils";
 
 /**
  * Image surface for the storefront.
@@ -10,6 +10,10 @@ import { cn } from "@/lib/utils";
  * responsive `sizes` hint. When a product has no image, the slot renders as a
  * plain tonal panel rather than inventing artwork — an empty frame is honest
  * about a gap in the catalogue in a way a stock placeholder is not.
+ *
+ * Anything that is not an http(s) URL takes the same path. next/image throws on
+ * an unconfigured host, which turns one bad url into a 500 for the whole route;
+ * a catalogue gap must never be able to do that.
  *
  * Always fills its parent, so the caller owns the aspect ratio.
  */
@@ -32,7 +36,7 @@ export function Media({
   quality = 82,
   alt,
 }: MediaProps) {
-  if (!image?.url) {
+  if (!isFetchableImage(image)) {
     return (
       <div
         aria-hidden

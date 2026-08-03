@@ -7,6 +7,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { Media } from "@/components/ui/media";
 import { Rule } from "@/components/ui/primitives";
 
+import { CheckoutAction } from "./checkout-action";
 import { useCart } from "./cart-context";
 
 export function CartPageContents({
@@ -137,18 +138,11 @@ export function CartPageContents({
           </p>
         ) : null}
 
-        {shopifyConfigured && cart?.checkoutUrl ? (
-          <a
-            href={cart.checkoutUrl}
-            className="eyebrow mt-9 flex w-full items-center justify-center border hairline bg-espresso px-8 py-5 text-ivory transition-colors duration-500 hover:bg-gold"
-          >
-            Proceed to checkout
-          </a>
-        ) : (
-          <p className="mt-9 border hairline px-6 py-5 text-center text-sm text-espresso-muted">
-            Checkout opens once the Shopify store is connected.
-          </p>
-        )}
+        <CheckoutAction
+          checkoutUrl={cart?.checkoutUrl ?? null}
+          shopifyConfigured={shopifyConfigured}
+          className="mt-9 px-6 py-5"
+        />
 
         <p className="mt-6 text-sm text-espresso-muted">
           Payment is taken by Shopify on a secure hosted page. We never see your

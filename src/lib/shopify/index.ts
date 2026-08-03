@@ -142,10 +142,52 @@ function reshapeCollection(raw: any): Collection {
   };
 }
 
+/**
+ * Shopify issues `checkoutUrl` on the store's *primary* domain, whatever that
+ * domain is currently serving. When the house's own name has been repointed at
+ * this storefront — the usual step when a store goes headless — checkout links
+ * lead back here, and the customer meets our 404 at the moment they try to pay.
+ *
+ * There is no client-side repair for it: the myshopify domain 301s straight
+ * back to the primary domain, so rewriting the host only lengthens the trip to
+ * the same dead page. Drop the url instead, so the cart states plainly that
+ * checkout is unavailable, and log what has to change in the Shopify admin.
+ */
+let checkoutDomainReported = false;
+
+function resolveCheckoutUrl(raw: string | null | undefined): string | null {
+  const storefront = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!raw || !storefront) return raw ?? null;
+
+  let checkoutHost: string;
+  try {
+    checkoutHost = new URL(raw).hostname.replace(/^www\./, "");
+    if (checkoutHost !== new URL(storefront).hostname.replace(/^www\./, "")) {
+      return raw;
+    }
+  } catch {
+    return raw;
+  }
+
+  // Every cart read hits this, so say it once per process rather than burying
+  // the rest of the log under it.
+  if (!checkoutDomainReported) {
+    checkoutDomainReported = true;
+    console.error(
+      `[shopify] checkoutUrl is on ${checkoutHost}, which this storefront serves — ` +
+        "checkout would 404. Shopify's primary domain must be one Shopify itself " +
+        "serves: set it to the myshopify domain, or to a subdomain whose DNS " +
+        "points at Shopify, under Settings → Domains.",
+    );
+  }
+
+  return null;
+}
+
 function reshapeCart(raw: any): Cart {
   return {
     id: raw.id,
-    checkoutUrl: raw.checkoutUrl,
+    checkoutUrl: resolveCheckoutUrl(raw.checkoutUrl),
     totalQuantity: raw.totalQuantity ?? 0,
     cost: {
       subtotalAmount: raw.cost.subtotalAmount,

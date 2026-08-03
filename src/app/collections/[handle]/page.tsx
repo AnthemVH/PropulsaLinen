@@ -17,6 +17,7 @@ import {
   safeGetCollectionProducts,
 } from "@/lib/shopify/safe";
 import type { SortKey } from "@/lib/shopify/types";
+import { isFetchableImage } from "@/lib/utils";
 
 type Params = { handle: string };
 
@@ -51,10 +52,9 @@ export async function generateMetadata({
       title: `${title} — ${SITE.name}`,
       description,
       url: `${SITE.url}/collections/${collection.handle}`,
-      images:
-        collection.image && !collection.image.url.startsWith("mock:")
-          ? [{ url: collection.image.url, alt: collection.image.altText }]
-          : undefined,
+      images: isFetchableImage(collection.image)
+        ? [{ url: collection.image.url, alt: collection.image.altText }]
+        : undefined,
     },
   };
 }
