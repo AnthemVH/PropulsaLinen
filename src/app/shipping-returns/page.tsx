@@ -5,7 +5,7 @@ import { Container, Eyebrow, Prose, Rule } from "@/components/ui/primitives";
 export const metadata: Metadata = {
   title: "Shipping & returns",
   description:
-    "How Propulsa orders are made, dispatched and returned. Made-to-order lead times, delivery, duties and the returns window.",
+    "How Propulsa orders are made and dispatched. Made-to-order lead times, delivery, duties, the cancellation window, and what happens if a piece arrives faulty.",
   alternates: { canonical: "/shipping-returns" },
 };
 
@@ -34,17 +34,18 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Returns",
+    title: "Changing your mind",
     body: [
-      "Unused pieces may be returned within 30 days of delivery for a full refund. Linen must be unwashed and hard goods unmarked, with the house tag intact.",
-      "Write to the atelier before sending anything back and we will issue a return reference.",
-      "Because every piece is made to order, we cannot accept returns on items that have been laundered.",
+      "There is a thirty minute window after ordering in which a piece can be cancelled in full. Write to the atelier and we will refund you.",
+      "After that the piece is in production. Because nothing is made until it is bought, there is no stock for it to return to and no second customer waiting for it, so we cannot take it back simply because it is not wanted. Please order at the size and colourway you mean.",
     ],
   },
   {
     title: "If something is wrong",
     body: [
-      "A fault in the weave, the print or the finish is our error, whenever you find it. Write to us with a photograph and we will replace the piece.",
+      "A piece that arrives damaged, faulty or not what you ordered is our error and we will put it right. Write to us within fourteen days of delivery with a photograph and we will replace it or refund you in full.",
+      "That covers a fault in the weave, the print or the finish, damage in transit, and anything sent in the wrong size or colourway.",
+      "Nothing here affects the rights you have by law.",
     ],
   },
 ];
