@@ -44,19 +44,40 @@ export function ProductViewer({
       ? [product.featuredImage]
       : [];
 
-  // A colour change should move the gallery to that colour's shot, if there is
-  // one; a size change should leave the gallery alone.
-  const displayImages = gallery;
-  const activeVariantImageIndex = selectedVariant?.image
-    ? displayImages.findIndex((image) => image.url === selectedVariant.image?.url)
-    : -1;
-  const shownIndex =
-    activeVariantImageIndex >= 0 ? activeVariantImageIndex : activeImage;
+  /**
+   * A colour change should move the gallery to that colour's shot; a size
+   * change should leave the gallery alone.
+   *
+   * This follows the variant image *changing* rather than reading it every
+   * render. Deriving the shown image from the variant on each render made the
+   * thumbnails inert: the Storefront API answers `variant.image` with the
+   * product's featured image when a variant has none of its own — which is
+   * true of every variant in this catalogue — so there was always a variant
+   * image to prefer, and the click was computed and then discarded.
+   *
+   * As a side effect it also does the right thing for that fallback: an image
+   * that never changes never steals the gallery back.
+   */
+  const variantImage = selectedVariant?.image?.url ?? null;
+  const [syncedVariantImage, setSyncedVariantImage] = useState<string | null>(
+    null,
+  );
+
+  if (variantImage !== syncedVariantImage) {
+    setSyncedVariantImage(variantImage);
+    const index = variantImage
+      ? gallery.findIndex((image) => image.url === variantImage)
+      : -1;
+    if (index >= 0) setActiveImage(index);
+  }
+
+  // Guards against a catalogue change shrinking the gallery under a stored index.
+  const shownIndex = Math.min(activeImage, Math.max(gallery.length - 1, 0));
 
   return (
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-20">
       <Gallery
-        images={displayImages}
+        images={gallery}
         activeIndex={shownIndex}
         onSelect={setActiveImage}
         title={product.title}
@@ -110,8 +131,10 @@ function Gallery({
               <button
                 type="button"
                 onClick={() => onSelect(index)}
-                aria-label={`View image ${index + 1}`}
-                aria-current={index === activeIndex}
+                aria-label={`View image ${index + 1} of ${images.length}`}
+                // Absent rather than "false": aria-current="false" is announced
+                // by some screen readers as a state the control has.
+                aria-current={index === activeIndex ? "true" : undefined}
                 className={cn(
                   "relative aspect-square w-20 overflow-hidden border transition-colors duration-500",
                   index === activeIndex
