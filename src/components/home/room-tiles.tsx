@@ -34,7 +34,7 @@ export function RoomTiles({ rooms }: { rooms: RoomNav[] }) {
                 />
               </div>
             </div>
-            <h3 className="mt-4 font-display text-xl text-espresso transition-colors duration-500 group-hover:text-gold md:text-2xl">
+            <h3 className="mt-4 font-display text-xl text-espresso transition-colors duration-500 group-hover:text-gold-ink md:text-2xl">
               {nav.room.name}
             </h3>
             <p className="mt-1 hidden text-sm text-espresso-muted sm:block">

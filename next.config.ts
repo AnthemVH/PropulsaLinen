@@ -1,6 +1,44 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
+// Content Security Policy. Scripts and styles may only come from this site;
+// images also from Shopify's CDN. Inline scripts stay allowed because Next.js
+// needs them, and the nonce-based alternative would stop every page being
+// cached — a poor trade for a shop with no logins and no card details. It still
+// blocks third-party scripts, framing, plugins and forms posting elsewhere.
+// Development adds what hot reload needs.
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://cdn.shopify.com",
+  "font-src 'self'",
+  `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+].join("; ");
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
+  // Browsers only ever reach this site over HTTPS, for two years.
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  // Older browsers that ignore frame-ancestors.
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
+];
+
 const nextConfig: NextConfig = {
+  // Don't advertise the framework in every response.
+  poweredByHeader: false,
+  headers() {
+    return Promise.resolve([{ source: "/(.*)", headers: securityHeaders }]);
+  },
   images: {
     // Shopify's CDN does the resizing; see src/lib/image-loader.ts.
     loader: "custom",

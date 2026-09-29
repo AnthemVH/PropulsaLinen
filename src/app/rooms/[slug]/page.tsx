@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
 import { TypeChips } from "@/components/shop/type-chips";
+import { JsonLd } from "@/components/ui/json-ld";
 import { Media } from "@/components/ui/media";
 import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
 import { buildRoomNav, typeSlug } from "@/lib/catalog";
+import { SITE } from "@/lib/content/site";
 import { getRoom, ROOMS, roomForType } from "@/lib/rooms";
 import { safeGetProducts } from "@/lib/shopify/safe";
 
@@ -60,6 +62,16 @@ export default async function RoomPage({
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Shop", item: `${SITE.url}/shop` },
+            { "@type": "ListItem", position: 2, name: room.name, item: `${SITE.url}/rooms/${room.slug}` },
+          ],
+        }}
+      />
       <Container width="wide" className="pt-12 md:pt-16">
         <div className="grid items-end gap-10 lg:grid-cols-[1fr_minmax(0,28rem)] lg:gap-20">
           <header className="max-w-2xl">

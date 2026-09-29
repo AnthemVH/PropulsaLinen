@@ -78,8 +78,17 @@ export default async function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <CartProvider initialCart={cart}>
+          {/* First thing a keyboard reaches: jump past the header and menu. */}
+          <a
+            href="#main"
+            className="eyebrow sr-only z-50 bg-espresso px-5 py-3 text-ivory focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+          >
+            Skip to content
+          </a>
           <Header rooms={rooms} />
-          <main className="flex-1 pt-16 md:pt-20 lg:pt-32">{children}</main>
+          <main id="main" tabIndex={-1} className="flex-1 pt-16 outline-none md:pt-20 lg:pt-32">
+            {children}
+          </main>
           <Footer />
           <CartDrawer shopifyConfigured={shopifyConfigured} />
         </CartProvider>

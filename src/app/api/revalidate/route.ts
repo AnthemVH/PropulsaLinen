@@ -1,3 +1,5 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+
 import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -11,6 +13,14 @@ import { TAGS } from "@/lib/shopify/client";
  * Shopify's webhook UI can carry without extra middleware. Rotate it by
  * changing SHOPIFY_REVALIDATION_SECRET and re-saving the webhook.
  */
+// Compares in constant time, so the response time gives nothing away about how
+// much of a guessed secret was right. Hashing first makes the lengths equal,
+// which timingSafeEqual requires.
+function secretMatches(given: string | null, expected: string): boolean {
+  const hash = (value: string) => createHash("sha256").update(value).digest();
+  return timingSafeEqual(hash(given ?? ""), hash(expected));
+}
+
 export async function POST(request: NextRequest) {
   const secret = process.env.SHOPIFY_REVALIDATION_SECRET;
 
@@ -21,7 +31,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (request.nextUrl.searchParams.get("secret") !== secret) {
+  if (!secretMatches(request.nextUrl.searchParams.get("secret"), secret)) {
+    console.warn("[security] revalidate called with a wrong secret", {
+      ip: request.headers.get("x-forwarded-for") ?? "unknown",
+      topic: request.headers.get("x-shopify-topic") ?? "none",
+    });
     return NextResponse.json(
       { revalidated: false, reason: "invalid secret" },
       { status: 401 },

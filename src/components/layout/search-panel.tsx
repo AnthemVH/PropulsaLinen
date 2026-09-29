@@ -76,9 +76,10 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search for a glass, a throw, a room…"
             autoComplete="off"
+            maxLength={80}
             className="min-w-0 flex-1 border-0 border-b hairline bg-transparent py-2 font-display text-2xl text-espresso placeholder:text-espresso-muted/60 focus:border-gold focus:outline-none md:text-3xl"
           />
-          <button type="button" onClick={onClose} className="eyebrow shrink-0 text-espresso-muted hover:text-gold">
+          <button type="button" onClick={onClose} className="eyebrow shrink-0 text-espresso-muted hover:text-gold-ink">
             Close
           </button>
         </form>
@@ -97,7 +98,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className="eyebrow inline-flex items-center gap-2 border hairline px-4 py-2.5 text-espresso hover:border-gold hover:text-gold"
+                      className="eyebrow inline-flex items-center gap-2 border hairline px-4 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
                     >
                       {link.label}
                       <span className="text-espresso-muted">· {link.detail}</span>
@@ -117,7 +118,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
                       </div>
                       <div className="min-w-0">
                         <p className="eyebrow text-espresso-muted">{product.type}</p>
-                        <p className="truncate font-display text-lg text-espresso group-hover:text-gold">{product.title}</p>
+                        <p className="truncate font-display text-lg text-espresso group-hover:text-gold-ink">{product.title}</p>
                         <p className="flex items-center gap-2 text-sm text-espresso-muted">
                           {product.price}
                           {product.swatches.map((swatch) => (
@@ -140,7 +141,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
               <Link
                 href={`/search?q=${encodeURIComponent(trimmed)}`}
                 onClick={onClose}
-                className="eyebrow mt-6 inline-block text-gold link-underline"
+                className="eyebrow mt-6 inline-block text-gold-ink link-underline"
               >
                 See all results for “{trimmed}”
               </Link>

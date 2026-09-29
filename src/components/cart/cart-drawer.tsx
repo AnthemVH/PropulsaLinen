@@ -111,7 +111,7 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
           <button
             type="button"
             onClick={closeCart}
-            className="eyebrow text-espresso-muted transition-colors duration-500 hover:text-gold"
+            className="eyebrow text-espresso-muted transition-colors duration-500 hover:text-gold-ink"
           >
             Close
           </button>
@@ -127,7 +127,7 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
             <Link
               href="/shop"
               onClick={closeCart}
-              className="eyebrow mt-2 text-gold link-underline"
+              className="eyebrow mt-2 text-gold-ink link-underline"
             >
               Browse the collections
             </Link>
@@ -150,7 +150,7 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
         )}
 
         {error ? (
-          <p className="px-7 pb-3 text-sm text-gold" role="alert">
+          <p className="px-7 pb-3 text-sm text-gold-ink" role="alert">
             {error}
           </p>
         ) : null}
@@ -210,7 +210,7 @@ function CartLineRow({
         <Link
           href={`/products/${line.merchandise.product.handle}`}
           onClick={onNavigate}
-          className="font-display text-lg transition-colors duration-500 hover:text-gold"
+          className="font-display text-lg transition-colors duration-500 hover:text-gold-ink"
         >
           {line.merchandise.product.title}
         </Link>
@@ -246,7 +246,7 @@ function CartLineRow({
           type="button"
           onClick={onRemove}
           disabled={pending}
-          className="eyebrow mt-3 self-start text-espresso-muted transition-colors duration-500 hover:text-gold disabled:opacity-40"
+          className="eyebrow mt-3 self-start text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
         >
           Remove
         </button>
@@ -272,7 +272,7 @@ function QuantityButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="px-3 py-2 text-sm text-espresso-muted transition-colors duration-500 hover:text-gold disabled:opacity-40"
+      className="px-3 py-2 text-sm text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
     >
       {children}
     </button>

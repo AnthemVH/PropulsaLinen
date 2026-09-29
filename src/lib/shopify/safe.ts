@@ -6,10 +6,12 @@ import {
   getCollections,
   getProduct,
   getProducts,
+  getShopPolicies,
   isShopifyConfigured,
   predictiveSearch,
   searchProducts,
 } from "./index";
+import type { ShopPolicy } from "./index";
 import type { Collection, Product, SortKey } from "./types";
 
 /**
@@ -101,6 +103,15 @@ export async function safePredictiveSearch(query: string): Promise<Product[]> {
     return await predictiveSearch(query);
   } catch (error) {
     note("predictiveSearch", error);
+    return [];
+  }
+}
+
+export async function safeGetShopPolicies(): Promise<ShopPolicy[]> {
+  try {
+    return await getShopPolicies();
+  } catch (error) {
+    note("getShopPolicies", error);
     return [];
   }
 }

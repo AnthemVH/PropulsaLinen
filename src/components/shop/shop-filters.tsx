@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { FilterOption, ShopFacets } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
@@ -80,6 +80,8 @@ export function FilterSidebar({ facets }: { facets: ShopFacets }) {
 export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: number }) {
   const { selected, toggle, setSort, clearAll, sort } = useFilterUrl();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const openButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
 
   const active = FILTER_KEYS.flatMap((key) =>
     selected(key).map((value) => ({
@@ -97,9 +99,14 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
       if (event.key === "Escape") setDrawerOpen(false);
     };
     window.addEventListener("keydown", onKey);
+    // Move keyboard focus into the drawer, and back to the button that opened
+    // it when it closes.
+    closeButton.current?.focus();
+    const opener = openButton.current;
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
+      opener?.focus();
     };
   }, [drawerOpen]);
 
@@ -109,11 +116,12 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
     <div>
       <div className="flex items-center justify-between gap-4 border-y hairline py-4">
         <button
+          ref={openButton}
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="eyebrow text-espresso transition-colors duration-500 hover:text-gold lg:hidden"
+          className="eyebrow text-espresso transition-colors duration-500 hover:text-gold-ink lg:hidden"
         >
-          Filter & sort{active.length ? <span className="ml-2 text-gold">({active.length})</span> : null}
+          Filter & sort{active.length ? <span className="ml-2 text-gold-ink">({active.length})</span> : null}
         </button>
         <p className="eyebrow hidden text-espresso-muted lg:block">{pieces}</p>
 
@@ -129,10 +137,10 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
                 type="button"
                 onClick={() => toggle(filter.key, filter.value)}
                 aria-label={`Remove ${filter.label}`}
-                className="eyebrow flex items-center gap-2 border hairline px-3 py-2 text-espresso transition-colors duration-500 hover:border-gold hover:text-gold"
+                className="eyebrow flex items-center gap-2 border hairline px-3 py-2 text-espresso transition-colors duration-500 hover:border-gold hover:text-gold-ink"
               >
                 {filter.label}
-                <span aria-hidden className="text-gold">×</span>
+                <span aria-hidden className="text-gold-ink">×</span>
               </button>
             </li>
           ))}
@@ -140,7 +148,7 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
             <button
               type="button"
               onClick={clearAll}
-              className="eyebrow px-2 py-2 text-espresso-muted transition-colors duration-500 hover:text-gold"
+              className="eyebrow px-2 py-2 text-espresso-muted transition-colors duration-500 hover:text-gold-ink"
             >
               Clear all
             </button>
@@ -154,13 +162,15 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
         aria-modal="true"
         aria-label="Filter and sort"
         className={cn(
-          "fixed inset-0 z-50 flex flex-col bg-ivory transition-[opacity,visibility] duration-500 lg:hidden",
-          drawerOpen ? "visible opacity-100" : "invisible opacity-0",
+          "fixed inset-0 z-50 flex flex-col bg-ivory duration-500 lg:hidden",
+          // Visible at once when opening, so focus can move in straight away;
+          // hidden only after the fade when closing.
+          drawerOpen ? "visible opacity-100 transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]",
         )}
       >
         <div className="flex items-center justify-between border-b hairline px-6 py-5">
           <p className="eyebrow text-espresso">Filter & sort</p>
-          <button type="button" onClick={() => setDrawerOpen(false)} className="eyebrow text-espresso-muted">
+          <button ref={closeButton} type="button" onClick={() => setDrawerOpen(false)} className="eyebrow text-espresso-muted">
             Close
           </button>
         </div>
@@ -204,7 +214,7 @@ function SortSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="eyebrow cursor-pointer border-0 bg-transparent text-espresso focus:outline-none"
+        className="eyebrow cursor-pointer border-0 bg-transparent text-espresso"
       >
         {SORTS.map((sort) => (
           <option key={sort.value} value={sort.value}>
@@ -277,7 +287,7 @@ function FilterGroup({
                     {isOn ? "✓" : ""}
                   </span>
                 )}
-                <span className={cn("flex-1 text-espresso-soft transition-colors duration-500 group-hover:text-gold", isOn && "text-espresso")}>
+                <span className={cn("flex-1 text-espresso-soft transition-colors duration-500 group-hover:text-gold-ink", isOn && "text-espresso")}>
                   {option.label}
                 </span>
                 <span className="text-sm tabular-nums text-espresso-muted">{option.count}</span>
@@ -290,7 +300,7 @@ function FilterGroup({
         <button
           type="button"
           onClick={() => setShowAll(!showAll)}
-          className="eyebrow mt-3 text-gold"
+          className="eyebrow mt-3 text-gold-ink"
         >
           {showAll ? "Show fewer" : `Show all ${options.length}`}
         </button>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JsonLd } from "@/components/ui/json-ld";
+
 import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
 
 export const metadata: Metadata = {
@@ -107,10 +109,7 @@ export default function FaqPage() {
 
   return (
     <Container className="pt-16 pb-section md:pt-24">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       <header>
         <Eyebrow>Questions</Eyebrow>
@@ -130,7 +129,7 @@ export default function FaqPage() {
               {faq.link ? (
                 <>
                   {" "}
-                  <Link href={faq.link.href} className="link-underline text-gold">
+                  <Link href={faq.link.href} className="link-underline text-gold-ink">
                     {faq.link.label}
                   </Link>
                 </>

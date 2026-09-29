@@ -19,7 +19,9 @@ export type { SearchLink };
 
 // Suggestions for the header search box, as you type.
 export async function GET(request: NextRequest) {
-  const query = request.nextUrl.searchParams.get("q")?.trim() ?? "";
+  // Nobody types more than a few words into a shop search; cap it so the
+  // route can't be used to push long strings at Shopify.
+  const query = (request.nextUrl.searchParams.get("q") ?? "").trim().slice(0, 80);
   if (query.length < 2) {
     return NextResponse.json({ products: [], links: [] });
   }
@@ -49,5 +51,10 @@ export async function GET(request: NextRequest) {
 
   const links = matchRoomsAndTypes(catalogue, query);
 
-  return NextResponse.json({ products, links: links.slice(0, 4) });
+  // Identical searches are answered from Vercel's cache for five minutes
+  // rather than each one reaching Shopify.
+  return NextResponse.json(
+    { products, links: links.slice(0, 4) },
+    { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } },
+  );
 }

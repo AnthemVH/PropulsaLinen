@@ -4,11 +4,13 @@ export const SITE = {
   name: "Propulsa",
   tagline: "Heritage goods for the modern house",
   description:
-    "Botanica Nocturne by Propulsa — an engraved olive branch drawn as a nineteenth-century naturalist's plate, executed across the kitchen and table in three forms and three colorways. Made to order, finished by hand.",
+    "Botanica Nocturne by Propulsa — an engraved olive branch drawn as a nineteenth-century naturalist's plate, printed on bedding, table linen, glass and ceramics for every room of the house. Made to order.",
   /** Used for canonical URLs and Open Graph. Override per environment. */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://propulsa.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.propulsa.co.za",
   locale: "en_GB",
-  contactEmail: "atelier@propulsa.com",
+  // The store's own inbox, the same address Shopify puts on order emails.
+  // Not propulsa.com: that domain belongs to an unrelated company.
+  contactEmail: "admin@propulsa.co.za",
 } as const;
 
 export type NavItem = {
@@ -55,6 +57,15 @@ export const FOOTER_NAV: { title: string; items: NavItem[] }[] = [
       { label: "Shipping & returns", href: "/shipping-returns" },
       { label: "Frequently asked", href: "/faq" },
       { label: "Contact", href: "/contact" },
+    ],
+  },
+  {
+    title: "Policies",
+    items: [
+      { label: "Privacy policy", href: "/policies/privacy-policy" },
+      { label: "Terms of service", href: "/policies/terms-of-service" },
+      { label: "Refund policy", href: "/policies/refund-policy" },
+      { label: "Shipping policy", href: "/policies/shipping-policy" },
     ],
   },
 ];
@@ -107,7 +118,8 @@ export const HOUSE_STANDARDS: {
   },
 ];
 
-export const PROMISES = ["Made to order", "Finished by hand", "Shipped worldwide"];
+// "Internationally", not "worldwide": the UK market is closed.
+export const PROMISES = ["Made to order", "Finished by hand", "Shipped internationally"];
 
 // Placeholder journal entries until the first stories are written. They are
 // shown as "in preparation" and do not link anywhere.

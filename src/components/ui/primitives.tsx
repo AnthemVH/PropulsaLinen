@@ -89,11 +89,11 @@ const buttonBase =
 
 const buttonVariants = {
   solid:
-    "hairline border bg-espresso text-ivory hover:bg-gold disabled:hover:bg-espresso",
+    "hairline border bg-espresso text-ivory hover:bg-gold-ink disabled:hover:bg-espresso",
   outline:
     "hairline border text-espresso hover:border-gold hover:bg-gold/8 disabled:hover:bg-transparent",
   quiet:
-    "border-transparent px-0 py-0 text-espresso hover:text-gold",
+    "border-transparent px-0 py-0 text-espresso hover:text-gold-ink",
 } as const;
 
 export function Button({
@@ -131,7 +131,7 @@ export function TextLink({
     <Link
       {...props}
       className={cn(
-        "link-underline decoration-gold text-espresso hover:text-gold",
+        "link-underline decoration-gold text-espresso hover:text-gold-ink",
         className,
       )}
     />
@@ -149,7 +149,7 @@ export function Prose({
   return (
     <div
       className={cn(
-        "max-w-2xl space-y-6 text-espresso-soft [&_a]:text-gold [&_a:hover]:text-espresso [&_h3]:text-display-sm [&_h3]:mt-12 [&_h3]:mb-4 [&_li]:pl-1 [&_strong]:font-normal [&_strong]:text-espresso [&_ul]:list-none [&_ul]:space-y-3 [&_ul>li]:relative [&_ul>li]:pl-6 [&_ul>li]:before:absolute [&_ul>li]:before:left-0 [&_ul>li]:before:top-[0.85em] [&_ul>li]:before:h-px [&_ul>li]:before:w-3 [&_ul>li]:before:bg-gold",
+        "max-w-2xl space-y-6 text-espresso-soft [&_a]:text-gold-ink [&_a:hover]:text-espresso [&_h3]:text-display-sm [&_h3]:mt-12 [&_h3]:mb-4 [&_li]:pl-1 [&_strong]:font-normal [&_strong]:text-espresso [&_ul]:list-none [&_ul]:space-y-3 [&_ul>li]:relative [&_ul>li]:pl-6 [&_ul>li]:before:absolute [&_ul>li]:before:left-0 [&_ul>li]:before:top-[0.85em] [&_ul>li]:before:h-px [&_ul>li]:before:w-3 [&_ul>li]:before:bg-gold",
         className,
       )}
     >

@@ -10,21 +10,22 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
+// One inbox for everything; the subject line tells us which kind of letter it is.
 const ENQUIRIES = [
   {
     title: "Orders and returns",
     body: "Quote your order reference and we will answer within one working day.",
-    address: SITE.contactEmail,
+    subject: "Order enquiry",
   },
   {
     title: "Trade and hospitality",
     body: "Larger quantities, bespoke sizing and property specification.",
-    address: "trade@propulsa.com",
+    subject: "Trade enquiry",
   },
   {
     title: "Press",
     body: "Imagery, samples and collection notes for editorial use.",
-    address: "press@propulsa.com",
+    subject: "Press enquiry",
   },
 ];
 
@@ -52,10 +53,10 @@ export default function ContactPage() {
             <dd>
               <p className="text-espresso-soft">{enquiry.body}</p>
               <a
-                href={`mailto:${enquiry.address}`}
-                className="eyebrow link-underline mt-4 inline-block text-gold"
+                href={`mailto:${SITE.contactEmail}?subject=${encodeURIComponent(enquiry.subject)}`}
+                className="eyebrow link-underline mt-4 inline-block text-gold-ink"
               >
-                {enquiry.address}
+                {SITE.contactEmail}
               </a>
             </dd>
           </div>

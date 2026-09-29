@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+
+import { JsonLd } from "@/components/ui/json-ld";
 import { notFound } from "next/navigation";
 
 import { GroupGrid } from "@/components/product/product-grid";
@@ -159,23 +161,30 @@ export default async function ProductPage({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        // Product structured data — this brand leans on organic discovery.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <JsonLd data={jsonLd} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Shop", item: `${SITE.url}/shop` },
+            { "@type": "ListItem", position: 2, name: room.name, item: `${SITE.url}/rooms/${room.slug}` },
+            { "@type": "ListItem", position: 3, name: product.title, item: `${SITE.url}/products/${product.handle}` },
+          ],
+        }}
       />
 
       <Container width="wide" className="pt-10 pb-section md:pt-16">
         <nav aria-label="Breadcrumb" className="eyebrow text-espresso-muted">
           <ol className="flex flex-wrap items-center gap-2">
             <li>
-              <Link href="/shop" className="hover:text-gold">
+              <Link href="/shop" className="hover:text-gold-ink">
                 Shop
               </Link>
             </li>
             <li aria-hidden>/</li>
             <li>
-              <Link href={`/rooms/${room.slug}`} className="hover:text-gold">
+              <Link href={`/rooms/${room.slug}`} className="hover:text-gold-ink">
                 {room.name}
               </Link>
             </li>

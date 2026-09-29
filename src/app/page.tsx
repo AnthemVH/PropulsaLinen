@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Monogram } from "@/components/brand/logo";
 import { MotifArt } from "@/components/brand/motif-art";
 import { RoomTiles } from "@/components/home/room-tiles";
+import { JsonLd } from "@/components/ui/json-ld";
 import { EmptyState, GroupGrid } from "@/components/product/product-grid";
 import {
   ButtonLink,
@@ -51,8 +52,36 @@ export default async function HomePage() {
   const curated = onePerRoom(groupProducts(featured), 8);
   const newIn = groupProducts(newest).slice(0, 8);
 
+  // Tells search engines who runs the site and that it has a search box. An
+  // Organization, not a LocalBusiness: there is no shop to walk into.
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: SITE.name,
+        url: SITE.url,
+        logo: `${SITE.url}/apple-icon.png`,
+        email: SITE.contactEmail,
+        contactPoint: { "@type": "ContactPoint", email: SITE.contactEmail, contactType: "customer service" },
+      },
+      {
+        "@type": "WebSite",
+        name: SITE.name,
+        url: SITE.url,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${SITE.url}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={structuredData} />
+
       {/* 1. Hero — the current collection, under a floating header */}
       <section className="relative -mt-16 flex min-h-[64vh] items-end overflow-hidden md:-mt-20 lg:-mt-32 lg:min-h-[72vh]">
         <div className="absolute inset-0 bg-espresso">
@@ -99,7 +128,7 @@ export default async function HomePage() {
           <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-4 sm:gap-x-10 sm:py-5">
             {PROMISES.map((promise, index) => (
               <li key={promise} className="eyebrow flex items-center gap-3 text-[0.625rem] text-espresso-muted sm:gap-10 sm:text-xs">
-                {index > 0 ? <span aria-hidden className="hidden text-gold sm:inline">·</span> : null}
+                {index > 0 ? <span aria-hidden className="hidden text-gold-ink sm:inline">·</span> : null}
                 {promise}
               </li>
             ))}
@@ -194,7 +223,7 @@ export default async function HomePage() {
                 <div className="relative aspect-[3/2] overflow-hidden bg-espresso">
                   <MotifArt form={entry.art} colorway="signature" alt="" className="opacity-80" />
                 </div>
-                <Eyebrow className="mt-4 text-gold">In preparation</Eyebrow>
+                <Eyebrow className="mt-4 text-gold-ink">In preparation</Eyebrow>
                 <h3 className="mt-2 font-display text-xl text-espresso">{entry.title}</h3>
                 <p className="mt-1 text-espresso-muted">{entry.summary}</p>
               </li>
@@ -213,7 +242,7 @@ export default async function HomePage() {
             </p>
             <a
               href={`mailto:${SITE.contactEmail}?subject=${encodeURIComponent("Add me to the letters")}`}
-              className="eyebrow mt-8 inline-flex items-center justify-center border hairline px-8 py-4 text-espresso transition-colors duration-500 hover:border-gold hover:text-gold"
+              className="eyebrow mt-8 inline-flex items-center justify-center border hairline px-8 py-4 text-espresso transition-colors duration-500 hover:border-gold hover:text-gold-ink"
             >
               Write to join
             </a>

@@ -74,7 +74,7 @@ export function RecentlyViewed({ current }: { current: ViewedProduct }) {
                 <Media image={item.image} sizes="(min-width: 768px) 23vw, 48vw" />
               </div>
               <p className="eyebrow mt-4 text-espresso-muted">{item.type}</p>
-              <h3 className="mt-2 font-display text-lg leading-snug text-espresso transition-colors duration-500 group-hover:text-gold">
+              <h3 className="mt-2 font-display text-lg leading-snug text-espresso transition-colors duration-500 group-hover:text-gold-ink">
                 {item.title}
               </h3>
               <p className="mt-1 text-sm text-espresso-muted tabular-nums">{item.price}</p>

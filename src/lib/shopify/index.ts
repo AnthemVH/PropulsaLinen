@@ -11,6 +11,7 @@ import {
   getProductHandlesQuery,
   getProductQuery,
   getProductsQuery,
+  getShopPoliciesQuery,
   predictiveSearchQuery,
   searchProductsQuery,
   removeFromCartMutation,
@@ -488,4 +489,21 @@ export function storeStatus() {
     domain: config?.domain ?? null,
     apiVersion: config?.apiVersion ?? null,
   };
+}
+
+export type ShopPolicy = {
+  title: string;
+  handle: string;
+  body: string;
+};
+
+// The legal policies written in Shopify admin (Settings → Policies). They are
+// the single source: checkout links to the same text.
+export async function getShopPolicies(): Promise<ShopPolicy[]> {
+  const data = await shopifyFetch<{ shop: Record<string, ShopPolicy | null> }>({
+    query: getShopPoliciesQuery,
+    tags: [TAGS.products],
+  });
+
+  return Object.values(data.shop).filter((policy): policy is ShopPolicy => Boolean(policy?.body));
 }

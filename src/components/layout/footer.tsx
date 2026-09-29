@@ -18,13 +18,13 @@ export function Footer() {
             <p className="mt-7 text-espresso-soft">{HOUSE_NOTE}</p>
             <a
               href={`mailto:${SITE.contactEmail}`}
-              className="eyebrow mt-7 inline-block text-gold link-underline"
+              className="eyebrow mt-7 inline-block text-gold-ink link-underline"
             >
               {SITE.contactEmail}
             </a>
           </div>
 
-          <nav className="grid gap-10 sm:grid-cols-3">
+          <nav className="grid grid-cols-2 gap-10 lg:grid-cols-4">
             {FOOTER_NAV.map((group) => (
               <div key={group.title}>
                 <p className="eyebrow text-espresso-muted">{group.title}</p>
@@ -38,7 +38,7 @@ export function Footer() {
                       ) : (
                         <Link
                           href={item.href}
-                          className="text-espresso-soft transition-colors duration-500 hover:text-gold"
+                          className="text-espresso-soft transition-colors duration-500 hover:text-gold-ink"
                         >
                           {item.label}
                         </Link>

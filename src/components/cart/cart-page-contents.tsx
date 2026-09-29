@@ -28,7 +28,7 @@ export function CartPageContents({
         </p>
         <Link
           href="/shop"
-          className="eyebrow link-underline mt-8 inline-block text-gold"
+          className="eyebrow link-underline mt-8 inline-block text-gold-ink"
         >
           Browse the collections
         </Link>
@@ -58,7 +58,7 @@ export function CartPageContents({
               <div className="flex flex-wrap items-baseline justify-between gap-4">
                 <Link
                   href={`/products/${line.merchandise.product.handle}`}
-                  className="font-display text-display-sm transition-colors duration-500 hover:text-gold"
+                  className="font-display text-display-sm transition-colors duration-500 hover:text-gold-ink"
                 >
                   {line.merchandise.product.title}
                 </Link>
@@ -82,7 +82,7 @@ export function CartPageContents({
                     onClick={() =>
                       run(() => updateCartLine(line.id, line.quantity - 1))
                     }
-                    className="px-4 py-2.5 text-espresso-muted transition-colors duration-500 hover:text-gold disabled:opacity-40"
+                    className="px-4 py-2.5 text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
                   >
                     –
                   </button>
@@ -96,7 +96,7 @@ export function CartPageContents({
                     onClick={() =>
                       run(() => updateCartLine(line.id, line.quantity + 1))
                     }
-                    className="px-4 py-2.5 text-espresso-muted transition-colors duration-500 hover:text-gold disabled:opacity-40"
+                    className="px-4 py-2.5 text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
                   >
                     +
                   </button>
@@ -106,7 +106,7 @@ export function CartPageContents({
                   type="button"
                   disabled={pending}
                   onClick={() => run(() => removeCartLine(line.id))}
-                  className="eyebrow text-espresso-muted transition-colors duration-500 hover:text-gold disabled:opacity-40"
+                  className="eyebrow text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
                 >
                   Remove
                 </button>
@@ -147,7 +147,7 @@ export function CartPageContents({
         </p>
 
         {error ? (
-          <p role="alert" className="mt-6 text-sm text-gold">
+          <p role="alert" className="mt-6 text-sm text-gold-ink">
             {error}
           </p>
         ) : null}

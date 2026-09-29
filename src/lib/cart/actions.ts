@@ -19,6 +19,23 @@ import { clearCartId, readCart, readCartId, writeCartId } from "./cookies";
  * its state in one round trip rather than refetching.
  */
 
+// Server Actions can be called directly with any arguments, not only the ones
+// the page sends, so check them before they reach Shopify. Prices are never
+// sent from the browser: Shopify prices every line itself.
+const MAX_QUANTITY = 99;
+
+function isVariantId(value: unknown): value is string {
+  return typeof value === "string" && /^gid:\/\/shopify\/ProductVariant\/\d+$/.test(value);
+}
+
+function isLineId(value: unknown): value is string {
+  return typeof value === "string" && value.length < 300 && value.startsWith("gid://shopify/CartLine/");
+}
+
+function isQuantity(value: unknown, min: number): value is number {
+  return Number.isInteger(value) && (value as number) >= min && (value as number) <= MAX_QUANTITY;
+}
+
 export type CartResult =
   | { ok: true; cart: Cart }
   | { ok: false; error: string; stale?: boolean };
@@ -86,6 +103,9 @@ export async function addToCart(
   if (!merchandiseId) {
     return { ok: false, error: "Select a size and colour first." };
   }
+  if (!isVariantId(merchandiseId) || !isQuantity(quantity, 1)) {
+    return { ok: false, error: "We could not add that piece. Please try again." };
+  }
 
   const lines = [{ merchandiseId, quantity }];
 
@@ -124,6 +144,10 @@ export async function updateCartLine(
   lineId: string,
   quantity: number,
 ): Promise<CartResult> {
+  if (!isLineId(lineId) || !isQuantity(quantity, 0)) {
+    return { ok: false, error: `Quantities run from 1 to ${MAX_QUANTITY}.` };
+  }
+
   try {
     const cartId = await readCartId();
     if (!cartId) return { ok: false, error: "Your cart has expired." };
@@ -143,6 +167,10 @@ export async function updateCartLine(
 }
 
 export async function removeCartLine(lineId: string): Promise<CartResult> {
+  if (!isLineId(lineId)) {
+    return { ok: false, error: "We could not update your cart. Please refresh the page." };
+  }
+
   try {
     const cartId = await readCartId();
     if (!cartId) return { ok: false, error: "Your cart has expired." };

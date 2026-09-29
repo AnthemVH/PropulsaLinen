@@ -19,7 +19,7 @@ export function TypeChips({
       "eyebrow shrink-0 border px-4 py-2.5 transition-colors duration-500",
       isActive
         ? "border-espresso bg-espresso text-ivory"
-        : "hairline text-espresso hover:border-gold hover:text-gold",
+        : "hairline text-espresso hover:border-gold hover:text-gold-ink",
     );
 
   return (

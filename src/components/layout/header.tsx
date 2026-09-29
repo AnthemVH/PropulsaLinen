@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Logo } from "@/components/brand/logo";
 import { CartTrigger } from "@/components/cart/cart-trigger";
@@ -61,11 +61,14 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Stop the page scrolling behind the open mobile drawer.
+  // Stop the page scrolling behind the open mobile drawer, and move keyboard
+  // focus into it.
+  const drawerFirstLink = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (!drawerOpen) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    drawerFirstLink.current?.focus();
     return () => {
       document.body.style.overflow = previous;
     };
@@ -80,6 +83,10 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
       // globals.css so it wins over Tailwind utilities.
       data-floating={floating}
       onMouseLeave={() => showRoom(null)}
+      // Close the menu when keyboard focus moves out of the header.
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) showRoom(null);
+      }}
       className={cn(
         "fixed inset-x-0 top-0 z-40 transition-colors duration-700",
         floating ? "bg-transparent" : "bg-ivory/95 backdrop-blur-sm",
@@ -120,11 +127,11 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
                 onClick={() => setSearchOpen(!searchOpen)}
                 aria-label={searchOpen ? "Close search" : "Search"}
                 aria-expanded={searchOpen}
-                className="text-espresso transition-colors duration-500 hover:text-gold"
+                className="text-espresso transition-colors duration-500 hover:text-gold-ink"
               >
                 <SearchIcon />
               </button>
-              <CartTrigger className="eyebrow text-espresso transition-colors duration-500 hover:text-gold" />
+              <CartTrigger className="eyebrow text-espresso transition-colors duration-500 hover:text-gold-ink" />
             </div>
           </div>
 
@@ -142,7 +149,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
                 aria-expanded={openRoom === nav.room.slug}
                 className={cn(
                   "eyebrow transition-colors duration-500",
-                  openRoom === nav.room.slug ? "text-gold" : "text-espresso hover:text-gold",
+                  openRoom === nav.room.slug ? "text-gold-ink" : "text-espresso hover:text-gold-ink",
                 )}
               >
                 {nav.room.name}
@@ -156,6 +163,9 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
 
       {/* Desktop mega menu: every room as a column, with the hovered room's picture */}
       <div
+        // While closed, its links are out of the tab order and hidden from
+        // screen readers, not just invisible.
+        inert={!openRoom}
         className={cn(
           "hidden overflow-hidden bg-ivory transition-[max-height,opacity] duration-500 lg:block",
           openRoom
@@ -174,7 +184,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
                     onMouseEnter={() => showRoom(nav.room.slug)}
                     className={cn(
                       "font-display text-lg transition-colors duration-500",
-                      openRoom === nav.room.slug ? "text-gold" : "text-espresso hover:text-gold",
+                      openRoom === nav.room.slug ? "text-gold-ink" : "text-espresso hover:text-gold-ink",
                     )}
                   >
                     {nav.room.name}
@@ -185,7 +195,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
                         <Link
                           href={`/rooms/${nav.room.slug}?type=${type.slug}`}
                           onMouseEnter={() => showRoom(nav.room.slug)}
-                          className="text-sm text-espresso-soft transition-colors duration-500 hover:text-gold"
+                          className="text-sm text-espresso-soft transition-colors duration-500 hover:text-gold-ink"
                         >
                           {type.name}
                         </Link>
@@ -201,7 +211,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
                 <div className="relative aspect-[4/5] overflow-hidden bg-stone/30">
                   <Media image={featured.image} sizes="256px" />
                 </div>
-                <p className="mt-3 font-display text-lg text-espresso group-hover:text-gold">
+                <p className="mt-3 font-display text-lg text-espresso group-hover:text-gold-ink">
                   {featured.room.name}
                 </p>
                 <p className="mt-1 text-sm text-espresso-muted">{featured.room.description}</p>
@@ -217,13 +227,15 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
         className={cn(
           // Absolute, not fixed: the header's backdrop blur makes it the
           // containing block, so "fixed" would be sized to the header.
-          "absolute inset-x-0 top-full h-[calc(100dvh-4rem)] overflow-y-auto bg-ivory transition-[opacity,visibility] duration-500 md:h-[calc(100dvh-5rem)] lg:hidden",
-          drawerOpen ? "visible opacity-100" : "invisible opacity-0",
+          "absolute inset-x-0 top-full h-[calc(100dvh-4rem)] overflow-y-auto bg-ivory duration-500 md:h-[calc(100dvh-5rem)] lg:hidden",
+          // Visible at once when opening, so focus can move in straight away;
+          // hidden only after the fade when closing.
+          drawerOpen ? "visible opacity-100 transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]",
         )}
       >
         <Container>
           <div className="py-8">
-            <Link href="/shop" className="block py-3 font-display text-2xl text-espresso">
+            <Link ref={drawerFirstLink} href="/shop" className="block py-3 font-display text-2xl text-espresso">
               Shop all
             </Link>
 
@@ -239,12 +251,12 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
                       className="flex w-full items-center justify-between py-4 text-left font-display text-xl text-espresso"
                     >
                       {nav.room.name}
-                      <span aria-hidden className="text-gold">{isOpen ? "–" : "+"}</span>
+                      <span aria-hidden className="text-gold-ink">{isOpen ? "–" : "+"}</span>
                     </button>
                     {isOpen ? (
                       <ul className="space-y-3 pb-5 pl-1">
                         <li>
-                          <Link href={`/rooms/${nav.room.slug}`} className="eyebrow text-gold">
+                          <Link href={`/rooms/${nav.room.slug}`} className="eyebrow text-gold-ink">
                             All {nav.room.name}
                           </Link>
                         </li>
@@ -305,7 +317,7 @@ function HeaderLink({
       href={href}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "eyebrow text-espresso transition-colors duration-500 hover:text-gold",
+        "eyebrow text-espresso transition-colors duration-500 hover:text-gold-ink",
         className,
       )}
     >

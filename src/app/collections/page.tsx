@@ -28,7 +28,7 @@ export default async function CollectionsIndexPage() {
         <p className="mt-6 text-lede text-pretty text-espresso-soft">
           Each grouping as it is merchandised in the store. For the story behind
           a print, see{" "}
-          <Link href="/designs" className="text-gold link-underline">
+          <Link href="/designs" className="text-gold-ink link-underline">
             the design collections
           </Link>
           .
@@ -59,7 +59,7 @@ export default async function CollectionsIndexPage() {
                   />
                 </div>
               </div>
-              <h2 className="mt-5 font-display text-display-sm transition-colors duration-500 group-hover:text-gold">
+              <h2 className="mt-5 font-display text-display-sm transition-colors duration-500 group-hover:text-gold-ink">
                 {collection.title}
               </h2>
               {collection.description ? (

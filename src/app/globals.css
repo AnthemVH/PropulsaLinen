@@ -19,6 +19,9 @@
   --color-gold: #a67c3d;
   --color-gold-light: #c9a15e;
   --color-gold-pale: #e0cfae;
+  /* Gold for text on ivory. The brand gold is 3.3:1 there, below the 4.5:1 that
+     small text needs, so it stays for hairlines, rings and swatches only. */
+  --color-gold-ink: #886632;
 
   /* Type */
   --font-display: var(--font-cormorant), ui-serif, Georgia, serif;

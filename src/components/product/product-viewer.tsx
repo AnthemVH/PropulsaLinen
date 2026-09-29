@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { addToCart } from "@/lib/cart/actions";
 import type { Product, ProductVariant } from "@/lib/shopify/types";
@@ -183,6 +183,23 @@ function PurchasePanel({
   const unavailable = Boolean(selectedVariant && !selectedVariant.availableForSale);
   const incomplete = !selectedVariant;
 
+  const addToCartNow = () => {
+    if (!selectedVariant) return;
+    run(() => addToCart(selectedVariant.id, 1), { open: true });
+  };
+
+  // On phones the gallery fills the first screen, so the add-to-cart button
+  // starts out of sight. A slim bar stands in for it until it scrolls into view.
+  const mainButton = useRef<HTMLButtonElement>(null);
+  const [mainButtonVisible, setMainButtonVisible] = useState(true);
+  useEffect(() => {
+    const button = mainButton.current;
+    if (!button) return;
+    const observer = new IntersectionObserver(([entry]) => setMainButtonVisible(entry.isIntersecting));
+    observer.observe(button);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div>
       <p className="font-display text-3xl tabular-nums">{formatPrice(price)}</p>
@@ -203,13 +220,11 @@ function PurchasePanel({
       <Rule className="my-9" />
 
       <button
+        ref={mainButton}
         type="button"
         disabled={pending || incomplete || unavailable}
-        onClick={() => {
-          if (!selectedVariant) return;
-          run(() => addToCart(selectedVariant.id, 1), { open: true });
-        }}
-        className="eyebrow flex w-full items-center justify-center border hairline bg-espresso px-8 py-5 text-ivory transition-colors duration-500 hover:bg-gold disabled:cursor-not-allowed disabled:bg-stone-dark disabled:text-ivory-light"
+        onClick={addToCartNow}
+        className="eyebrow flex w-full items-center justify-center border hairline bg-espresso px-8 py-5 text-ivory transition-colors duration-500 hover:bg-gold-ink disabled:cursor-not-allowed disabled:bg-stone-dark disabled:text-ivory-light"
       >
         {pending
           ? "Adding…"
@@ -221,7 +236,7 @@ function PurchasePanel({
       </button>
 
       {error ? (
-        <p role="alert" className="mt-4 text-sm text-gold">
+        <p role="alert" className="mt-4 text-sm text-gold-ink">
           {error}
         </p>
       ) : null}
@@ -231,6 +246,36 @@ function PurchasePanel({
           Reference {selectedVariant.sku}
         </p>
       ) : null}
+
+      {/* Phone-only bar. With options still to choose, it takes you to them
+          rather than adding something you didn't pick. */}
+      <div
+        aria-hidden={mainButtonVisible}
+        inert={mainButtonVisible}
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-30 border-t hairline bg-ivory/95 backdrop-blur-sm transition-transform duration-500 lg:hidden",
+          mainButtonVisible ? "translate-y-full" : "translate-y-0",
+        )}
+      >
+        <div className="flex items-center gap-4 px-6 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-lg leading-tight text-espresso">{product.title}</p>
+            <p className="text-sm tabular-nums text-espresso-muted">{formatPrice(price)}</p>
+          </div>
+          <button
+            type="button"
+            disabled={pending || unavailable}
+            onClick={() =>
+              incomplete
+                ? mainButton.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+                : addToCartNow()
+            }
+            className="eyebrow shrink-0 bg-espresso px-5 py-3.5 text-ivory transition-colors duration-500 hover:bg-gold-ink disabled:bg-stone-dark"
+          >
+            {pending ? "Adding…" : incomplete ? "Choose options" : unavailable ? "Unavailable" : "Add to cart"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

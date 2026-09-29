@@ -36,8 +36,9 @@ export function GroupCard({
         <div className="relative aspect-[4/5] overflow-hidden bg-stone/30">
           <Media image={product.featuredImage} sizes={sizes} priority={priority} />
           {hovered && hoverImage ? (
-            <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
-              <Media image={hoverImage} sizes={sizes} />
+            <div aria-hidden className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
+              {/* A second view of the same piece: decorative, so it isn't read out twice. */}
+              <Media image={hoverImage} sizes={sizes} alt="" />
             </div>
           ) : null}
         </div>
@@ -45,7 +46,7 @@ export function GroupCard({
         <p className="eyebrow mt-4 text-espresso-muted">
           {typeName(group.productType)}
         </p>
-        <h3 className="mt-2 font-display text-lg leading-snug text-espresso transition-colors duration-500 group-hover:text-gold md:text-xl">
+        <h3 className="mt-2 font-display text-lg leading-snug text-espresso transition-colors duration-500 group-hover:text-gold-ink md:text-xl">
           {group.title}
         </h3>
         <p className="mt-1 text-sm text-espresso-muted tabular-nums">

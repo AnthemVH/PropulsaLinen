@@ -185,3 +185,14 @@ export const searchProductsQuery = /* GraphQL */ `
   }
   ${productCardFragment}
 `;
+
+export const getShopPoliciesQuery = /* GraphQL */ `
+  query getShopPolicies {
+    shop {
+      privacyPolicy { title handle body }
+      refundPolicy { title handle body }
+      shippingPolicy { title handle body }
+      termsOfService { title handle body }
+    }
+  }
+`;

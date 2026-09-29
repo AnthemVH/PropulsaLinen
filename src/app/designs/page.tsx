@@ -79,7 +79,7 @@ export default async function DesignsPage() {
                 <h2 className="mt-4 text-display-md">
                   <Link
                     href={`/designs/${design.handle}`}
-                    className="transition-colors duration-500 hover:text-gold"
+                    className="transition-colors duration-500 hover:text-gold-ink"
                   >
                     {design.name}
                   </Link>
@@ -98,7 +98,7 @@ export default async function DesignsPage() {
 
                 <Link
                   href={`/designs/${design.handle}`}
-                  className="eyebrow link-underline mt-9 inline-block text-gold"
+                  className="eyebrow link-underline mt-9 inline-block text-gold-ink"
                 >
                   Enter {design.name}
                 </Link>

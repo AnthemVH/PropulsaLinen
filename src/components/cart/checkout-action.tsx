@@ -24,7 +24,7 @@ export function CheckoutAction({
       <a
         href={checkoutUrl}
         className={cn(
-          "eyebrow flex w-full items-center justify-center border hairline bg-espresso text-ivory transition-colors duration-500 hover:bg-gold",
+          "eyebrow flex w-full items-center justify-center border hairline bg-espresso text-ivory transition-colors duration-500 hover:bg-gold-ink",
           className,
         )}
       >
