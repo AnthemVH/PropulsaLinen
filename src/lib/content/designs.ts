@@ -73,113 +73,13 @@ export function getMotifForm(slug: MotifFormSlug): MotifForm | undefined {
 /* 2. Product categories                                                       */
 /* -------------------------------------------------------------------------- */
 
+// Used by the product blueprints below. The shop's own browsing now runs on
+// rooms (src/lib/rooms.ts), so this is brand specification, not navigation.
 export type ProductTypeSlug =
   | "kitchen-linen"
   | "table"
   | "serving"
   | "storage";
-
-export type ProductTypeDefinition = {
-  slug: ProductTypeSlug;
-  /** Canonical Shopify `productType` for pieces in this category. */
-  shopifyProductType: string;
-  /**
-   * Other `productType` values that belong in this category.
-   *
-   * Print suppliers set this field to their own product name — "Tea Towels",
-   * "Double Oven Glove" — rather than to a merchandising category. Without
-   * aliases every supplier product becomes its own one-item category and the
-   * navigation fragments. Matching is singular/plural and punctuation
-   * tolerant, so only genuinely new words need adding here.
-   */
-  matches: string[];
-  name: string;
-  plural: string;
-  blurb: string;
-};
-
-export const PRODUCT_TYPES: ProductTypeDefinition[] = [
-  {
-    slug: "kitchen-linen",
-    shopifyProductType: "Kitchen Linen",
-    matches: [
-      "Tea Towel",
-      "Apron",
-      "Oven Glove",
-      "Double Oven Glove",
-      "Pot Holder",
-      "Napkin",
-      "Table Linen",
-    ],
-    name: "Kitchen linen",
-    plural: "Kitchen Linen",
-    blurb:
-      "Cloth for the working end of the house — tea towels, aprons and the things that meet a hot pan.",
-  },
-  {
-    slug: "table",
-    shopifyProductType: "Table",
-    matches: ["Placemat", "Coaster", "Mug", "Cup", "Tableware"],
-    name: "Table",
-    plural: "The Table",
-    blurb:
-      "What is set down before anyone sits: mats, coasters and the cup in your hand.",
-  },
-  {
-    slug: "serving",
-    shopifyProductType: "Serving",
-    matches: [
-      "Chopping Board",
-      "Cutting Board",
-      "Serving Tray",
-      "Serving Board",
-      "Tray",
-    ],
-    name: "Serving",
-    plural: "Serving",
-    blurb: "Boards and trays — the pieces that carry something to the table.",
-  },
-  {
-    slug: "storage",
-    shopifyProductType: "Storage",
-    matches: ["Storage Tin", "Tin", "Jar", "Canister"],
-    name: "Storage",
-    plural: "Storage",
-    blurb: "Tins and vessels for the shelf that stays on show.",
-  },
-];
-
-export function getProductType(slug: string): ProductTypeDefinition | undefined {
-  return PRODUCT_TYPES.find((type) => type.slug === slug);
-}
-
-/**
- * Matches Shopify's `productType` to a category, tolerating singular/plural.
- * Merchandisers type this field by hand, and an exact match would drop a
- * product out of its own category listing with no visible error.
- */
-export function getProductTypeByShopifyType(
-  shopifyProductType: string,
-): ProductTypeDefinition | undefined {
-  const normalise = (value: string) =>
-    value
-      .trim()
-      .toLowerCase()
-      .replace(/[\s_-]+/g, " ")
-      .replace(/s$/, "");
-
-  const needle = normalise(shopifyProductType);
-  if (!needle) return undefined;
-
-  return PRODUCT_TYPES.find((type) =>
-    [
-      type.shopifyProductType,
-      type.plural,
-      type.slug,
-      ...type.matches,
-    ].some((candidate) => normalise(candidate) === needle),
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /* 3. Design collections                                                       */

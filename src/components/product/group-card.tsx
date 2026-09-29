@@ -22,17 +22,20 @@ export function GroupCard({
   className?: string;
 }) {
   const [active, setActive] = useState(0);
+  // The second photo only loads once the card is hovered, so a grid of fifty
+  // cards doesn't download a hundred images up front.
+  const [hovered, setHovered] = useState(false);
   const product = group.items[active].product;
   const hoverImage = product.images[1] ?? null;
   const price = formatPrice(group.minPrice);
   const hasSwatches = group.items.some((item) => item.colourway);
 
   return (
-    <article className={cn("group", className)}>
+    <article className={cn("group", className)} onMouseEnter={() => setHovered(true)}>
       <Link href={`/products/${product.handle}`} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-stone/30">
           <Media image={product.featuredImage} sizes={sizes} priority={priority} />
-          {hoverImage ? (
+          {hovered && hoverImage ? (
             <div className="absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
               <Media image={hoverImage} sizes={sizes} />
             </div>

@@ -19,12 +19,6 @@ export type NavItem = {
   description?: string;
 };
 
-/**
- * Browsing model 1 — by product type. Built at request time from the live
- * catalogue (see `deriveCategories`), so the nav can never advertise a
- * category the store cannot fill.
- */
-
 /** Browsing model 2 — by design collection, which spans product types. */
 export const DESIGN_NAV: NavItem[] = DESIGN_COLLECTIONS.map((design) => ({
   label: design.name,

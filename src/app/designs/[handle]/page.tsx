@@ -9,11 +9,8 @@ import {
   Rule,
   SectionHeading,
 } from "@/components/ui/primitives";
-import {
-  deriveCategories,
-  productsByDesign,
-  productsInCategory,
-} from "@/lib/catalog";
+import { buildRoomNav, productsByDesign } from "@/lib/catalog";
+import { roomForType } from "@/lib/rooms";
 import { DESIGN_COLLECTIONS, getDesign } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
 import { safeGetProducts } from "@/lib/shopify/safe";
@@ -64,9 +61,7 @@ export default async function DesignPage({
 
   const allProducts = await safeGetProducts({ sort: "featured" });
   const products = productsByDesign(allProducts, design.handle);
-  const categories = deriveCategories(products).filter(
-    (category) => !category.planned,
-  );
+  const rooms = buildRoomNav(products);
 
   return (
     <>
@@ -149,21 +144,19 @@ export default async function DesignPage({
 
         {products.length ? (
           <div className="space-y-24">
-            {categories.map((category) => {
-              const categoryProducts = productsInCategory(
-                products,
-                category.slug,
+            {rooms.map((nav) => {
+              const roomProducts = products.filter(
+                (product) => roomForType(product.productType).slug === nav.room.slug,
               );
-              if (!categoryProducts.length) return null;
 
               return (
-                <section key={category.slug}>
+                <section key={nav.room.slug}>
                   <SectionHeading
                     eyebrow={`${design.name} in`}
-                    title={category.label}
+                    title={nav.room.name}
                   />
                   <div className="mt-14">
-                    <ProductGrid products={categoryProducts} />
+                    <ProductGrid products={roomProducts} />
                   </div>
                 </section>
               );

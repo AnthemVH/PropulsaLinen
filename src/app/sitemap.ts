@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { deriveCategories } from "@/lib/catalog";
+import { buildRoomNav } from "@/lib/catalog";
 import { DESIGN_COLLECTIONS } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
 import { getCollections, getProductHandles, getProducts } from "@/lib/shopify";
@@ -15,10 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getProducts().catch(() => []),
   ]);
 
-  // Only categories the store can actually fill belong in a sitemap.
-  const categories = deriveCategories(products).filter(
-    (category) => !category.planned,
-  );
+  // Only rooms that have products belong in a sitemap.
+  const rooms = buildRoomNav(products);
 
   const url = (path: string) => `${SITE.url}${path}`;
 
@@ -35,8 +33,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...statics,
-    ...categories.map((category) => ({
-      url: url(`/shop/${category.slug}`),
+    ...rooms.map((nav) => ({
+      url: url(`/rooms/${nav.room.slug}`),
       priority: 0.8,
     })),
     ...DESIGN_COLLECTIONS.map((design) => ({
