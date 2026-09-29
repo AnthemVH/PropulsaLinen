@@ -10,7 +10,9 @@ const isDev = process.env.NODE_ENV === "development";
 // Development adds what hot reload needs.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // Vercel Analytics loads from this site in production; in development it
+  // fetches a debug build from Vercel's script host.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://cdn.shopify.com",
   "font-src 'self'",

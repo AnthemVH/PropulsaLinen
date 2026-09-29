@@ -60,10 +60,17 @@ export default async function HomePage() {
       {
         "@type": "Organization",
         name: SITE.name,
+        legalName: SITE.legalName,
         url: SITE.url,
         logo: `${SITE.url}/apple-icon.png`,
         email: SITE.contactEmail,
-        contactPoint: { "@type": "ContactPoint", email: SITE.contactEmail, contactType: "customer service" },
+        telephone: SITE.phone,
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: SITE.contactEmail,
+          telephone: SITE.phone,
+          contactType: "customer service",
+        },
       },
       {
         "@type": "WebSite",

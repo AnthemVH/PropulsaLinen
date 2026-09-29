@@ -55,7 +55,11 @@ export function Footer() {
 
         <div className="flex flex-col gap-3 py-8 text-sm text-espresso-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+            © {new Date().getFullYear()} {SITE.legalName}. Registration no.{" "}
+            {SITE.registrationNumber}.{" "}
+            <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="whitespace-nowrap hover:text-gold-ink">
+              {SITE.phone}
+            </a>
           </p>
           <p className="eyebrow">{SITE.tagline}</p>
         </div>

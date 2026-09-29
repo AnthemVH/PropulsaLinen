@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, EB_Garamond, Pinyon_Script } from "next/font/google";
 
@@ -91,6 +92,8 @@ export default async function RootLayout({
           </main>
           <Footer />
           <CartDrawer shopifyConfigured={shopifyConfigured} />
+          {/* Cookieless page-view counts; see the privacy policy's "On this website". */}
+          <Analytics />
         </CartProvider>
       </body>
     </html>

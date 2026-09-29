@@ -11,6 +11,11 @@ export const SITE = {
   // The store's own inbox, the same address Shopify puts on order emails.
   // Not propulsa.com: that domain belongs to an unrelated company.
   contactEmail: "admin@propulsa.co.za",
+  // Business details South African law (ECTA s43) asks online shops to show.
+  // There is deliberately no physical address.
+  legalName: "Propulsa",
+  registrationNumber: "2025/407937/07",
+  phone: "+27 72 592 1591",
 } as const;
 
 export type NavItem = {

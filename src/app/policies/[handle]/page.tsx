@@ -70,10 +70,16 @@ function OnThisWebsite() {
         <p>
           This website sets one cookie of its own, <strong>propulsa_cart_id</strong>, which remembers
           what is in your cart. It is needed for the cart to work, holds no personal information, and
-          expires after thirty days. We do not use analytics, advertising or tracking cookies.
+          expires after thirty days. We do not use advertising or tracking cookies.
         </p>
         <p>
-          It also remembers the pieces you have recently looked at, in your own browser&apos;s storage.
+          To understand which pages are useful, we count visits with Vercel Web Analytics. It sets no
+          cookies and stores nothing on your device. It records the page visited, the referring site,
+          and your broad location, device and browser type, and it does not identify you or follow you
+          to other websites.
+        </p>
+        <p>
+          The site also remembers the pieces you have recently looked at, in your own browser&apos;s storage.
           That list never leaves your device, and clearing your browser&apos;s site data removes it.
         </p>
         <p>

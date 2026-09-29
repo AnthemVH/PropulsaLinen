@@ -67,6 +67,19 @@ export default function ContactPage() {
         Correspondence is read Monday to Friday. Anything sent over a weekend is
         answered on the Monday.
       </p>
+
+      <dl className="mt-12 grid max-w-xl gap-x-8 gap-y-3 text-espresso-soft sm:grid-cols-[auto_1fr]">
+        <dt className="eyebrow text-espresso-muted">Telephone</dt>
+        <dd>
+          <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:text-gold-ink">
+            {SITE.phone}
+          </a>
+        </dd>
+        <dt className="eyebrow text-espresso-muted">Company</dt>
+        <dd>
+          {SITE.legalName}, registered in South Africa, no. {SITE.registrationNumber}
+        </dd>
+      </dl>
     </Container>
   );
 }
