@@ -292,3 +292,32 @@ export function buildRoomNav(products: Product[]): RoomNav[] {
     };
   }).filter((nav) => nav.types.length > 0);
 }
+
+export type SearchLink = {
+  label: string;
+  detail: string;
+  href: string;
+};
+
+// Rooms and product types whose names match a search, e.g. "duvet" or "bedroom".
+export function matchRoomsAndTypes(products: Product[], query: string): SearchLink[] {
+  const lower = query.trim().toLowerCase();
+  if (!lower) return [];
+
+  const links: SearchLink[] = [];
+  for (const nav of buildRoomNav(products)) {
+    if (nav.room.name.toLowerCase().includes(lower)) {
+      links.push({ label: nav.room.name, detail: "Room", href: `/rooms/${nav.room.slug}` });
+    }
+    for (const type of nav.types) {
+      if (type.name.toLowerCase().includes(lower)) {
+        links.push({
+          label: type.name,
+          detail: nav.room.name,
+          href: `/rooms/${nav.room.slug}?type=${type.slug}`,
+        });
+      }
+    }
+  }
+  return links;
+}

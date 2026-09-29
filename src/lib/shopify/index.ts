@@ -11,6 +11,8 @@ import {
   getProductHandlesQuery,
   getProductQuery,
   getProductsQuery,
+  predictiveSearchQuery,
+  searchProductsQuery,
   removeFromCartMutation,
   updateCartMutation,
 } from "./queries";
@@ -321,6 +323,28 @@ export async function getProducts(
     if (!data.products.pageInfo.hasNextPage) return products;
     after = data.products.pageInfo.endCursor;
   }
+}
+
+// As-you-type suggestions for the header search. Matches partial words.
+export async function predictiveSearch(query: string, limit = 10): Promise<Product[]> {
+  const data = await shopifyFetch<{ predictiveSearch: { products: unknown[] } | null }>({
+    query: predictiveSearchQuery,
+    variables: { query, limit },
+    tags: [TAGS.products],
+  });
+
+  return (data.predictiveSearch?.products ?? []).map(reshapeProduct);
+}
+
+// Full results for the /search page.
+export async function searchProducts(query: string): Promise<Product[]> {
+  const data = await shopifyFetch<{ search: { nodes: unknown[] } }>({
+    query: searchProductsQuery,
+    variables: { query, first: PAGE_SIZE },
+    tags: [TAGS.products],
+  });
+
+  return data.search.nodes.map(reshapeProduct);
 }
 
 export async function getProductHandles(): Promise<string[]> {

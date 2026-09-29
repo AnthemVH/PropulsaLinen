@@ -12,6 +12,8 @@ import type { RoomNav } from "@/lib/catalog";
 import { DESIGN_NAV } from "@/lib/content/site";
 import { cn } from "@/lib/utils";
 
+import { SearchPanel } from "./search-panel";
+
 const collection = DESIGN_NAV[0];
 
 export function Header({ rooms }: { rooms: RoomNav[] }) {
@@ -26,13 +28,19 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
   // closes them without needing an effect.
   const [panel, setPanel] = useState({ path: pathname, room: null as string | null });
   const [drawer, setDrawer] = useState({ path: pathname, open: false });
+  const [search, setSearch] = useState({ path: pathname, open: false });
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const openRoom = panel.path === pathname ? panel.room : null;
   const drawerOpen = drawer.open && drawer.path === pathname;
+  const searchOpen = search.open && search.path === pathname;
 
   const showRoom = (room: string | null) => setPanel({ path: pathname, room });
   const setDrawerOpen = (open: boolean) => setDrawer({ path: pathname, open });
+  const setSearchOpen = (open: boolean) => {
+    setSearch({ path: pathname, open });
+    if (open) setDrawerOpen(false);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -46,6 +54,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
       if (event.key === "Escape") {
         setPanel((current) => ({ ...current, room: null }));
         setDrawer((current) => ({ ...current, open: false }));
+        setSearch((current) => ({ ...current, open: false }));
       }
     };
     window.addEventListener("keydown", onKey);
@@ -62,7 +71,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
     };
   }, [drawerOpen]);
 
-  const floating = overHero && !scrolled && !openRoom && !drawerOpen;
+  const floating = overHero && !scrolled && !openRoom && !drawerOpen && !searchOpen;
   const featured = rooms.find((nav) => nav.room.slug === openRoom) ?? null;
 
   return (
@@ -79,7 +88,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
       <div
         className={cn(
           "border-b transition-colors duration-700",
-          scrolled || openRoom || drawerOpen ? "hairline" : "border-transparent",
+          scrolled || openRoom || drawerOpen || searchOpen ? "hairline" : "border-transparent",
         )}
       >
         <Container width="wide">
@@ -106,13 +115,15 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
             <Logo monogramSize={30} />
 
             <div className="flex items-center justify-end gap-6 md:gap-8">
-              <Link
-                href="/search"
-                aria-label="Search"
+              <button
+                type="button"
+                onClick={() => setSearchOpen(!searchOpen)}
+                aria-label={searchOpen ? "Close search" : "Search"}
+                aria-expanded={searchOpen}
                 className="text-espresso transition-colors duration-500 hover:text-gold"
               >
                 <SearchIcon />
-              </Link>
+              </button>
               <CartTrigger className="eyebrow text-espresso transition-colors duration-500 hover:text-gold" />
             </div>
           </div>
@@ -140,6 +151,8 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
           </nav>
         </Container>
       </div>
+
+      {searchOpen ? <SearchPanel onClose={() => setSearchOpen(false)} /> : null}
 
       {/* Desktop mega menu: every room as a column, with the hovered room's picture */}
       <div

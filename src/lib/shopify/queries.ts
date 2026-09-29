@@ -161,3 +161,27 @@ export const removeFromCartMutation = /* GraphQL */ `
   }
   ${cartFragment}
 `;
+
+export const predictiveSearchQuery = /* GraphQL */ `
+  query predictiveSearch($query: String!, $limit: Int!) {
+    predictiveSearch(query: $query, limit: $limit, types: [PRODUCT]) {
+      products {
+        ...ProductCardFields
+      }
+    }
+  }
+  ${productCardFragment}
+`;
+
+export const searchProductsQuery = /* GraphQL */ `
+  query searchProducts($query: String!, $first: Int!) {
+    search(query: $query, first: $first, types: [PRODUCT]) {
+      nodes {
+        ... on Product {
+          ...ProductCardFields
+        }
+      }
+    }
+  }
+  ${productCardFragment}
+`;

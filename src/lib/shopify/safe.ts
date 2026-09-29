@@ -7,6 +7,8 @@ import {
   getProduct,
   getProducts,
   isShopifyConfigured,
+  predictiveSearch,
+  searchProducts,
 } from "./index";
 import type { Collection, Product, SortKey } from "./types";
 
@@ -81,6 +83,24 @@ export async function safeGetCollectionProducts(
     return await getCollectionProducts(handle, sort);
   } catch (error) {
     note("getCollectionProducts", error);
+    return [];
+  }
+}
+
+export async function safeSearchProducts(query: string): Promise<Product[]> {
+  try {
+    return await searchProducts(query);
+  } catch (error) {
+    note("searchProducts", error);
+    return [];
+  }
+}
+
+export async function safePredictiveSearch(query: string): Promise<Product[]> {
+  try {
+    return await predictiveSearch(query);
+  } catch (error) {
+    note("predictiveSearch", error);
     return [];
   }
 }
