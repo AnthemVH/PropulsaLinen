@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ProductCard } from "@/components/product/product-card";
-import { ProductViewer } from "@/components/product/product-viewer";
+import { GroupGrid } from "@/components/product/product-grid";
+import { ProductViewer, type ColourwayLink } from "@/components/product/product-viewer";
+import { RecentlyViewed } from "@/components/product/recently-viewed";
 import {
   Container,
   Eyebrow,
@@ -11,7 +12,8 @@ import {
   SectionHeading,
   TextLink,
 } from "@/components/ui/primitives";
-import { productsByDesign, resolveDesign } from "@/lib/catalog";
+import { findGroupFor, groupProducts, resolveDesign } from "@/lib/catalog";
+import { colourwayFromTitle, roomForType, typeName } from "@/lib/rooms";
 import { SITE } from "@/lib/content/site";
 import { getProduct, getProductHandles } from "@/lib/shopify";
 import { safeGetProduct, safeGetProducts } from "@/lib/shopify/safe";
@@ -97,14 +99,43 @@ export default async function ProductPage({
   const careInstructions = product.careInstructions;
 
   const allProducts = await safeGetProducts({ sort: "featured" });
-  const related = design
-    ? productsByDesign(allProducts, design.handle).filter(
-        (candidate) => candidate.id !== product.id,
-      )
-    : [];
-  const alsoConsider = (related.length ? related : allProducts)
-    .filter((candidate) => candidate.id !== product.id)
-    .slice(0, 3);
+  const room = roomForType(product.productType);
+  const colourway = colourwayFromTitle(product.title);
+
+  // The other colourways of this piece, each its own Shopify product.
+  const group = findGroupFor(product, allProducts);
+  const colourways: ColourwayLink[] = (group?.items ?? [])
+    .filter((item) => item.colourway)
+    .map((item) => ({
+      name: item.colourway!.name,
+      hex: item.colourway!.hex,
+      handle: item.product.handle,
+      current: item.product.handle === product.handle,
+    }));
+
+  // Complete the set: other kinds of piece in the same colourway, same room
+  // first. A piece with no colourway falls back to its room.
+  const matchesSet = (candidate: (typeof allProducts)[number]) =>
+    candidate.productType !== product.productType &&
+    (colourway
+      ? colourwayFromTitle(candidate.title)?.name === colourway.name
+      : roomForType(candidate.productType).slug === room.slug);
+  const setCandidates = allProducts.filter(matchesSet);
+  const completeTheSet = groupProducts([
+    ...setCandidates.filter((candidate) => roomForType(candidate.productType).slug === room.slug),
+    ...setCandidates.filter((candidate) => roomForType(candidate.productType).slug !== room.slug),
+  ]).slice(0, 4);
+
+  const minPrice = formatPrice(product.priceRange.minVariantPrice);
+  const hasRange =
+    product.priceRange.minVariantPrice.amount !== product.priceRange.maxVariantPrice.amount;
+  const viewed = {
+    handle: product.handle,
+    title: product.title,
+    type: typeName(product.productType),
+    price: hasRange ? `From ${minPrice}` : minPrice,
+    image: product.featuredImage,
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -143,19 +174,12 @@ export default async function ProductPage({
               </Link>
             </li>
             <li aria-hidden>/</li>
-            {design ? (
-              <>
-                <li>
-                  <Link
-                    href={`/designs/${design.handle}`}
-                    className="hover:text-gold"
-                  >
-                    {design.name}
-                  </Link>
-                </li>
-                <li aria-hidden>/</li>
-              </>
-            ) : null}
+            <li>
+              <Link href={`/rooms/${room.slug}`} className="hover:text-gold">
+                {room.name}
+              </Link>
+            </li>
+            <li aria-hidden>/</li>
             <li aria-current="page" className="text-espresso">
               {product.title}
             </li>
@@ -172,7 +196,11 @@ export default async function ProductPage({
         </header>
 
         <div className="mt-14">
-          <ProductViewer product={product} initialVariantId={initialVariantId} />
+          <ProductViewer
+            product={product}
+            initialVariantId={initialVariantId}
+            colourways={colourways}
+          />
         </div>
       </Container>
 
@@ -250,19 +278,19 @@ export default async function ProductPage({
         <Rule />
       </Container>
 
-      {alsoConsider.length ? (
+      {completeTheSet.length ? (
         <Container width="wide" className="pb-section">
           <SectionHeading
-            eyebrow="Alongside"
-            title={design ? `More from ${design.name}` : "Also in the house"}
+            eyebrow="Complete the set"
+            title={colourway ? `More in ${colourway.name}` : `More from ${room.name}`}
           />
-          <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-12">
-            {alsoConsider.map((candidate) => (
-              <ProductCard key={candidate.id} product={candidate} />
-            ))}
-          </div>
+          <GroupGrid groups={completeTheSet} className="mt-12" />
         </Container>
       ) : null}
+
+      <Container width="wide" className="pb-section">
+        <RecentlyViewed current={viewed} />
+      </Container>
     </>
   );
 }

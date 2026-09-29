@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { addToCart } from "@/lib/cart/actions";
@@ -18,12 +19,22 @@ import { Eyebrow, Rule } from "@/components/ui/primitives";
  * or are out of stock stay visible but disabled: the range should read as a
  * range, not shrink as you click through it.
  */
+// A colourway of this product that is sold as its own Shopify product.
+export type ColourwayLink = {
+  name: string;
+  hex: string;
+  handle: string;
+  current: boolean;
+};
+
 export function ProductViewer({
   product,
   initialVariantId,
+  colourways = [],
 }: {
   product: Product;
   initialVariantId?: string;
+  colourways?: ColourwayLink[];
 }) {
   const initial = useMemo(
     () => resolveInitialSelection(product, initialVariantId),
@@ -86,6 +97,7 @@ export function ProductViewer({
       <div className="lg:sticky lg:top-32 lg:self-start">
         <PurchasePanel
           product={product}
+          colourways={colourways}
           selection={selection}
           onSelect={(name, value) =>
             setSelection((current) => ({ ...current, [name]: value }))
@@ -154,11 +166,13 @@ function Gallery({
 
 function PurchasePanel({
   product,
+  colourways,
   selection,
   onSelect,
   selectedVariant,
 }: {
   product: Product;
+  colourways: ColourwayLink[];
   selection: Record<string, string>;
   onSelect: (name: string, value: string) => void;
   selectedVariant: ProductVariant | undefined;
@@ -174,6 +188,7 @@ function PurchasePanel({
       <p className="font-display text-3xl tabular-nums">{formatPrice(price)}</p>
 
       <div className="mt-8 space-y-9">
+        {colourways.length > 1 ? <ColourwayGroup colourways={colourways} /> : null}
         {product.options.map((option) => (
           <OptionGroup
             key={option.id}
@@ -217,6 +232,42 @@ function PurchasePanel({
         </p>
       ) : null}
     </div>
+  );
+}
+
+// Each colourway is a separate Shopify product, so these are links rather than
+// options — but they sit and look like a colour choice. scroll={false} keeps
+// the page where it is, so it feels like switching a variant.
+function ColourwayGroup({ colourways }: { colourways: ColourwayLink[] }) {
+  const current = colourways.find((colourway) => colourway.current);
+
+  return (
+    <fieldset>
+      <legend className="flex w-full items-baseline justify-between gap-4">
+        <Eyebrow as="span">Colourway</Eyebrow>
+        {current ? <span className="text-sm text-espresso-muted">{current.name}</span> : null}
+      </legend>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        {colourways.map((colourway) => (
+          <Link
+            key={colourway.handle}
+            href={`/products/${colourway.handle}`}
+            scroll={false}
+            title={colourway.name}
+            aria-label={colourway.name}
+            aria-current={colourway.current ? "page" : undefined}
+            className={cn(
+              "size-10 rounded-full border transition-all duration-500",
+              colourway.current
+                ? "border-gold ring-1 ring-gold ring-offset-4 ring-offset-ivory"
+                : "border-espresso/15 hover:border-stone-dark",
+            )}
+            style={{ backgroundColor: colourway.hex }}
+          />
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
