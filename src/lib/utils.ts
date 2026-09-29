@@ -15,7 +15,8 @@ export function cn(
 export function isFetchableImage<T extends { url: string }>(
   image: T | null | undefined,
 ): image is T {
-  return /^https?:\/\//.test(image?.url ?? "");
+  // Remote images, or files in /public (room photos).
+  return /^(https?:\/\/|\/[^/])/.test(image?.url ?? "");
 }
 
 export function formatPrice(

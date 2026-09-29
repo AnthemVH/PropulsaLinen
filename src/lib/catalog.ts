@@ -6,13 +6,15 @@ import {
 } from "@/lib/content/designs";
 import {
   colourwayFromTitle,
+  ROOMS,
   roomForType,
   swatchRank,
   titleWithoutColourway,
+  typeName,
   type Colourway,
   type Room,
 } from "@/lib/rooms";
-import type { Money, Product } from "@/lib/shopify/types";
+import type { Image, Money, Product } from "@/lib/shopify/types";
 import { isColourOption, isSizeOption } from "@/lib/utils";
 
 /**
@@ -347,4 +349,49 @@ export function findGroupFor(
   return groupProducts(catalogue).find((group) =>
     group.items.some((item) => item.product.handle === product.handle),
   );
+}
+
+export type TypeLink = {
+  name: string;
+  slug: string;
+};
+
+export type RoomNav = {
+  room: Room;
+  types: TypeLink[];
+  image: Image | null;
+};
+
+export function typeSlug(productType: string): string {
+  return slugify(typeName(productType));
+}
+
+// The rooms that have products, each with the product types it actually
+// holds. Used by the header menu and the homepage room tiles.
+export function buildRoomNav(products: Product[]): RoomNav[] {
+  return ROOMS.map((room) => {
+    const inRoom = products.filter(
+      (product) => roomForType(product.productType).slug === room.slug,
+    );
+
+    const types = new Map<string, TypeLink>();
+    for (const product of inRoom) {
+      const slug = typeSlug(product.productType);
+      if (!types.has(slug)) {
+        types.set(slug, { name: typeName(product.productType), slug });
+      }
+    }
+
+    const photo = room.image
+      ? { url: room.image, altText: room.name, width: 1600, height: 2000 }
+      : null;
+    const productPhoto = inRoom.find((product) => product.featuredImage)
+      ?.featuredImage;
+
+    return {
+      room,
+      types: [...types.values()].sort((a, b) => a.name.localeCompare(b.name)),
+      image: photo ?? productPhoto ?? null,
+    };
+  }).filter((nav) => nav.types.length > 0);
 }

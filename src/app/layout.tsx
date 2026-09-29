@@ -6,7 +6,7 @@ import { CartDrawer } from "@/components/cart/cart-drawer";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { readCart } from "@/lib/cart/cookies";
-import { deriveCategories, type Category } from "@/lib/catalog";
+import { buildRoomNav } from "@/lib/catalog";
 import { SITE } from "@/lib/content/site";
 import { isShopifyConfigured } from "@/lib/shopify";
 import { safeGetProducts } from "@/lib/shopify/safe";
@@ -67,10 +67,8 @@ export default async function RootLayout({
   const cart = await readCart();
   const shopifyConfigured = isShopifyConfigured();
 
-  // The nav lists the categories the store can actually fill. On a catalogue
-  // failure this falls back to the house's planned categories, all marked as
-  // in preparation, rather than taking the whole shell down.
-  const categories: Category[] = deriveCategories(await safeGetProducts());
+  // The menu lists only rooms and types that have products in them.
+  const rooms = buildRoomNav(await safeGetProducts());
 
   return (
     <html
@@ -80,8 +78,8 @@ export default async function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <CartProvider initialCart={cart}>
-          <Header categories={categories} />
-          <main className="flex-1 pt-20 md:pt-24">{children}</main>
+          <Header rooms={rooms} />
+          <main className="flex-1 pt-16 md:pt-20 lg:pt-32">{children}</main>
           <Footer />
           <CartDrawer shopifyConfigured={shopifyConfigured} />
         </CartProvider>

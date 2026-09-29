@@ -34,7 +34,7 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero — the plate itself, under a floating header. */}
-      <section className="relative -mt-20 flex min-h-[92vh] items-end overflow-hidden md:-mt-24">
+      <section className="relative -mt-16 flex min-h-[92vh] items-end overflow-hidden md:-mt-20 lg:-mt-32">
         <div className="absolute inset-0 bg-espresso">
           <MotifArt
             form="dense-field"
