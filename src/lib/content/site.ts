@@ -112,3 +112,29 @@ export const HOUSE_STANDARDS: {
     body: "These are working objects, not display pieces. The tray gets carried and the tea towel goes in the wash, and they are made to be treated that way.",
   },
 ];
+
+export const PROMISES = ["Made to order", "Finished by hand", "Shipped worldwide"];
+
+// Placeholder journal entries until the first stories are written. They are
+// shown as "in preparation" and do not link anywhere.
+export const JOURNAL: {
+  title: string;
+  summary: string;
+  art: "dense-field" | "single-sprig" | "hairline-border";
+}[] = [
+  {
+    title: "How the plate was drawn",
+    summary: "One olive branch, and why it is engraved rather than painted.",
+    art: "single-sprig",
+  },
+  {
+    title: "Choosing a colourway",
+    summary: "Ivory, sand and espresso, and the rooms each one suits.",
+    art: "dense-field",
+  },
+  {
+    title: "Caring for printed linen",
+    summary: "What a printed piece needs to last as long as it should.",
+    art: "hairline-border",
+  },
+];
