@@ -1,38 +1,36 @@
+import { groupProducts, type ProductGroup } from "@/lib/catalog";
 import type { Product } from "@/lib/shopify/types";
 import { cn } from "@/lib/utils";
 
-import { ProductCard } from "./product-card";
+import { GroupCard } from "./group-card";
 
-/**
- * Lookbook grid. Deliberately loose: three across at most, with every third
- * tile dropped down so the grid reads as a spread rather than a catalogue.
- */
+// Groups the products into colourway cards, then lays them out.
 export function ProductGrid({
   products,
   className,
-  stagger = true,
 }: {
   products: Product[];
   className?: string;
-  stagger?: boolean;
+}) {
+  return <GroupGrid groups={groupProducts(products)} className={className} />;
+}
+
+export function GroupGrid({
+  groups,
+  className,
+}: {
+  groups: ProductGroup[];
+  className?: string;
 }) {
   return (
     <div
       className={cn(
-        "grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-12 lg:gap-y-24",
+        "grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 md:gap-x-8 xl:grid-cols-4 xl:gap-y-16",
         className,
       )}
     >
-      {products.map((product, index) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          priority={index < 3}
-          className={cn(
-            stagger && index % 3 === 1 && "lg:mt-20",
-            stagger && index % 3 === 2 && "lg:mt-10",
-          )}
-        />
+      {groups.map((group, index) => (
+        <GroupCard key={group.key} group={group} priority={index < 4} />
       ))}
     </div>
   );

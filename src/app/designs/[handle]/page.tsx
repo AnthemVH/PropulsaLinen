@@ -163,7 +163,7 @@ export default async function DesignPage({
                     title={category.label}
                   />
                   <div className="mt-14">
-                    <ProductGrid products={categoryProducts} stagger={false} />
+                    <ProductGrid products={categoryProducts} />
                   </div>
                 </section>
               );

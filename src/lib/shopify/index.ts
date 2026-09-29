@@ -27,6 +27,7 @@ export { isShopifyConfigured, ShopifyError } from "./client";
 export type * from "./types";
 
 const PRODUCT_LIMIT = 250;
+const PAGE_SIZE = 100;
 
 /* -------------------------------------------------------------------------- */
 /* Reshaping                                                                   */
@@ -288,31 +289,58 @@ export async function getProduct(handle: string): Promise<Product | null> {
   return data.product ? reshapeProduct(data.product) : null;
 }
 
+type ProductPage<T> = {
+  products: {
+    pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    nodes: T[];
+  };
+};
+
+// Fetches every product, a page at a time. Each page is its own cached request,
+// so no single response grows past the 2MB Next.js cache limit as the
+// catalogue grows.
 export async function getProducts(
   options: { query?: string; sort?: SortKey; first?: number } = {},
 ): Promise<Product[]> {
-  const { query, sort = "featured", first = PRODUCT_LIMIT } = options;
+  const { query, sort = "featured", first } = options;
   const { sortKey, reverse } = PRODUCT_SORT[sort];
 
-  const data = await shopifyFetch<{ products: { nodes: unknown[] } }>({
-    query: getProductsQuery,
-    variables: { first, query, sortKey, reverse },
-    tags: [TAGS.products],
-  });
+  const products: Product[] = [];
+  let after: string | null = null;
 
-  return data.products.nodes.map(reshapeProduct);
+  while (true) {
+    const data: ProductPage<unknown> = await shopifyFetch<ProductPage<unknown>>({
+      query: getProductsQuery,
+      variables: { first: PAGE_SIZE, after, query, sortKey, reverse },
+      tags: [TAGS.products],
+    });
+
+    products.push(...data.products.nodes.map(reshapeProduct));
+
+    if (first && products.length >= first) return products.slice(0, first);
+    if (!data.products.pageInfo.hasNextPage) return products;
+    after = data.products.pageInfo.endCursor;
+  }
 }
 
 export async function getProductHandles(): Promise<string[]> {
-  const data = await shopifyFetch<{
-    products: { nodes: { handle: string }[] };
-  }>({
-    query: getProductHandlesQuery,
-    variables: { first: PRODUCT_LIMIT },
-    tags: [TAGS.products],
-  });
+  const handles: string[] = [];
+  let after: string | null = null;
 
-  return data.products.nodes.map((node) => node.handle);
+  while (true) {
+    const data: ProductPage<{ handle: string }> = await shopifyFetch<
+      ProductPage<{ handle: string }>
+    >({
+      query: getProductHandlesQuery,
+      variables: { first: PRODUCT_LIMIT, after },
+      tags: [TAGS.products],
+    });
+
+    handles.push(...data.products.nodes.map((node) => node.handle));
+
+    if (!data.products.pageInfo.hasNextPage) return handles;
+    after = data.products.pageInfo.endCursor;
+  }
 }
 
 /* -------------------------------------------------------------------------- */

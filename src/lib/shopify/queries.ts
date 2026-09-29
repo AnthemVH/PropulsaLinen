@@ -1,6 +1,7 @@
 import {
   cartFragment,
   collectionFragment,
+  productCardFragment,
   productFragment,
 } from "./fragments";
 
@@ -16,27 +17,37 @@ export const getProductQuery = /* GraphQL */ `
 export const getProductsQuery = /* GraphQL */ `
   query getProducts(
     $first: Int!
+    $after: String
     $query: String
     $sortKey: ProductSortKeys
     $reverse: Boolean
   ) {
     products(
       first: $first
+      after: $after
       query: $query
       sortKey: $sortKey
       reverse: $reverse
     ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       nodes {
-        ...ProductFields
+        ...ProductCardFields
       }
     }
   }
-  ${productFragment}
+  ${productCardFragment}
 `;
 
 export const getProductHandlesQuery = /* GraphQL */ `
-  query getProductHandles($first: Int!) {
-    products(first: $first) {
+  query getProductHandles($first: Int!, $after: String) {
+    products(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       nodes {
         handle
       }
@@ -63,12 +74,12 @@ export const getCollectionProductsQuery = /* GraphQL */ `
     collection(handle: $handle) {
       products(first: $first, sortKey: $sortKey, reverse: $reverse) {
         nodes {
-          ...ProductFields
+          ...ProductCardFields
         }
       }
     }
   }
-  ${productFragment}
+  ${productCardFragment}
 `;
 
 export const getCollectionsQuery = /* GraphQL */ `

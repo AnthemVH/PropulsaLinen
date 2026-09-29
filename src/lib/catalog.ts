@@ -4,7 +4,15 @@ import {
   PRODUCT_TYPES,
   type DesignCollection,
 } from "@/lib/content/designs";
-import type { Product } from "@/lib/shopify/types";
+import {
+  colourwayFromTitle,
+  roomForType,
+  swatchRank,
+  titleWithoutColourway,
+  type Colourway,
+  type Room,
+} from "@/lib/rooms";
+import type { Money, Product } from "@/lib/shopify/types";
 import { isColourOption, isSizeOption } from "@/lib/utils";
 
 /**
@@ -251,4 +259,92 @@ export function matchesFilters(
 export function toArray(value: string | string[] | undefined): string[] {
   if (!value) return [];
   return Array.isArray(value) ? value : value.split(",").filter(Boolean);
+}
+
+export type GroupItem = {
+  product: Product;
+  colourway: Colourway | null;
+};
+
+// One card on a listing page: a product and its colourway siblings.
+export type ProductGroup = {
+  key: string;
+  title: string;
+  productType: string;
+  room: Room;
+  items: GroupItem[];
+  minPrice: Money;
+  hasPriceRange: boolean;
+};
+
+// Groups colourway siblings into one card. Two products are siblings when they
+// share a design, a product type and a title once the colourway is taken out,
+// so "Ivory Water Glass" and "Sand Water Glass" group, but a Single-Sprig and
+// a Dense Field placemat stay apart. Products with no colourway in the title,
+// or a second product in a colourway the group already has, get their own card.
+export function groupProducts(products: Product[]): ProductGroup[] {
+  const groups: ProductGroup[] = [];
+  const openGroups = new Map<string, ProductGroup>();
+
+  for (const product of products) {
+    const colourway = colourwayFromTitle(product.title);
+    const baseTitle = titleWithoutColourway(product.title);
+    const key = [
+      resolveDesign(product)?.handle ?? "",
+      product.productType,
+      baseTitle.toLowerCase(),
+    ].join("|");
+
+    const existing = colourway ? openGroups.get(key) : undefined;
+    const alreadyHasColourway = existing?.items.some(
+      (item) => item.colourway?.name === colourway?.name,
+    );
+
+    if (existing && !alreadyHasColourway) {
+      existing.items.push({ product, colourway });
+      continue;
+    }
+
+    const group: ProductGroup = {
+      key: product.handle,
+      title: colourway ? baseTitle : product.title,
+      productType: product.productType,
+      room: roomForType(product.productType),
+      items: [{ product, colourway }],
+      minPrice: product.priceRange.minVariantPrice,
+      hasPriceRange: false,
+    };
+    groups.push(group);
+    if (colourway && !existing) openGroups.set(key, group);
+  }
+
+  for (const group of groups) {
+    group.items.sort(
+      (a, b) => swatchRank(a.colourway) - swatchRank(b.colourway),
+    );
+
+    const prices = group.items.flatMap((item) => [
+      Number(item.product.priceRange.minVariantPrice.amount),
+      Number(item.product.priceRange.maxVariantPrice.amount),
+    ]);
+    const lowest = Math.min(...prices);
+    const cheapest = group.items.find(
+      (item) =>
+        Number(item.product.priceRange.minVariantPrice.amount) === lowest,
+    )!;
+    group.minPrice = cheapest.product.priceRange.minVariantPrice;
+    group.hasPriceRange = Math.max(...prices) > lowest;
+  }
+
+  return groups;
+}
+
+// The group a product belongs to, found among the whole catalogue.
+export function findGroupFor(
+  product: Product,
+  catalogue: Product[],
+): ProductGroup | undefined {
+  return groupProducts(catalogue).find((group) =>
+    group.items.some((item) => item.product.handle === product.handle),
+  );
 }

@@ -83,6 +83,50 @@ export const productFragment = /* GraphQL */ `
   ${imageFragment}
 `;
 
+// Listing pages only need enough to draw a card, filter and group. The full
+// ProductFields fragment (descriptions, 100 variants, 20 images) made the
+// catalogue response over 2MB, which Next.js refuses to cache.
+export const productCardFragment = /* GraphQL */ `
+  fragment ProductCardFields on Product {
+    id
+    handle
+    title
+    productType
+    vendor
+    tags
+    availableForSale
+    options {
+      id
+      name
+      optionValues {
+        name
+      }
+    }
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    featuredImage {
+      ...ImageFields
+    }
+    images(first: 2) {
+      nodes {
+        ...ImageFields
+      }
+    }
+    design: metafield(namespace: "propulsa", key: "design") {
+      value
+    }
+  }
+  ${imageFragment}
+`;
+
 export const collectionFragment = /* GraphQL */ `
   fragment CollectionFields on Collection {
     id
