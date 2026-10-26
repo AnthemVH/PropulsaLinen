@@ -27,11 +27,18 @@ import type { Collection, Product, SortKey } from "./types";
  * having a bad minute.
  */
 
+// A store that is not configured is a state, not a failure: a warning, said
+// once per process, so the dev overlay and the log are not buried under it.
+let unconfiguredReported = false;
+
 function note(operation: string, error: unknown): void {
   if (!isShopifyConfigured()) {
-    console.error(
-      `[shopify] ${operation} skipped — store is not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN.`,
-    );
+    if (!unconfiguredReported) {
+      unconfiguredReported = true;
+      console.warn(
+        `[shopify] ${operation} skipped — store is not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN.`,
+      );
+    }
     return;
   }
   console.error(`[shopify] ${operation} failed`, error);
