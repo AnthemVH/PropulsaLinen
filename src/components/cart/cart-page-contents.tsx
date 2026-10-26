@@ -40,7 +40,7 @@ export function CartPageContents({
   }
 
   return (
-    <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
+    <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-16">
       <ul className="divide-y divide-stone border-y hairline lg:col-span-7">
         {lines.map((line) => (
           <li

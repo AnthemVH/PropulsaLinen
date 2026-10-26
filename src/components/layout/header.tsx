@@ -88,7 +88,11 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
       className={cn(
         "fixed inset-x-0 top-0 z-40 transition-[transform,background-color] duration-500 ease-out",
         hidden ? "-translate-y-full" : "translate-y-0",
-        floating ? "bg-transparent" : "bg-ivory/92 backdrop-blur-md backdrop-saturate-150",
+        floating
+          ? "bg-transparent"
+          : panelOpen
+            ? "bg-ivory-light backdrop-blur-md"
+            : "bg-ivory/92 backdrop-blur-md backdrop-saturate-150",
       )}
     >
       <div

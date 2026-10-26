@@ -64,7 +64,7 @@ export function RecentlyViewed({ current }: { current: ViewedProduct }) {
   if (!others.length) return null;
 
   return (
-    <section>
+    <section className="pt-section">
       <SectionHeading eyebrow="Recently viewed" title="Where you have been" />
       <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 md:mt-16 md:grid-cols-4 md:gap-x-8">
         {others.map((item) => (

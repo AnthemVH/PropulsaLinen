@@ -103,9 +103,12 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
         aria-label="Your selection"
         tabIndex={-1}
         className={cn(
-          "absolute top-0 right-0 flex h-full w-full max-w-[28rem] flex-col border-l hairline bg-ivory-light shadow-[0_0_80px_rgba(42,33,26,0.18)] transition-transform ease-drawer focus:outline-none",
-          // Enters at drawer speed, leaves faster than it came.
-          isOpen ? "translate-x-0 duration-500" : "translate-x-full duration-300",
+          "absolute top-0 right-0 flex h-full w-full max-w-[28rem] flex-col border-l hairline bg-ivory-light transition-[transform,box-shadow] ease-drawer focus:outline-none",
+          // Enters at drawer speed, leaves faster than it came. The shadow
+          // only exists while open, so the parked drawer casts none.
+          isOpen
+            ? "translate-x-0 shadow-[0_0_80px_rgba(42,33,26,0.18)] duration-500"
+            : "translate-x-full shadow-none duration-300",
         )}
       >
         <header className="flex items-center justify-between border-b hairline px-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] pb-5 sm:px-8">

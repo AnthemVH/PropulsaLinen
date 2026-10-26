@@ -91,7 +91,7 @@ export function ProductViewer({
   const shownIndex = Math.min(activeImage, Math.max(gallery.length - 1, 0));
 
   return (
-    <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
       <div className="lg:col-span-7">
         <Gallery
           images={gallery}
@@ -236,8 +236,9 @@ function Gallery({
           </ul>
         ) : null}
 
-        <div className="plate-marks min-w-0 flex-1">
-          <div className="relative aspect-[4/5] overflow-hidden bg-stone/45">
+        <div className="min-w-0 flex-1">
+          <div className="plate-marks relative aspect-[4/5] bg-stone/45">
+           <div className="absolute inset-0 overflow-hidden">
             {/* Keyed on the view so each change fades in afresh. */}
             <div key={active?.url ?? "empty"} className="view-in absolute inset-0">
               <Media
@@ -248,11 +249,12 @@ function Gallery({
                 quality={92}
               />
             </div>
+           </div>
           </div>
           {images.length > 1 ? (
-            <p className="running-head mt-4 flex justify-between text-espresso-muted">
-              <span>{title}</span>
-              <span className="numeral text-sm normal-case tracking-normal text-gold-ink">
+            <p className="running-head mt-5 flex justify-between gap-6 text-espresso-muted">
+              <span className="min-w-0 truncate">{title}</span>
+              <span className="numeral shrink-0 text-sm whitespace-nowrap normal-case tracking-normal text-gold-ink">
                 {toRoman(activeIndex + 1)} / {toRoman(images.length)}
               </span>
             </p>

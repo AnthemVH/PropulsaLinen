@@ -279,7 +279,6 @@ export default async function ProductPage({
                   alt=""
                   frameClassName="aspect-square"
                   artClassName="object-contain"
-                  vertical={false}
                   reveal
                 />
               </div>
@@ -323,7 +322,7 @@ export default async function ProductPage({
         </Container>
       ) : null}
 
-      <Container width="wide" className="pt-section">
+      <Container width="wide">
         <RecentlyViewed current={viewed} />
       </Container>
     </>

@@ -62,7 +62,8 @@ export default async function HomePage() {
   if (!collection) return null;
 
   const rooms = buildRoomNav(featured);
-  const curated = onePerRoom(groupProducts(featured), 7);
+  // Nine: the lead piece takes four cells, so nine fill a 4- or 3-column grid.
+  const curated = onePerRoom(groupProducts(featured), 9);
   // "Lately" should not repeat the curated pieces just above it.
   const curatedKeys = new Set(curated.map((group) => group.key));
   const newIn = groupProducts(newest)

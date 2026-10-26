@@ -79,7 +79,7 @@ export default async function ShopPage({
         ) : null}
       </PageHeader>
 
-      <div className="grid gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
         <FilterSidebar facets={facets} />
 
         <div>

@@ -76,7 +76,12 @@ export function GroupCard({
             </span>
           ) : null}
         </div>
-        <h3 className="mt-2 font-display text-lg leading-snug text-pretty text-espresso [overflow-wrap:anywhere] transition-colors duration-300 group-hover/card:text-gold-ink md:text-[1.375rem]">
+        {/* Clamped so one supplier-length title cannot stretch a whole row;
+            the full title is on the product page and in the tooltip. */}
+        <h3
+          title={group.title}
+          className="mt-2 line-clamp-3 font-display text-lg leading-snug text-pretty text-espresso [overflow-wrap:anywhere] transition-colors duration-300 group-hover/card:text-gold-ink md:text-[1.375rem]"
+        >
           {group.title}
         </h3>
         <p className="mt-1.5 text-sm text-espresso-soft tabular-nums">

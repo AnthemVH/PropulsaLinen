@@ -155,6 +155,12 @@
     font-size: max(16px, 1em);
   }
 
+  /* Fieldsets default to min-content width, so one long option value (a
+     supplier's size description) would widen the whole page on a phone. */
+  fieldset {
+    min-width: 0;
+  }
+
   summary {
     list-style: none;
     cursor: pointer;
@@ -617,7 +623,7 @@ header[data-floating="true"] [data-mark="monogram"] {
 
 /* A gallery view arriving: a short cross-fade that settles from a touch of
    enlargement, blurred for its first frames so the swap reads as one image. */
-@keyframes view-in {
+@keyframes gallery-in {
   from {
     opacity: 0;
     transform: scale(1.025);
@@ -625,7 +631,7 @@ header[data-floating="true"] [data-mark="monogram"] {
   }
 }
 .view-in {
-  animation: view-in 600ms var(--ease-out) both;
+  animation: gallery-in 600ms var(--ease-out) both;
 }
 @media (prefers-reduced-motion: reduce) {
   .view-in {
