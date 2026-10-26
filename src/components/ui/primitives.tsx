@@ -171,7 +171,8 @@ export function PageHeader({
   children,
   className,
 }: {
-  runningHead: string;
+  /** Only when it adds something the title does not (a place, a count). */
+  runningHead?: string;
   title: ReactNode;
   lede?: ReactNode;
   numeral?: string;
@@ -183,16 +184,18 @@ export function PageHeader({
 
   return (
     <header className={cn("pt-12 pb-10 md:pt-20 md:pb-14", className)}>
-      <div className={cn("flex items-center gap-4", centred && "justify-center")}>
-        {numeral ? (
-          <span className="numeral intro-fade text-2xl leading-none text-gold-ink">{numeral}</span>
-        ) : null}
-        {numeral ? <span aria-hidden className="intro-fade h-px w-8 bg-gold/50" /> : null}
-        <p className="eyebrow intro-fade text-espresso-muted">{runningHead}</p>
-      </div>
+      {runningHead || numeral ? (
+        <div className={cn("mb-6 flex items-center gap-4 md:mb-8", centred && "justify-center")}>
+          {numeral ? (
+            <span className="numeral intro-fade text-2xl leading-none text-gold-ink">{numeral}</span>
+          ) : null}
+          {numeral && runningHead ? <span aria-hidden className="intro-fade h-px w-8 bg-gold/50" /> : null}
+          {runningHead ? <p className="running-head intro-fade text-espresso-muted">{runningHead}</p> : null}
+        </div>
+      ) : null}
       <h1
         className={cn(
-          "intro-rise mt-6 text-display-lg text-balance text-espresso md:mt-8",
+          "intro-rise text-display-lg text-balance text-espresso",
           centred ? "mx-auto max-w-4xl text-center" : "max-w-5xl",
         )}
         style={{ "--d": 80 } as CSSProperties}

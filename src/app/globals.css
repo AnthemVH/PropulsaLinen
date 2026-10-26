@@ -209,9 +209,9 @@
 /* Running head: the line of small caps along the top of a folio leaf. */
 @utility running-head {
   font-family: var(--font-body);
-  font-size: 0.625rem;
-  line-height: 1.2;
-  letter-spacing: 0.32em;
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
 }
 

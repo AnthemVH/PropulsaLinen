@@ -70,10 +70,13 @@ export default async function DesignPage({
       {/* Frontispiece: the name either side of its own plate. */}
       <section className="relative -mt-[var(--header-h)] overflow-hidden bg-espresso text-ivory-light">
         <div className="mx-auto flex min-h-[100svh] max-w-[1760px] flex-col px-[var(--gutter)] pt-[calc(var(--header-h)+2rem)] pb-10">
-          <p className="running-head intro-fade flex items-center justify-center gap-4 text-ivory/70">
-            <span className="numeral text-base normal-case tracking-normal text-gold-light">{design.reference}</span>
+          <p className="intro-fade flex items-center justify-center gap-4">
             <span aria-hidden className="h-px w-8 bg-gold-light/50" />
-            The house collection · {design.botanical}
+            <span className="numeral text-xl text-gold-light">
+              <span className="sr-only">Collection </span>
+              {design.reference}
+            </span>
+            <span aria-hidden className="h-px w-8 bg-gold-light/50" />
           </p>
 
           <div className="relative flex flex-1 flex-col justify-center py-6">
@@ -82,16 +85,17 @@ export default async function DesignPage({
                 {firstWord}
               </span>
               {restWords.length ? (
-                <span className="intro-rise block text-right italic text-ivory/90" style={d(450)}>
+                <span className="intro-rise block text-right text-ivory/90" style={d(450)}>
                   {restWords.join(" ")}
                 </span>
               ) : null}
             </h1>
-            {/* The plate sits behind and between the words. */}
+            {/* The plate sits behind and between the words; quieter on phones,
+                where the words cross it. */}
             <div aria-hidden className="pointer-events-none absolute inset-x-0 inset-y-0 flex items-center justify-center">
               <div className="intro-unveil relative aspect-square h-[78%] max-h-[44rem] min-h-72" style={d(100)}>
                 <div className="intro-settle absolute inset-0" style={d(100)}>
-                  <div className="breathe absolute inset-0 opacity-80">
+                  <div className="breathe absolute inset-0 opacity-45 md:opacity-80">
                     <MotifArt form="dense-field" colorway="signature" alt="" loading="eager" className="object-contain" />
                   </div>
                 </div>
@@ -113,7 +117,7 @@ export default async function DesignPage({
         <Container width="wide">
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
             <aside className="lg:col-span-4">
-              <SectionHeading numeral="I" eyebrow="The source" title={design.botanical} />
+              <SectionHeading title={`${design.botanical}, and only ${design.botanical.toLowerCase()}`} />
               <ul data-reveal className="mt-10 grid grid-cols-2 gap-x-6 gap-y-6">
                 {design.palette.map((colour) => (
                   <li key={colour.name}>
@@ -159,8 +163,6 @@ export default async function DesignPage({
         <Container width="wide">
           <Ornament className="mb-section" />
           <SectionHeading
-            numeral="II"
-            eyebrow="Three grounds"
             title="One plate, printed three ways"
             lede="The ground and linework pairs are fixed. Gold stays the accent in all three, rather than becoming a fourth colour."
           />
@@ -215,7 +217,7 @@ export default async function DesignPage({
 
           {products.length ? (
             <div className="space-y-section">
-              {rooms.map((nav, index) => {
+              {rooms.map((nav) => {
                 const roomProducts = products.filter(
                   (product) => roomForType(product.productType).slug === nav.room.slug,
                 );
@@ -224,8 +226,6 @@ export default async function DesignPage({
                   <section key={nav.room.slug} aria-labelledby={`room-${nav.room.slug}`}>
                     <div className="flex flex-wrap items-end justify-between gap-6">
                       <SectionHeading
-                        numeral={toRoman(index + 3)}
-                        eyebrow={`${design.name} in`}
                         title={<span id={`room-${nav.room.slug}`}>{nav.room.name}</span>}
                       />
                       <ButtonLink href={`/rooms/${nav.room.slug}`} variant="quiet" className="mb-2">

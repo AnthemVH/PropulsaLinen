@@ -11,7 +11,7 @@ Single source of truth for every value: **`src/app/globals.css`** (`@theme` toke
 The brief asked for heritage luxury with fashion and fragrance-house energy, not a generic editorial template. The previous site had the right palette, but every section repeated the same eyebrow, heading and grid rhythm. "The Folio" gives the house its own vocabulary, drawn from the object the collection is based on, the engraved botanical plate:
 
 - **Plates, not boxes.** Each motif SVG carries its own ground colour: espresso for signature, ivory for inverse, stone for warm-stone. When a plate sits on a matching page ground, the branch appears drawn on the page itself. Examples are the home frontispiece, the collection hero and empty states. On a contrasting ground it reads as a mounted plate. It gets gold L-corners (`plate-marks`) and a small caption, e.g. *Pl. I · The dense field*.
-- **Numbered like a book.** Sections open with a roman numeral (`numeral`), a short gold rule and a small-caps eyebrow. Rooms are numbered I–VIII. Product cards carry a catalogue number (*N° 004*). Gallery views are counted *II / VIII*. A room page states *Room II of VIII* and ends with previous/next room "pagination".
+- **Numbered like a book, where numbers mean something.** Plates are numbered (*Pl. I–III*), as are the collection (*N° I*), the rooms in the house index, product cards (*N° 004*), gallery views (*II / VIII*) and a room's place in the house (*Room II of VIII*, with previous and next rooms at the foot). Section headings carry **no** kicker or chapter numeral: the heading speaks for itself.
 - **Night and day chapters.** Long pages alternate ivory leaves with espresso "night" chapters (The making, Four principles, the product's plate). They end on an espresso-deep colophon edged with the hairline-border plate.
 - **Gold stays a line.** Gold appears as hairlines, plate marks, outline lozenges, focus rings, swatch outlines and `gold-ink` text. It is never used as a fill or a ground.
 
@@ -23,7 +23,7 @@ The brief asked for heritage luxury with fashion and fragrance-house energy, not
 | Ink | `espresso` (16:1 on ivory) · `espresso-soft #4A3E33` (body, 9:1) · `espresso-muted #6B5D50` (labels, 5.6:1 on ivory; **not** for small text on stone, use `espresso-soft`) · on night grounds: `ivory-light`, `ivory/80`, `ivory/70` minimum |
 | Gold | `gold #A67C3D` lines and rings only · `gold-light #C9A15E` lines and small text on espresso (6.6:1) · `gold-ink #886632` small gold text on ivory (4.6:1; not on stone) · `gold-pale` selection |
 | Lines | `hairline` (gold 30%) · `hairline-strong` (gold 60%, button borders) · `rule-gold` (fading gradient rule) |
-| Type | Display: Cormorant Garamond 300 (italic for the second word of a name, *Nocturne*) · Body: EB Garamond with old-style figures; `tabular-nums` switches to lining tabular for prices · Script: Pinyon, **monogram only** |
+| Type | Display: Cormorant Garamond 300, set roman (the second word of a name steps right rather than switching to italic; italic is kept for whole lines such as taglines, never one accented word) · Body: EB Garamond with old-style figures; `tabular-nums` switches to lining tabular for prices · Script: Pinyon, **monogram only** |
 | Scale | `folio` 4.5→13rem · `display-xl` 3.25→8.5rem (−0.025em) · `display-lg` 2.6→5.25rem · `display-md` 1.95→3.25rem · `display-sm` 1.4→1.9rem · `lede` · `eyebrow` 11px / 0.22em · `running-head` 10px / 0.32em · `numeral` (Cormorant italic, lining) |
 | Space | `--gutter` 20 / 40 / 56px · `section` clamp(5rem, 10vw, 9rem) · `section-lg` clamp(7rem, 14vw, 13rem) · `--header-h` 64 / 80px |
 | Shape | Square corners everywhere. Swatches are squares with a 1px outline offset 2–3px (gold when chosen). |
@@ -37,7 +37,7 @@ Tailwind v4 generates utilities from `@theme`, so `bg-espresso`, `text-gold-ink`
 | --- | --- | --- |
 | `Plate` | `components/brand/plate.tsx` | Mounts one of the nine motif files. Props: `marks`, `mount` (inner gold rule), `reveal` (tissue-guard unveil on scroll, or `"intro"` above the fold), `drift` (scroll parallax), `breathe` (the one ambient loop), `vertical` (turns a hairline border to run down the plate) and `caption`. |
 | `PLATE_SEQUENCE` / `plateFor` | `components/brand/plates.ts` | The fixed order the house turns through its plates, one per room. |
-| `Container` / `PageHeader` / `SectionHeading` / `Ornament` / `Rule` / `Button` / `ButtonLink` / `Prose` | `components/ui/primitives.tsx` | `PageHeader` opens every interior page: running head, display title, lede and a gold rule that draws itself. `SectionHeading` takes a `numeral` and a `tone` (light/dark). Buttons have a hairline "leader" that lengthens on hover, and they press to 0.97. |
+| `Container` / `PageHeader` / `SectionHeading` / `Ornament` / `Rule` / `Button` / `ButtonLink` / `Prose` | `components/ui/primitives.tsx` | `PageHeader` opens every interior page: display title, lede and a gold rule that draws itself (a running head only when it adds a place or a count). `SectionHeading` takes a `tone` (light/dark); its `eyebrow`/`numeral` props exist but are deliberately unused. Buttons have a hairline "leader" that lengthens on hover, and they press to 0.97. |
 | Header + house index | `components/layout/header.tsx` | One row: Index · Shop · the collection · The House · monogram · search · cart. **Index** opens a full-height folio index, with rooms in large numbered type, the hovered room's pieces, and a plate that turns per room (cross-fade + settle). On phones the rooms open as an accordion. The header floats transparent over dark plates, tucks away while reading down and returns on scroll up. |
 | `RoomIndex` | `components/home/room-index.tsx` | The home page's rooms: a sticky frame on the left turns to each room as the list is hovered or focused. When no rooms are live it lists them unlinked as *In preparation*. |
 | `GroupCard` / `GroupGrid` / `ProductRail` / `EmptyState` | `components/product/*` | Cards gain plate marks and a slow 1.035 zoom on hover. Titles clamp to 3 lines, with the full title in `title`. `GroupGrid layout="folio"` makes the first piece a 2×2 lead. `ProductRail` is native scroll-snap for "new in". `EmptyState` is a mounted sprig plate with a label (*In preparation* / *No match*). |
@@ -74,3 +74,19 @@ Tailwind v4 generates utilities from `@theme`, so `bg-espresso`, `text-gold-ink`
 ## Routes
 
 `/collections` redirects permanently to `/designs`, which is now the only collections index. It lists house collections first, then any Shopify groupings that aren't mirrors of a house collection. `/collections/[handle]` redirects to `/designs/[handle]` when the handle is a house collection, and otherwise renders the grouping. The sitemap follows the same rule.
+
+## Review notes (impeccable critique + polish, frontend-design)
+
+The detector (`impeccable detect`) was run on the live pages at 1280 and 390 widths. The following changes were made as a result:
+
+- Removed the kicker above every heading and the chapter numerals on non-sequential sections.
+- Removed single-word gold italic accents.
+- Raised running heads from 10px to 11px.
+- Took uppercase off long descriptive text.
+- Capped reading measure at about 75 characters (About, FAQ, home lede).
+- Removed dot-joined meta strings from the footer.
+
+What remains is deliberate:
+
+- The `cream-palette` flag on the ivory ground: the brand mandates it.
+- The 11px tracked-caps labels on UI chrome (nav, buttons, filters): the brand guidelines specify them.

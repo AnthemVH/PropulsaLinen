@@ -114,7 +114,6 @@ export default function FaqPage() {
       <JsonLd data={jsonLd} />
 
       <PageHeader
-        runningHead="Questions"
         title="Frequently asked"
         lede="Ordering first, because that is what most letters are about; then the house and its collection."
       />
@@ -149,7 +148,7 @@ export default function FaqPage() {
                 </span>
               </summary>
               <div className="pb-8 pl-[3.75rem] md:pl-[4.5rem]">
-                <p className="max-w-2xl text-pretty text-espresso-soft">
+                <p className="max-w-[32rem] text-pretty text-espresso-soft">
                   {faq.answer}
                   {faq.link ? (
                     <>

@@ -39,12 +39,7 @@ export default async function DesignsPage() {
     <>
       <Container width="wide">
         <PageHeader
-          runningHead="The house collections"
-          title={
-            <>
-              A collection is a motif, <em className="text-espresso-soft">not a product</em>
-            </>
-          }
+          title="A collection is a motif, not a product"
           lede="Each collection begins with a single botanical, engraved as a naturalist's plate, and is executed across categories in three permitted forms — never reinterpreted piece by piece."
         />
       </Container>
@@ -115,7 +110,6 @@ export default async function DesignsPage() {
       {groupings.length ? (
         <Container width="wide" className="pb-section">
           <SectionHeading
-            eyebrow="In the store"
             title="Groupings"
             lede="Pieces gathered as they are merchandised in the store."
           />

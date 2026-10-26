@@ -143,8 +143,9 @@ export default async function HomePage() {
             <div className="flex items-center gap-4">
               <Monogram size={40} className="intro-fade text-gold-light" />
               <span aria-hidden className="intro-draw h-px w-10 bg-gold-light/60" style={d(300)} />
-              <p className="eyebrow intro-fade text-gold-light" style={d(300)}>
-                Collection {collection.reference} · {collection.botanical}
+              <p className="numeral intro-fade text-xl text-gold-light" style={d(300)}>
+                <span className="sr-only">Collection </span>
+                {collection.reference}
               </p>
             </div>
             <h1 className="mt-6 text-display-xl text-ivory-light">
@@ -152,7 +153,7 @@ export default async function HomePage() {
                 {firstWord}
               </span>
               {restWords.length ? (
-                <span className="intro-rise block pl-[0.6em] italic text-ivory/90" style={d(420)}>
+                <span className="intro-rise block pl-[0.6em] text-ivory/90" style={d(420)}>
                   {restWords.join(" ")}
                 </span>
               ) : null}
@@ -195,13 +196,13 @@ export default async function HomePage() {
         <Container width="narrow" className="text-center">
           <Ornament className="mb-10" />
           <p data-reveal className="font-display text-display-md font-light text-balance text-espresso">
-            One olive branch, drawn as a naturalist once drew it — and{" "}
-            <em className="text-gold-ink">nothing</em> added that the plate did not already hold.
+            One olive branch, drawn as a naturalist once drew it, and nothing added that the plate
+            did not already hold.
           </p>
           <p
             data-reveal
             style={d(120)}
-            className="mx-auto mt-8 max-w-2xl text-lede text-pretty text-espresso-soft"
+            className="mx-auto mt-8 max-w-xl text-lede text-pretty text-espresso-soft"
           >
             {collection.introduction}
           </p>
@@ -214,9 +215,7 @@ export default async function HomePage() {
         <Container width="wide">
           <div className="grid items-end gap-8 lg:grid-cols-12">
             <SectionHeading
-              numeral="I"
-              eyebrow="Three forms, one plate"
-              title="Every piece carries one of three forms — never a fourth"
+              title="Every piece carries one of three forms, never a fourth"
               className="lg:col-span-7"
             />
             <p data-reveal style={d(120)} className="max-w-md text-espresso-soft lg:col-span-4 lg:col-start-9">
@@ -249,7 +248,7 @@ export default async function HomePage() {
                     <h3 className="font-display text-display-sm text-espresso">{form.name}</h3>
                   </div>
                   <p className="mt-3 max-w-sm text-espresso-soft">{form.description}</p>
-                  <p className="eyebrow mt-5 max-w-sm leading-relaxed text-espresso-muted">
+                  <p className="mt-4 max-w-sm text-sm italic text-pretty text-espresso-muted">
                     {form.appliedTo}
                   </p>
                 </li>
@@ -264,9 +263,8 @@ export default async function HomePage() {
         <Container width="wide">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <SectionHeading
-              numeral="II"
-              eyebrow="The rooms of the house"
-              title="From the table outward, slowly"
+              title="The rooms of the house"
+              lede="The house began at the table and works outward from there, slowly."
             />
             <TextLink href="/shop" className="eyebrow mb-2">
               Shop every room
@@ -284,8 +282,6 @@ export default async function HomePage() {
           <Container width="wide">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <SectionHeading
-                numeral="III"
-                eyebrow={`Collection ${collection.reference}`}
                 title="A piece from every room"
                 lede={`${collection.tagline}.`}
               />
@@ -308,9 +304,7 @@ export default async function HomePage() {
         <Container width="wide" className="relative">
           <div className="lg:w-[58%]">
             <SectionHeading
-              numeral="IV"
               tone="dark"
-              eyebrow="The making"
               title="Made after it is ordered, and made to be used"
               lede="Not a print run. Each piece is made once it is bought, to a standard set for daily use rather than for display."
             />
@@ -341,7 +335,7 @@ export default async function HomePage() {
         <section className="pt-section">
           <Container width="wide">
             <div className="flex flex-wrap items-end justify-between gap-6">
-              <SectionHeading numeral="V" eyebrow="New in" title="Lately from the workshop" />
+              <SectionHeading title="New from the workshop" />
               <TextLink href="/shop?sort=newest" className="eyebrow mb-2">
                 All new pieces
               </TextLink>
@@ -357,8 +351,6 @@ export default async function HomePage() {
       <section className="pt-section">
         <Container width="wide">
           <SectionHeading
-            numeral={newIn.length ? "VI" : "V"}
-            eyebrow="Journal"
             title="Notes from the house"
             lede="Three essays are being written. They are listed here so you know what is coming, and will link once they are published."
           />
@@ -393,16 +385,18 @@ export default async function HomePage() {
               <MotifArt form="hairline-border" colorway="inverse" alt="" className="object-cover" />
             </div>
             <div className="relative pt-10 md:pt-14">
-              <p data-reveal className="eyebrow text-espresso-muted">
+              <h2
+                data-reveal
+                className="mx-auto max-w-2xl font-display text-display-md text-balance text-espresso"
+              >
                 Letters from the house
-              </p>
+              </h2>
               <p
                 data-reveal
                 style={d(100)}
-                className="mx-auto mt-6 max-w-2xl font-display text-display-md text-balance text-espresso"
+                className="mx-auto mt-5 max-w-md text-lede text-pretty text-espresso-soft"
               >
-                A note when a new collection opens, and{" "}
-                <em className="text-gold-ink">nothing</em> more often than that.
+                A note when a new collection opens, and nothing more often than that.
               </p>
               <Rule className="mx-auto mt-10 max-w-40" draw delay={200} />
               <a

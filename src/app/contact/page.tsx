@@ -35,7 +35,6 @@ export default function ContactPage() {
   return (
     <Container width="wide" className="pb-section">
       <PageHeader
-        runningHead="The atelier"
         title="Contact"
         lede="We answer letters ourselves. There is no chat widget and no ticket number."
       />

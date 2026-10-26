@@ -54,7 +54,6 @@ export default async function ShopPage({
   return (
     <Container width="wide" className="pb-section">
       <PageHeader
-        runningHead="The full range"
         title="Shop"
         lede="Everything the house makes, printed and finished after you order it."
       >
@@ -79,12 +78,19 @@ export default async function ShopPage({
         ) : null}
       </PageHeader>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
-        <FilterSidebar facets={facets} />
+      <div
+        className={
+          all.length
+            ? "grid grid-cols-1 gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16"
+            : "grid grid-cols-1"
+        }
+      >
+        {/* With nothing published there is nothing to filter. */}
+        {all.length ? <FilterSidebar facets={facets} /> : null}
 
         <div>
-          <ShopToolbar facets={facets} total={products.length} />
-          <div className="mt-10">
+          {all.length ? <ShopToolbar facets={facets} total={products.length} /> : null}
+          <div className={all.length ? "mt-10" : undefined}>
             {products.length ? (
               <ProductGrid products={products} />
             ) : all.length ? (

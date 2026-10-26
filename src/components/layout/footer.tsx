@@ -77,8 +77,9 @@ export function Footer() {
             </a>
             .
           </p>
-          <p className="running-head text-ivory/60">
-            {SITE.tagline} · Set in Cormorant &amp; EB Garamond
+          <p className="running-head text-ivory/65 md:text-right">
+            {SITE.tagline}
+            <span className="mt-1 block normal-case tracking-normal italic">Set in Cormorant and EB Garamond</span>
           </p>
         </div>
         {/* Clears the phone's home indicator. */}

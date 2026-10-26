@@ -58,7 +58,6 @@ export default function ShippingReturnsPage() {
   return (
     <Container width="wide" className="pb-section">
       <PageHeader
-        runningHead="Practicalities"
         title="Shipping & returns"
         lede="How an order is made, sent and, if something is wrong, put right."
       />

@@ -283,13 +283,7 @@ export default async function ProductPage({
                 />
               </div>
               <div className="lg:col-span-6 lg:col-start-7">
-                <SectionHeading
-                  numeral={design.reference}
-                  tone="dark"
-                  eyebrow={`On ${design.name}`}
-                  title={design.tagline}
-                  lede={design.introduction}
-                />
+                <SectionHeading tone="dark" title={design.name} lede={design.introduction} />
                 {forms.length ? (
                   <dl data-reveal className="mt-10 border-t border-gold-light/25">
                     {forms.map(({ motif, form }) => (
@@ -315,8 +309,7 @@ export default async function ProductPage({
       {completeTheSet.length ? (
         <Container width="wide" className="pt-section">
           <SectionHeading
-            eyebrow="Complete the set"
-            title={colourway ? `More in ${colourway.name}` : `More from ${room.name}`}
+            title={colourway ? `Complete the set in ${colourway.name}` : `More from ${room.name}`}
           />
           <GroupGrid groups={completeTheSet} className="mt-12 md:mt-16" />
         </Container>

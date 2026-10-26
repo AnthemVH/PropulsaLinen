@@ -50,11 +50,8 @@ export default function AboutPage() {
       <Container width="wide">
         <header className="mx-auto max-w-4xl pt-14 pb-14 text-center md:pt-24 md:pb-20">
           <Monogram size={72} className="intro-fade mx-auto" />
-          <p className="eyebrow intro-fade mt-8 text-espresso-muted" style={d(150)}>
-            The house
-          </p>
-          <h1 className="intro-rise mt-6 text-display-lg text-balance text-espresso" style={d(200)}>
-            A house is made of the things it <em className="text-espresso-soft">keeps</em>
+          <h1 className="intro-rise mt-8 text-display-lg text-balance text-espresso" style={d(200)}>
+            A house is made of the things it keeps
           </h1>
           <p className="intro-rise mx-auto mt-8 max-w-2xl text-lede text-pretty text-espresso-soft" style={d(350)}>
             Propulsa began with an observation: the objects a house uses most are the ones it thinks
@@ -77,7 +74,7 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <Container width="text" className="py-section">
+      <Container width="text" className="py-section [&_p:not(blockquote_p)]:max-w-[33rem] [&_p:not(blockquote_p)]:mx-auto">
         <div className="space-y-7 text-espresso-soft">
           <p
             data-reveal
@@ -95,8 +92,7 @@ export default function AboutPage() {
 
         <blockquote data-reveal className="my-16 border-y hairline py-12 text-center md:my-20">
           <p className="font-display text-display-md text-balance text-espresso">
-            A gilded field would make it ornament. This is meant to read as a{" "}
-            <em className="text-gold-ink">record</em>.
+            A gilded field would make it ornament. This is meant to read as a record.
           </p>
         </blockquote>
 
@@ -116,7 +112,7 @@ export default function AboutPage() {
 
       <section className="bg-espresso py-section text-ivory-light">
         <Container width="wide">
-          <SectionHeading numeral="I" tone="dark" eyebrow="How we work" title="Four principles" />
+          <SectionHeading tone="dark" title="How the house works" />
           <ol className="mt-14 grid gap-px bg-gold-light/20 md:mt-20 md:grid-cols-2">
             {PRINCIPLES.map((principle, index) => (
               <li

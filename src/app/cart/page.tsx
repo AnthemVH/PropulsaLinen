@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <Container width="wide" className="pb-section">
-      <PageHeader runningHead="Cart" title="Your selection" className="mb-10 md:mb-14" />
+      <PageHeader title="Your selection" className="mb-10 md:mb-14" />
 
       <CartPageContents shopifyConfigured={isShopifyConfigured()} />
     </Container>
