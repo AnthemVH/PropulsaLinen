@@ -70,7 +70,9 @@ function useFilterUrl() {
 export function FilterSidebar({ facets }: { facets: ShopFacets }) {
   return (
     <aside aria-label="Filters" className="hidden lg:block">
+      <div className="sticky top-[calc(var(--header-h)+1.5rem)] max-h-[calc(100dvh-var(--header-h)-3rem)] overflow-y-auto overscroll-contain pr-2 no-scrollbar">
       <FilterGroups facets={facets} />
+      </div>
     </aside>
   );
 }
@@ -114,14 +116,19 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-4 border-y hairline py-4">
+      <div className="flex items-center justify-between gap-4 border-y hairline py-3.5">
         <button
           ref={openButton}
           type="button"
           onClick={() => setDrawerOpen(true)}
-          className="eyebrow text-espresso transition-colors duration-500 hover:text-gold-ink lg:hidden"
+          className="eyebrow press -my-2 flex items-center gap-3 py-2 text-espresso hover:text-gold-ink lg:hidden"
         >
-          Filter & sort{active.length ? <span className="ml-2 text-gold-ink">({active.length})</span> : null}
+          <span aria-hidden className="flex flex-col gap-[3px]">
+            <span className="h-px w-4 bg-current" />
+            <span className="ml-1 h-px w-3 bg-current" />
+            <span className="ml-0.5 h-px w-3.5 bg-current" />
+          </span>
+          Filter & sort{active.length ? <span className="numeral text-base normal-case tracking-normal text-gold-ink">{active.length}</span> : null}
         </button>
         <p className="eyebrow hidden text-espresso-muted lg:block">{pieces}</p>
 
@@ -137,7 +144,7 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
                 type="button"
                 onClick={() => toggle(filter.key, filter.value)}
                 aria-label={`Remove ${filter.label}`}
-                className="eyebrow flex items-center gap-2 border hairline px-3 py-2 text-espresso transition-colors duration-500 hover:border-gold hover:text-gold-ink"
+                className="eyebrow press flex items-center gap-2.5 border hairline bg-ivory-light px-3 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
               >
                 {filter.label}
                 <span aria-hidden className="text-gold-ink">×</span>
@@ -148,7 +155,7 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
             <button
               type="button"
               onClick={clearAll}
-              className="eyebrow px-2 py-2 text-espresso-muted transition-colors duration-500 hover:text-gold-ink"
+              className="eyebrow link-underline press mx-2 py-2 text-espresso-muted hover:text-gold-ink"
             >
               Clear all
             </button>
@@ -156,40 +163,51 @@ export function ShopToolbar({ facets, total }: { facets: ShopFacets; total: numb
         </ul>
       ) : null}
 
-      {/* Phone drawer */}
+      {/* Phone drawer, over a dimmed page */}
+      <div
+        aria-hidden
+        onClick={() => setDrawerOpen(false)}
+        className={cn(
+          "fixed inset-0 z-50 bg-espresso/40 transition-opacity duration-500 lg:hidden",
+          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Filter and sort"
         className={cn(
-          "fixed inset-0 z-50 flex flex-col bg-ivory duration-500 lg:hidden",
-          // Visible at once when opening, so focus can move in straight away;
-          // hidden only after the fade when closing.
-          drawerOpen ? "visible opacity-100 transition-opacity" : "invisible opacity-0 transition-[opacity,visibility]",
+          "fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] flex-col border-t hairline bg-ivory-light shadow-[0_-30px_80px_-20px_rgba(42,33,26,0.35)] ease-drawer lg:hidden",
+          // A sheet from the bottom edge, where the thumb already is. Visible
+          // at once when opening, so focus can move in straight away; hidden
+          // only after the slide when closing.
+          drawerOpen
+            ? "visible translate-y-0 transition-transform duration-500"
+            : "invisible translate-y-full transition-[transform,visibility] duration-300",
         )}
       >
-        <div className="flex items-center justify-between border-b hairline px-6 py-5">
-          <p className="eyebrow text-espresso">Filter & sort</p>
-          <button ref={closeButton} type="button" onClick={() => setDrawerOpen(false)} className="eyebrow text-espresso-muted">
+        <div className="flex items-center justify-between border-b hairline px-6 py-4">
+          <p className="font-display text-2xl text-espresso">Filter &amp; sort</p>
+          <button ref={closeButton} type="button" onClick={() => setDrawerOpen(false)} className="eyebrow press -mr-3 p-3 text-espresso-muted">
             Close
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6">
           <SortSelect value={sort} onChange={setSort} className="mb-8 flex" />
           <FilterGroups facets={facets} />
         </div>
 
-        <div className="flex gap-3 border-t hairline px-6 py-4">
+        <div className="flex gap-3 border-t hairline px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
           {active.length ? (
-            <button type="button" onClick={clearAll} className="eyebrow border hairline px-5 py-4 text-espresso">
+            <button type="button" onClick={clearAll} className="eyebrow press border hairline-strong px-5 py-4 text-espresso">
               Clear
             </button>
           ) : null}
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            className="eyebrow flex-1 bg-espresso px-5 py-4 text-ivory"
+            className="eyebrow press flex-1 bg-espresso px-5 py-4 text-ivory-light"
           >
             Show {pieces}
           </button>
@@ -214,7 +232,7 @@ function SortSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="eyebrow cursor-pointer border-0 bg-transparent text-espresso"
+        className="eyebrow cursor-pointer rounded-none border-0 border-b hairline bg-transparent py-1 pr-1 text-espresso focus:border-gold"
       >
         {SORTS.map((sort) => (
           <option key={sort.value} value={sort.value}>
@@ -228,7 +246,7 @@ function SortSelect({
 
 function FilterGroups({ facets }: { facets: ShopFacets }) {
   return (
-    <div className="space-y-9">
+    <div className="space-y-10">
       {FILTER_KEYS.map((key) =>
         facets[key].length ? (
           <FilterGroup key={key} filterKey={key} label={GROUP_LABELS[key]} options={facets[key]} />
@@ -255,7 +273,11 @@ function FilterGroup({
 
   return (
     <fieldset>
-      <legend className="eyebrow text-espresso-muted">{label}</legend>
+      <legend className="flex w-full items-center gap-3 font-display text-xl text-espresso">
+        {label}
+        {chosen.length ? <span className="numeral text-sm text-gold-ink">{chosen.length}</span> : null}
+      </legend>
+      <div aria-hidden className="rule-gold mt-3" />
       <ul className="mt-4 space-y-1">
         {visible.map((option) => {
           const isOn = chosen.includes(option.value);
@@ -265,14 +287,14 @@ function FilterGroup({
                 type="button"
                 onClick={() => toggle(filterKey, option.value)}
                 aria-pressed={isOn}
-                className="group flex w-full items-center gap-3 py-1.5 text-left"
+                className="group press flex w-full items-center gap-3 py-2 text-left lg:py-1.5"
               >
                 {option.swatch ? (
                   <span
                     aria-hidden
                     className={cn(
-                      "size-4 shrink-0 rounded-full border border-espresso/20 ring-offset-2 ring-offset-ivory",
-                      isOn && "ring-1 ring-gold",
+                      "size-4 shrink-0 border border-espresso/25 outline outline-1 outline-offset-2 transition-[outline-color] duration-300",
+                      isOn ? "outline-gold" : "outline-transparent",
                     )}
                     style={{ backgroundColor: option.swatch }}
                   />
@@ -280,11 +302,16 @@ function FilterGroup({
                   <span
                     aria-hidden
                     className={cn(
-                      "flex size-4 shrink-0 items-center justify-center border text-[0.6rem] leading-none",
-                      isOn ? "border-espresso bg-espresso text-ivory" : "border-espresso/30",
+                      "relative flex size-4 shrink-0 items-center justify-center border transition-colors duration-300",
+                      isOn ? "border-gold" : "border-espresso/30 group-hover:border-gold",
                     )}
                   >
-                    {isOn ? "✓" : ""}
+                    <span
+                      className={cn(
+                        "size-2 bg-espresso transition-[opacity,transform] duration-300 ease-out",
+                        isOn ? "scale-100 opacity-100" : "scale-50 opacity-0",
+                      )}
+                    />
                   </span>
                 )}
                 <span className={cn("flex-1 text-espresso-soft transition-colors duration-500 group-hover:text-gold-ink", isOn && "text-espresso")}>
@@ -300,7 +327,7 @@ function FilterGroup({
         <button
           type="button"
           onClick={() => setShowAll(!showAll)}
-          className="eyebrow mt-3 text-gold-ink"
+          className="eyebrow link-underline mt-4 py-1 text-gold-ink"
         >
           {showAll ? "Show fewer" : `Show all ${options.length}`}
         </button>

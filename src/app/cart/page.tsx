@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { CartPageContents } from "@/components/cart/cart-page-contents";
-import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
+import { Container, PageHeader } from "@/components/ui/primitives";
 import { isShopifyConfigured } from "@/lib/shopify";
 
 export const metadata: Metadata = {
@@ -16,13 +16,8 @@ export const metadata: Metadata = {
  */
 export default function CartPage() {
   return (
-    <Container className="pt-16 pb-section md:pt-24">
-      <header>
-        <Eyebrow>Cart</Eyebrow>
-        <h1 className="mt-5 text-display-lg">Your selection</h1>
-      </header>
-
-      <Rule className="my-12" />
+    <Container width="wide" className="pb-section">
+      <PageHeader runningHead="Cart" title="Your selection" className="mb-10 md:mb-14" />
 
       <CartPageContents shopifyConfigured={isShopifyConfigured()} />
     </Container>

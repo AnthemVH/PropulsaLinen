@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
 import { Media } from "@/components/ui/media";
-import {
-  Container,
-  Eyebrow,
-  Rule,
-  TextLink,
-} from "@/components/ui/primitives";
+import { Container, PageHeader } from "@/components/ui/primitives";
 import { getDesign } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
 import { getCollections } from "@/lib/shopify";
@@ -67,6 +62,11 @@ export default async function CollectionPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { handle } = await params;
+
+  // A Shopify collection that mirrors a house collection has one page, and it
+  // is the house's: /designs/[handle].
+  if (getDesign(handle)) permanentRedirect(`/designs/${handle}`);
+
   const [collection, query] = await Promise.all([
     safeGetCollection(handle),
     searchParams,
@@ -83,52 +83,28 @@ export default async function CollectionPage({
 
   const products = await safeGetCollectionProducts(collection.handle, sort);
 
-  // A Shopify collection that mirrors a design collection links across to the
-  // editorial page rather than duplicating its story.
-  const design = getDesign(collection.handle);
-
   return (
     <>
-      {collection.image ? (
-        <section className="relative aspect-[16/7] w-full overflow-hidden bg-stone/30">
-          <Media
-            image={collection.image}
-            sizes="100vw"
-            priority
-            quality={92}
-          />
-          <div className="absolute inset-0 bg-espresso/15" />
+      {isFetchableImage(collection.image) ? (
+        <section className="relative aspect-[4/3] w-full overflow-hidden bg-stone/45 md:aspect-[16/7]">
+          <div className="intro-settle absolute inset-0">
+            <Media image={collection.image} sizes="100vw" priority quality={92} />
+          </div>
         </section>
       ) : null}
 
-      <Container width="wide" className="pt-14 pb-section">
-        <header className="max-w-2xl">
-          <Eyebrow>Collection</Eyebrow>
-          <h1 className="mt-5 text-display-lg text-balance">
-            {collection.title}
-          </h1>
-          {collection.description ? (
-            <p className="mt-6 text-lede text-pretty text-espresso-soft">
-              {collection.description}
-            </p>
-          ) : null}
-          {design ? (
-            <TextLink
-              href={`/designs/${design.handle}`}
-              className="eyebrow mt-7 inline-block"
-            >
-              Read the {design.name} story
-            </TextLink>
-          ) : null}
-        </header>
-
-        <Rule className="my-14" />
+      <Container width="wide" className="pb-section">
+        <PageHeader
+          runningHead="A grouping in the store"
+          title={collection.title}
+          lede={collection.description || undefined}
+        />
 
         {products.length ? (
           <ProductGrid products={products} />
         ) : (
           <EmptyState
-            title="This collection is being prepared"
+            title="This grouping is being prepared"
             body="Pieces will appear here as they are finished."
           />
         )}

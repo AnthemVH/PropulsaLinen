@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { addToCart } from "@/lib/cart/actions";
 import type { Product, ProductVariant } from "@/lib/shopify/types";
-import { cn, formatPrice, isColourOption, swatchColour } from "@/lib/utils";
+import { cn, formatPrice, isColourOption, swatchColour, toRoman } from "@/lib/utils";
 import { useCart } from "@/components/cart/cart-context";
 import { Media } from "@/components/ui/media";
-import { Eyebrow, Rule } from "@/components/ui/primitives";
 
 /**
  * The interactive half of a product page: gallery, variant selection and
@@ -31,10 +30,16 @@ export function ProductViewer({
   product,
   initialVariantId,
   colourways = [],
+  heading,
+  notes,
 }: {
   product: Product;
   initialVariantId?: string;
   colourways?: ColourwayLink[];
+  /** The title block, rendered by the page (it owns the h1). */
+  heading?: ReactNode;
+  /** The folded notes under the purchase button (description, care…). */
+  notes?: ReactNode;
 }) {
   const initial = useMemo(
     () => resolveInitialSelection(product, initialVariantId),
@@ -86,15 +91,18 @@ export function ProductViewer({
   const shownIndex = Math.min(activeImage, Math.max(gallery.length - 1, 0));
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-20">
-      <Gallery
-        images={gallery}
-        activeIndex={shownIndex}
-        onSelect={setActiveImage}
-        title={product.title}
-      />
+    <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
+      <div className="lg:col-span-7">
+        <Gallery
+          images={gallery}
+          activeIndex={shownIndex}
+          onSelect={setActiveImage}
+          title={product.title}
+        />
+      </div>
 
-      <div className="lg:sticky lg:top-32 lg:self-start">
+      <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:col-span-5 lg:self-start">
+        {heading}
         <PurchasePanel
           product={product}
           colourways={colourways}
@@ -104,6 +112,7 @@ export function ProductViewer({
           }
           selectedVariant={selectedVariant}
         />
+        {notes}
       </div>
     </div>
   );
@@ -111,6 +120,12 @@ export function ProductViewer({
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Desktop: one large mounted frame with a column of thumbnails beside it, the
+ * chosen view cross-fading in. Phones: the views as a native, snapping
+ * carousel with a plate counter, so a swipe carries the phone's own momentum.
+ * Both read and write the same active index.
+ */
 function Gallery({
   images,
   activeIndex,
@@ -123,43 +138,127 @@ function Gallery({
   title: string;
 }) {
   const active = images[activeIndex] ?? images[0] ?? null;
+  const rail = useRef<HTMLUListElement>(null);
+  const settling = useRef(false);
+
+  // Keep the phone carousel on the active view when it changes from outside
+  // (a colour choice), without fighting a swipe in progress.
+  useEffect(() => {
+    const element = rail.current;
+    if (!element || element.offsetParent === null) return;
+    const target = element.children[activeIndex] as HTMLElement | undefined;
+    if (!target) return;
+    if (Math.abs(element.scrollLeft - target.offsetLeft) < 4) return;
+    settling.current = true;
+    element.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+    const timer = window.setTimeout(() => (settling.current = false), 600);
+    return () => window.clearTimeout(timer);
+  }, [activeIndex]);
+
+  const onRailScroll = () => {
+    const element = rail.current;
+    if (!element || settling.current) return;
+    const index = Math.round(element.scrollLeft / Math.max(element.clientWidth, 1));
+    if (index !== activeIndex && index >= 0 && index < images.length) onSelect(index);
+  };
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="relative aspect-[4/5] overflow-hidden bg-stone/30">
-        <Media
-          image={active}
-          alt={`${title} — view ${activeIndex + 1}`}
-          sizes="(min-width: 1024px) 55vw, 100vw"
-          priority
-          quality={92}
-        />
+    <div>
+      {/* Phones and tablets */}
+      <div className="lg:hidden">
+        <div className="relative -mx-[var(--gutter)]">
+          <ul
+            ref={rail}
+            onScroll={onRailScroll}
+            className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
+            aria-label={`${title} — views`}
+          >
+            {(images.length ? images : [null]).map((image, index) => (
+              <li key={`${image?.url ?? "empty"}-${index}`} className="relative aspect-[4/5] w-full shrink-0 snap-center bg-stone/45">
+                <Media
+                  image={image}
+                  alt={`${title} — view ${index + 1}`}
+                  sizes="100vw"
+                  priority={index === 0}
+                  quality={92}
+                />
+              </li>
+            ))}
+          </ul>
+          {images.length > 1 ? (
+            <p className="running-head absolute right-[var(--gutter)] bottom-4 bg-ivory-light/90 px-2.5 py-1.5 text-espresso-soft">
+              <span className="numeral text-sm normal-case tracking-normal text-gold-ink">
+                {toRoman(activeIndex + 1)}
+              </span>{" "}
+              / {toRoman(images.length)}
+            </p>
+          ) : null}
+        </div>
+        {images.length > 1 ? (
+          <div aria-hidden className="mt-4 flex justify-center gap-2">
+            {images.map((image, index) => (
+              <span
+                key={`${image.url}-dot-${index}`}
+                className={cn(
+                  "h-px transition-[width,background-color] duration-500 ease-out",
+                  index === activeIndex ? "w-8 bg-gold" : "w-3 bg-espresso/25",
+                )}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
 
-      {images.length > 1 ? (
-        <ul className="flex flex-wrap gap-3">
-          {images.map((image, index) => (
-            <li key={`${image.url}-${index}`}>
-              <button
-                type="button"
-                onClick={() => onSelect(index)}
-                aria-label={`View image ${index + 1} of ${images.length}`}
-                // Absent rather than "false": aria-current="false" is announced
-                // by some screen readers as a state the control has.
-                aria-current={index === activeIndex ? "true" : undefined}
-                className={cn(
-                  "relative aspect-square w-20 overflow-hidden border transition-colors duration-500",
-                  index === activeIndex
-                    ? "border-gold"
-                    : "border-transparent hover:border-stone-dark",
-                )}
-              >
-                <Media image={image} sizes="80px" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      {/* Desktop */}
+      <div className="hidden gap-6 lg:flex">
+        {images.length > 1 ? (
+          <ul className="flex w-20 shrink-0 flex-col gap-3">
+            {images.map((image, index) => (
+              <li key={`${image.url}-${index}`}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(index)}
+                  aria-label={`View image ${index + 1} of ${images.length}`}
+                  // Absent rather than "false": aria-current="false" is announced
+                  // by some screen readers as a state the control has.
+                  aria-current={index === activeIndex ? "true" : undefined}
+                  className={cn(
+                    "press relative block aspect-[4/5] w-full overflow-hidden bg-stone/45 outline outline-1 outline-offset-2 transition-[outline-color,opacity] duration-300",
+                    index === activeIndex
+                      ? "outline-gold"
+                      : "opacity-70 outline-transparent hover:opacity-100",
+                  )}
+                >
+                  <Media image={image} sizes="80px" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <div className="plate-marks min-w-0 flex-1">
+          <div className="relative aspect-[4/5] overflow-hidden bg-stone/45">
+            {/* Keyed on the view so each change fades in afresh. */}
+            <div key={active?.url ?? "empty"} className="view-in absolute inset-0">
+              <Media
+                image={active}
+                alt={`${title} — view ${activeIndex + 1}`}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                priority
+                quality={92}
+              />
+            </div>
+          </div>
+          {images.length > 1 ? (
+            <p className="running-head mt-4 flex justify-between text-espresso-muted">
+              <span>{title}</span>
+              <span className="numeral text-sm normal-case tracking-normal text-gold-ink">
+                {toRoman(activeIndex + 1)} / {toRoman(images.length)}
+              </span>
+            </p>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -200,11 +299,19 @@ function PurchasePanel({
     return () => observer.disconnect();
   }, []);
 
+  const label = pending
+    ? "Adding…"
+    : incomplete
+      ? "Select size and colour"
+      : unavailable
+        ? "Unavailable in this combination"
+        : "Add to cart";
+
   return (
     <div>
-      <p className="font-display text-3xl tabular-nums">{formatPrice(price)}</p>
+      <p className="mt-6 font-display text-3xl text-espresso tabular-nums">{formatPrice(price)}</p>
 
-      <div className="mt-8 space-y-9">
+      <div className="mt-8 space-y-8 border-t hairline pt-8">
         {colourways.length > 1 ? <ColourwayGroup colourways={colourways} /> : null}
         {product.options.map((option) => (
           <OptionGroup
@@ -217,22 +324,22 @@ function PurchasePanel({
         ))}
       </div>
 
-      <Rule className="my-9" />
-
       <button
         ref={mainButton}
         type="button"
         disabled={pending || incomplete || unavailable}
         onClick={addToCartNow}
-        className="eyebrow flex w-full items-center justify-center border hairline bg-espresso px-8 py-5 text-ivory transition-colors duration-500 hover:bg-gold-ink disabled:cursor-not-allowed disabled:bg-stone-dark disabled:text-ivory-light"
+        className="eyebrow press group/button mt-9 flex min-h-14 w-full items-center justify-center gap-4 border border-espresso bg-espresso px-8 py-5 text-ivory-light hover:bg-espresso-soft disabled:cursor-not-allowed disabled:border-stone-dark disabled:bg-stone-dark disabled:text-ivory-light"
       >
-        {pending
-          ? "Adding…"
-          : incomplete
-            ? "Select size and colour"
-            : unavailable
-              ? "Unavailable in this combination"
-              : "Add to cart"}
+        <span className={cn("transition-[opacity,filter] duration-200", pending && "opacity-70 blur-[1px]")}>
+          {label}
+        </span>
+        {!incomplete && !unavailable && !pending ? (
+          <span
+            aria-hidden
+            className="h-px w-5 origin-left bg-current transition-transform duration-500 ease-out group-hover/button:scale-x-[1.8]"
+          />
+        ) : null}
       </button>
 
       {error ? (
@@ -241,11 +348,17 @@ function PurchasePanel({
         </p>
       ) : null}
 
-      {selectedVariant?.sku ? (
-        <p className="eyebrow mt-6 text-espresso-muted">
-          Reference {selectedVariant.sku}
-        </p>
-      ) : null}
+      <ul className="running-head mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-espresso-muted">
+        <li>Made to order</li>
+        <li aria-hidden className="size-[5px] rotate-45 border border-gold" />
+        <li>Finished by hand</li>
+        {selectedVariant?.sku ? (
+          <>
+            <li aria-hidden className="size-[5px] rotate-45 border border-gold" />
+            <li>Ref. {selectedVariant.sku}</li>
+          </>
+        ) : null}
+      </ul>
 
       {/* Phone-only bar. With options still to choose, it takes you to them
           rather than adding something you didn't pick. */}
@@ -253,14 +366,14 @@ function PurchasePanel({
         aria-hidden={mainButtonVisible}
         inert={mainButtonVisible}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-30 border-t hairline bg-ivory/95 backdrop-blur-sm transition-transform duration-500 lg:hidden",
+          "fixed inset-x-0 bottom-0 z-30 border-t hairline bg-ivory/92 backdrop-blur-md transition-transform duration-500 ease-drawer lg:hidden",
           mainButtonVisible ? "translate-y-full" : "translate-y-0",
         )}
       >
-        <div className="flex items-center gap-4 px-6 py-3">
+        <div className="flex items-center gap-4 px-[var(--gutter)] pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
           <div className="min-w-0 flex-1">
             <p className="truncate font-display text-lg leading-tight text-espresso">{product.title}</p>
-            <p className="text-sm tabular-nums text-espresso-muted">{formatPrice(price)}</p>
+            <p className="text-sm text-espresso-soft tabular-nums">{formatPrice(price)}</p>
           </div>
           <button
             type="button"
@@ -270,7 +383,7 @@ function PurchasePanel({
                 ? mainButton.current?.scrollIntoView({ behavior: "smooth", block: "center" })
                 : addToCartNow()
             }
-            className="eyebrow shrink-0 bg-espresso px-5 py-3.5 text-ivory transition-colors duration-500 hover:bg-gold-ink disabled:bg-stone-dark"
+            className="eyebrow press min-h-12 shrink-0 bg-espresso px-5 py-3.5 text-ivory-light hover:bg-espresso-soft disabled:bg-stone-dark"
           >
             {pending ? "Adding…" : incomplete ? "Choose options" : unavailable ? "Unavailable" : "Add to cart"}
           </button>
@@ -289,8 +402,8 @@ function ColourwayGroup({ colourways }: { colourways: ColourwayLink[] }) {
   return (
     <fieldset>
       <legend className="flex w-full items-baseline justify-between gap-4">
-        <Eyebrow as="span">Colourway</Eyebrow>
-        {current ? <span className="text-sm text-espresso-muted">{current.name}</span> : null}
+        <span className="eyebrow text-espresso-muted">Colourway</span>
+        {current ? <span className="font-display text-lg italic text-espresso">{current.name}</span> : null}
       </legend>
 
       <div className="mt-4 flex flex-wrap gap-3">
@@ -303,10 +416,10 @@ function ColourwayGroup({ colourways }: { colourways: ColourwayLink[] }) {
             aria-label={colourway.name}
             aria-current={colourway.current ? "page" : undefined}
             className={cn(
-              "size-10 rounded-full border transition-all duration-500",
+              "press size-11 border outline outline-1 outline-offset-[3px] transition-[outline-color,border-color] duration-300",
               colourway.current
-                ? "border-gold ring-1 ring-gold ring-offset-4 ring-offset-ivory"
-                : "border-espresso/15 hover:border-stone-dark",
+                ? "border-espresso/20 outline-gold"
+                : "border-espresso/20 outline-transparent hover:outline-stone-dark",
             )}
             style={{ backgroundColor: colourway.hex }}
           />
@@ -333,9 +446,9 @@ function OptionGroup({
   return (
     <fieldset>
       <legend className="flex w-full items-baseline justify-between gap-4">
-        <Eyebrow as="span">{option.name}</Eyebrow>
+        <span className="eyebrow text-espresso-muted">{option.name}</span>
         {selected ? (
-          <span className="text-sm text-espresso-muted">{selected}</span>
+          <span className="min-w-0 truncate font-display text-lg italic text-espresso">{selected}</span>
         ) : null}
       </legend>
 
@@ -353,10 +466,10 @@ function OptionGroup({
               aria-pressed={isSelected}
               onClick={() => onSelect(option.name, value)}
               className={cn(
-                "relative size-10 rounded-full border transition-all duration-500",
+                "press relative size-11 border outline outline-1 outline-offset-[3px] transition-[outline-color] duration-300",
                 isSelected
-                  ? "border-gold ring-1 ring-gold ring-offset-4 ring-offset-ivory"
-                  : "border-espresso/15 hover:border-stone-dark",
+                  ? "border-espresso/20 outline-gold"
+                  : "border-espresso/20 outline-transparent hover:outline-stone-dark",
                 !available && "opacity-35",
               )}
               style={{ backgroundColor: swatchColour(value) }}
@@ -366,7 +479,7 @@ function OptionGroup({
                   aria-hidden
                   className="absolute inset-0 flex items-center justify-center"
                 >
-                  <span className="h-px w-8 rotate-45 bg-espresso/50" />
+                  <span className="h-px w-12 -rotate-45 bg-espresso/50" />
                 </span>
               ) : null}
               <span className="sr-only">
@@ -381,12 +494,13 @@ function OptionGroup({
               aria-pressed={isSelected}
               onClick={() => onSelect(option.name, value)}
               className={cn(
-                "eyebrow border px-5 py-3 transition-colors duration-500",
+                "press min-h-11 max-w-full border px-5 py-2.5 text-left text-[0.95rem] [overflow-wrap:anywhere] transition-[border-color,background-color,color] duration-300",
                 isSelected
-                  ? "border-gold bg-gold/10 text-espresso"
-                  : "hairline text-espresso-soft hover:border-gold",
+                  ? "border-espresso bg-espresso text-ivory-light"
+                  : "hairline-strong text-espresso-soft hover:border-gold hover:text-espresso",
                 !available &&
-                  "text-espresso-muted/50 line-through decoration-espresso-muted/40",
+                  !isSelected &&
+                  "text-espresso-muted/70 line-through decoration-espresso-muted/50",
               )}
             >
               {value}

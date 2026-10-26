@@ -7,16 +7,12 @@ import { notFound } from "next/navigation";
 import { GroupGrid } from "@/components/product/product-grid";
 import { ProductViewer, type ColourwayLink } from "@/components/product/product-viewer";
 import { RecentlyViewed } from "@/components/product/recently-viewed";
-import {
-  Container,
-  Eyebrow,
-  Rule,
-  SectionHeading,
-  TextLink,
-} from "@/components/ui/primitives";
+import { Plate } from "@/components/brand/plate";
+import { ButtonLink, Container, SectionHeading } from "@/components/ui/primitives";
 import { findGroupFor, groupProducts, resolveDesign } from "@/lib/catalog";
 import { colourwayFromTitle, roomForType, typeName } from "@/lib/rooms";
-import { SITE } from "@/lib/content/site";
+import { getBlueprint, getMotifForm } from "@/lib/content/designs";
+import { DUTIES_NOTE, SITE } from "@/lib/content/site";
 import { getProduct, getProductHandles } from "@/lib/shopify";
 import { safeGetProduct, safeGetProducts } from "@/lib/shopify/safe";
 import { formatPrice, isFetchableImage, isSizeOption } from "@/lib/utils";
@@ -159,6 +155,73 @@ export default async function ProductPage({
     },
   };
 
+  // Which of the three forms this piece carries, where the house has said so.
+  // Unlabelled pieces carry no claim.
+  const blueprint = getBlueprint(product.handle);
+  const forms = (blueprint?.motifs ?? [])
+    .map((motif) => ({ motif, form: getMotifForm(motif.form) }))
+    .filter((entry) => entry.form);
+  const sizes = sizeSummary(product);
+
+  const heading = (
+    <header>
+      {design ? (
+        <p className="eyebrow flex items-center gap-3 text-gold-ink">
+          <span className="numeral text-base normal-case tracking-normal">{design.reference}</span>
+          <span aria-hidden className="h-px w-6 bg-gold/50" />
+          <Link href={`/designs/${design.handle}`} className="link-underline">
+            {design.name}
+          </Link>
+        </p>
+      ) : null}
+      <h1 className="mt-4 font-display text-display-md text-balance text-espresso [overflow-wrap:anywhere]">
+        {product.title}
+      </h1>
+      <p className="eyebrow mt-3 text-espresso-muted">{typeName(product.productType)}</p>
+    </header>
+  );
+
+  const notes = (
+    <div className="mt-10 border-t hairline">
+      {product.description ? (
+        <Note title="The piece" open>
+          <p className="text-pretty [overflow-wrap:anywhere]">{product.description}</p>
+        </Note>
+      ) : null}
+      {sizes.length ? (
+        <Note title="Sizes & prices">
+          <dl className="divide-y divide-stone">
+            {sizes.map((row) => (
+              <div key={row.size} className="flex items-baseline justify-between gap-6 py-2.5">
+                <dt className="min-w-0 [overflow-wrap:anywhere]">{row.size}</dt>
+                <dd className="shrink-0 text-espresso tabular-nums">{row.price}</dd>
+              </div>
+            ))}
+          </dl>
+        </Note>
+      ) : null}
+      {materialStory ? (
+        <Note title="Material & craft">
+          <p className="text-pretty">{materialStory}</p>
+        </Note>
+      ) : null}
+      {careInstructions ? (
+        <Note title="Care">
+          <p className="text-pretty">{careInstructions}</p>
+        </Note>
+      ) : null}
+      <Note title="Making & delivery">
+        <p className="text-pretty">
+          Made and finished by hand after you order, usually within one to two working days, then
+          sent tracked. {DUTIES_NOTE.short}
+        </p>
+        <Link href="/shipping-returns" className="eyebrow link-ruled mt-4 inline-block text-espresso">
+          Shipping &amp; returns
+        </Link>
+      </Note>
+    </div>
+  );
+
   return (
     <>
       <JsonLd data={jsonLd} />
@@ -174,133 +237,112 @@ export default async function ProductPage({
         }}
       />
 
-      <Container width="wide" className="pt-10 pb-section md:pt-16">
-        <nav aria-label="Breadcrumb" className="eyebrow text-espresso-muted">
-          <ol className="flex flex-wrap items-center gap-2">
+      <Container width="wide" className="pt-6 md:pt-10">
+        <nav aria-label="Breadcrumb" className="mb-6 md:mb-10">
+          <ol className="running-head flex flex-wrap items-center gap-3 text-espresso-muted">
             <li>
               <Link href="/shop" className="hover:text-gold-ink">
                 Shop
               </Link>
             </li>
-            <li aria-hidden>/</li>
+            <li aria-hidden className="h-px w-5 bg-gold/50" />
             <li>
               <Link href={`/rooms/${room.slug}`} className="hover:text-gold-ink">
                 {room.name}
               </Link>
             </li>
-            <li aria-hidden>/</li>
-            <li aria-current="page" className="text-espresso">
+            <li aria-hidden className="h-px w-5 bg-gold/50" />
+            <li aria-current="page" className="max-w-[20ch] truncate text-espresso sm:max-w-none">
               {product.title}
             </li>
           </ol>
         </nav>
 
-        <header className="mt-10 max-w-3xl">
-          {design ? (
-            <Eyebrow>
-              Collection {design.reference} · {design.name}
-            </Eyebrow>
-          ) : null}
-          <h1 className="mt-4 text-display-lg text-balance">{product.title}</h1>
-        </header>
-
-        <div className="mt-14">
-          <ProductViewer
-            product={product}
-            initialVariantId={initialVariantId}
-            colourways={colourways}
-          />
-        </div>
+        <ProductViewer
+          product={product}
+          initialVariantId={initialVariantId}
+          colourways={colourways}
+          heading={heading}
+          notes={notes}
+        />
       </Container>
 
-      {/* The lookbook half: story before specification. */}
-      <Container width="wide" className="pb-section">
-        <Rule />
-        <div className="grid gap-14 py-16 lg:grid-cols-[1fr_1.4fr] lg:gap-24 lg:py-24">
-          <div>
-            <Eyebrow>The piece</Eyebrow>
-            <h2 className="mt-5 text-display-md text-balance">
-              {design?.tagline ?? "Made to be used"}
-            </h2>
-          </div>
-
-          <div className="space-y-12">
-            {product.description ? (
-              <section>
-                <p className="text-lede text-pretty text-espresso-soft">
-                  {product.description}
-                </p>
-              </section>
-            ) : null}
-
-            {materialStory ? (
-              <section>
-                <h3 className="eyebrow text-espresso-muted">Material & craft</h3>
-                <Rule className="my-5 max-w-24" />
-                <p className="text-espresso-soft">{materialStory}</p>
-              </section>
-            ) : null}
-
-            {careInstructions ? (
-              <section>
-                <h3 className="eyebrow text-espresso-muted">Care</h3>
-                <Rule className="my-5 max-w-24" />
-                <p className="text-espresso-soft">{careInstructions}</p>
-              </section>
-            ) : null}
-
-            <section>
-              <h3 className="eyebrow text-espresso-muted">Sizes & prices</h3>
-              <Rule className="my-5 max-w-24" />
-              <dl className="divide-y divide-stone/60">
-                {sizeSummary(product).map((row) => (
-                  <div
-                    key={row.size}
-                    className="flex items-baseline justify-between gap-6 py-3"
-                  >
-                    <dt className="text-espresso-soft">{row.size}</dt>
-                    <dd className="tabular-nums text-espresso-muted">
-                      {row.price}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-
-            {design ? (
-              <section>
-                <h3 className="eyebrow text-espresso-muted">
-                  On the {design.name} collection
-                </h3>
-                <Rule className="my-5 max-w-24" />
-                <p className="text-espresso-soft">{design.introduction}</p>
-                <TextLink
-                  href={`/designs/${design.handle}`}
-                  className="eyebrow mt-6 inline-block"
-                >
-                  See the whole collection
-                </TextLink>
-              </section>
-            ) : null}
-          </div>
-        </div>
-        <Rule />
-      </Container>
+      {/* The plate this piece is printed from — a night chapter. */}
+      {design ? (
+        <section className="relative mt-section overflow-hidden bg-espresso py-section text-ivory-light">
+          <Container width="wide">
+            <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+              <div className="lg:col-span-5">
+                <Plate
+                  form={forms[0]?.form?.slug ?? "dense-field"}
+                  colorway="signature"
+                  alt=""
+                  frameClassName="aspect-square"
+                  artClassName="object-contain"
+                  vertical={false}
+                  reveal
+                />
+              </div>
+              <div className="lg:col-span-6 lg:col-start-7">
+                <SectionHeading
+                  numeral={design.reference}
+                  tone="dark"
+                  eyebrow={`On ${design.name}`}
+                  title={design.tagline}
+                  lede={design.introduction}
+                />
+                {forms.length ? (
+                  <dl data-reveal className="mt-10 border-t border-gold-light/25">
+                    {forms.map(({ motif, form }) => (
+                      <div
+                        key={`${motif.form}-${motif.placement}`}
+                        className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-gold-light/25 py-4"
+                      >
+                        <dt className="font-display text-xl text-ivory-light">{form!.name}</dt>
+                        <dd className="eyebrow text-ivory/70">{motif.placement}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+                <ButtonLink href={`/designs/${design.handle}`} variant="light" className="mt-10">
+                  The whole collection
+                </ButtonLink>
+              </div>
+            </div>
+          </Container>
+        </section>
+      ) : null}
 
       {completeTheSet.length ? (
-        <Container width="wide" className="pb-section">
+        <Container width="wide" className="pt-section">
           <SectionHeading
             eyebrow="Complete the set"
             title={colourway ? `More in ${colourway.name}` : `More from ${room.name}`}
           />
-          <GroupGrid groups={completeTheSet} className="mt-12" />
+          <GroupGrid groups={completeTheSet} className="mt-12 md:mt-16" />
         </Container>
       ) : null}
 
-      <Container width="wide" className="pb-section">
+      <Container width="wide" className="pt-section">
         <RecentlyViewed current={viewed} />
       </Container>
     </>
+  );
+}
+
+/** A folded note under the purchase panel. Native <details>: no script needed. */
+function Note({ title, open = false, children }: { title: string; open?: boolean; children: React.ReactNode }) {
+  return (
+    <details open={open} className="group/note border-b hairline">
+      <summary className="press flex min-h-14 items-center justify-between gap-4 py-4 font-display text-xl text-espresso transition-colors hover:text-gold-ink">
+        {title}
+        <span aria-hidden className="relative block size-3 shrink-0 text-gold-ink">
+          <span className="absolute inset-x-0 top-1/2 h-px bg-current" />
+          <span className="absolute inset-y-0 left-1/2 w-px bg-current transition-transform duration-300 ease-out group-open/note:scale-y-0" />
+        </span>
+      </summary>
+      <div className="pb-6 text-espresso-soft">{children}</div>
+    </details>
   );
 }
 

@@ -614,3 +614,21 @@ header[data-floating="true"] [data-mark="monogram"] {
 .sheet-in {
   animation: sheet-in 260ms var(--ease-out) both;
 }
+
+/* A gallery view arriving: a short cross-fade that settles from a touch of
+   enlargement, blurred for its first frames so the swap reads as one image. */
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: scale(1.025);
+    filter: blur(3px);
+  }
+}
+.view-in {
+  animation: view-in 600ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .view-in {
+    animation: folio-fade 200ms ease both;
+  }
+}

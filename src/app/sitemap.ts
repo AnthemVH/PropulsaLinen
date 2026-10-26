@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { buildRoomNav } from "@/lib/catalog";
-import { DESIGN_COLLECTIONS } from "@/lib/content/designs";
+import { DESIGN_COLLECTIONS, getDesign } from "@/lib/content/designs";
 import { SITE } from "@/lib/content/site";
 import { getCollections, getProductHandles, getProducts } from "@/lib/shopify";
 
@@ -24,7 +24,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: url("/"), priority: 1 },
     { url: url("/shop"), priority: 0.9 },
     { url: url("/designs"), priority: 0.9 },
-    { url: url("/collections"), priority: 0.7 },
     { url: url("/about"), priority: 0.7 },
     { url: url("/shipping-returns"), priority: 0.4 },
     { url: url("/faq"), priority: 0.4 },
@@ -41,7 +40,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: url(`/designs/${design.handle}`),
       priority: 0.8,
     })),
-    ...collections.map((collection) => ({
+    // Collections that mirror a house collection redirect to /designs.
+    ...collections.filter((collection) => !getDesign(collection.handle)).map((collection) => ({
       url: url(`/collections/${collection.handle}`),
       lastModified: collection.updatedAt || undefined,
       priority: 0.7,

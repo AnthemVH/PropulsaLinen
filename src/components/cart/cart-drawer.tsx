@@ -7,8 +7,8 @@ import { removeCartLine, updateCartLine } from "@/lib/cart/actions";
 import { DUTIES_NOTE } from "@/lib/content/site";
 import type { CartLine } from "@/lib/shopify/types";
 import { cn, formatPrice } from "@/lib/utils";
+import { MotifArt } from "@/components/brand/motif-art";
 import { Media } from "@/components/ui/media";
-import { Rule } from "@/components/ui/primitives";
 
 import { CheckoutAction } from "./checkout-action";
 import { useCart } from "./cart-context";
@@ -90,7 +90,8 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
         aria-label="Close cart"
         onClick={closeCart}
         className={cn(
-          "absolute inset-0 bg-espresso/35 backdrop-blur-[2px] transition-opacity duration-700",
+          "absolute inset-0 bg-espresso/45 transition-opacity",
+          isOpen ? "duration-500" : "duration-300",
           isOpen ? "opacity-100" : "opacity-0",
         )}
       />
@@ -102,38 +103,46 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
         aria-label="Your selection"
         tabIndex={-1}
         className={cn(
-          "absolute right-0 top-0 flex h-full w-full max-w-[27rem] flex-col bg-ivory-light shadow-[0_0_60px_rgba(42,33,26,0.14)] transition-transform duration-700 ease-[cubic-bezier(0.22,0.61,0.36,1)] focus:outline-none",
-          isOpen ? "translate-x-0" : "translate-x-full",
+          "absolute top-0 right-0 flex h-full w-full max-w-[28rem] flex-col border-l hairline bg-ivory-light shadow-[0_0_80px_rgba(42,33,26,0.18)] transition-transform ease-drawer focus:outline-none",
+          // Enters at drawer speed, leaves faster than it came.
+          isOpen ? "translate-x-0 duration-500" : "translate-x-full duration-300",
         )}
       >
-        <header className="flex items-baseline justify-between px-7 pt-8 pb-5">
-          <h2 className="eyebrow text-espresso-muted">Your selection</h2>
+        <header className="flex items-center justify-between border-b hairline px-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] pb-5 sm:px-8">
+          <h2 className="flex items-baseline gap-3 font-display text-2xl text-espresso">
+            Your selection
+            {cart?.totalQuantity ? (
+              <span className="numeral text-lg text-gold-ink">{cart.totalQuantity}</span>
+            ) : null}
+          </h2>
           <button
             type="button"
             onClick={closeCart}
-            className="eyebrow text-espresso-muted transition-colors duration-500 hover:text-gold-ink"
+            className="eyebrow press -mr-3 p-3 text-espresso-muted hover:text-gold-ink"
           >
             Close
           </button>
         </header>
-        <Rule />
 
         {isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-5 px-10 text-center">
-            <p className="text-display-sm">Nothing selected yet</p>
-            <p className="text-espresso-muted">
-              Pieces you choose will be held here.
-            </p>
+            <div aria-hidden className="plate-marks relative mb-4 h-40 w-32">
+              <div className="absolute inset-0 bg-ivory-light">
+                <MotifArt form="single-sprig" colorway="inverse" alt="" className="object-contain" />
+              </div>
+            </div>
+            <p className="font-display text-display-sm text-espresso">Nothing selected yet</p>
+            <p className="max-w-xs text-espresso-soft">Pieces you choose will be held here.</p>
             <Link
               href="/shop"
               onClick={closeCart}
-              className="eyebrow mt-2 text-gold-ink link-underline"
+              className="eyebrow link-ruled mt-2 py-1 text-espresso"
             >
-              Browse the collections
+              Browse the house
             </Link>
           </div>
         ) : (
-          <ul className="flex-1 divide-y divide-stone/60 overflow-y-auto px-7">
+          <ul className="flex-1 divide-y divide-stone overflow-y-auto overscroll-contain px-6 sm:px-8">
             {lines.map((line) => (
               <CartLineRow
                 key={line.id}
@@ -150,20 +159,20 @@ export function CartDrawer({ shopifyConfigured }: { shopifyConfigured: boolean }
         )}
 
         {error ? (
-          <p className="px-7 pb-3 text-sm text-gold-ink" role="alert">
+          <p className="px-6 pb-3 text-sm text-gold-ink sm:px-8" role="alert">
             {error}
           </p>
         ) : null}
 
         {!isEmpty && cart ? (
-          <footer className="border-t hairline px-7 pt-6 pb-8">
+          <footer className="border-t hairline bg-ivory px-6 pt-6 pb-[max(2rem,env(safe-area-inset-bottom,0px))] sm:px-8">
             <dl className="flex items-baseline justify-between">
               <dt className="eyebrow text-espresso-muted">Subtotal</dt>
-              <dd className="font-display text-2xl">
+              <dd className="font-display text-3xl text-espresso tabular-nums">
                 {formatPrice(cart.cost.subtotalAmount)}
               </dd>
             </dl>
-            <p className="mt-2 text-sm text-espresso-muted">
+            <p className="mt-3 text-sm text-pretty text-espresso-soft">
               {DUTIES_NOTE.short}
             </p>
 
@@ -197,11 +206,11 @@ function CartLineRow({
     .join(" · ");
 
   return (
-    <li className={cn("flex gap-5 py-6 transition-opacity", pending && "opacity-50")}>
+    <li className={cn("flex gap-5 py-6 transition-opacity duration-300", pending && "opacity-50")}>
       <Link
         href={`/products/${line.merchandise.product.handle}`}
         onClick={onNavigate}
-        className="relative aspect-[4/5] w-24 shrink-0 overflow-hidden bg-stone/40"
+        className="relative aspect-[4/5] w-24 shrink-0 overflow-hidden bg-stone/45"
       >
         <Media image={line.merchandise.image} sizes="96px" />
       </Link>
@@ -210,11 +219,11 @@ function CartLineRow({
         <Link
           href={`/products/${line.merchandise.product.handle}`}
           onClick={onNavigate}
-          className="font-display text-lg transition-colors duration-500 hover:text-gold-ink"
+          className="font-display text-lg leading-snug text-espresso [overflow-wrap:anywhere] hover:text-gold-ink"
         >
           {line.merchandise.product.title}
         </Link>
-        <p className="mt-1 text-sm text-espresso-muted">{options}</p>
+        <p className="mt-1 text-sm text-espresso-soft [overflow-wrap:anywhere]">{options}</p>
 
         <div className="mt-auto flex items-center justify-between gap-4 pt-4">
           <div className="flex items-center border hairline">
@@ -237,7 +246,7 @@ function CartLineRow({
             </QuantityButton>
           </div>
 
-          <span className="text-sm tabular-nums">
+          <span className="text-espresso tabular-nums">
             {formatPrice(line.cost.totalAmount)}
           </span>
         </div>
@@ -246,7 +255,7 @@ function CartLineRow({
           type="button"
           onClick={onRemove}
           disabled={pending}
-          className="eyebrow mt-3 self-start text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
+          className="eyebrow link-underline press mt-3 self-start py-1 text-espresso-muted hover:text-gold-ink disabled:opacity-40"
         >
           Remove
         </button>
@@ -272,7 +281,7 @@ function QuantityButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="px-3 py-2 text-sm text-espresso-muted transition-colors duration-500 hover:text-gold-ink disabled:opacity-40"
+      className="press flex size-10 items-center justify-center text-espresso-soft hover:text-gold-ink disabled:opacity-40"
     >
       {children}
     </button>
