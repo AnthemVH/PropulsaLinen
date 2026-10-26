@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Container, Eyebrow, Prose, Rule } from "@/components/ui/primitives";
+import { Container, PageHeader, Prose } from "@/components/ui/primitives";
 import { SITE } from "@/lib/content/site";
 import { safeGetShopPolicies } from "@/lib/shopify/safe";
 
@@ -38,13 +38,8 @@ export default async function PolicyPage({ params }: { params: Promise<Params> }
   if (!policy) notFound();
 
   return (
-    <Container className="pt-12 pb-section md:pt-16">
-      <header>
-        <Eyebrow>Policies</Eyebrow>
-        <h1 className="mt-4 text-display-lg">{policy.title}</h1>
-      </header>
-
-      <Rule className="my-10 md:my-12" />
+    <Container width="narrow" className="pb-section">
+      <PageHeader runningHead="Policies" title={policy.title} />
 
       {/* Written by the store in Shopify admin, not by customers, so it is
           trusted HTML. The site's Content Security Policy still blocks any
@@ -63,9 +58,8 @@ function OnThisWebsite() {
   const requestLink = `mailto:${SITE.contactEmail}?subject=${encodeURIComponent("Personal information request")}`;
 
   return (
-    <section className="mt-16">
-      <Rule className="mb-12" />
-      <h2 className="text-display-sm">On this website</h2>
+    <section className="mt-16 border-t hairline pt-12">
+      <h2 className="font-display text-display-sm text-espresso">On this website</h2>
       <Prose className="mt-6">
         <p>
           This website sets one cookie of its own, <strong>propulsa_cart_id</strong>, which remembers

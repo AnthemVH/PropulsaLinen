@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
-import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
+import { Plate } from "@/components/brand/plate";
+import { Container, PageHeader } from "@/components/ui/primitives";
+import { toRoman } from "@/lib/utils";
 import { SITE } from "@/lib/content/site";
 
 export const metadata: Metadata = {
@@ -31,55 +33,81 @@ const ENQUIRIES = [
 
 export default function ContactPage() {
   return (
-    <Container className="pt-16 pb-section md:pt-24">
-      <header className="max-w-2xl">
-        <Eyebrow>The atelier</Eyebrow>
-        <h1 className="mt-5 text-display-lg">Contact</h1>
-        <p className="mt-6 text-lede text-pretty text-espresso-soft">
-          We answer letters ourselves. There is no chat widget and no ticket
-          number.
-        </p>
-      </header>
+    <Container width="wide" className="pb-section">
+      <PageHeader
+        runningHead="The atelier"
+        title="Contact"
+        lede="We answer letters ourselves. There is no chat widget and no ticket number."
+      />
 
-      <Rule className="my-12" />
-
-      <dl className="divide-y divide-stone/60 border-y hairline">
-        {ENQUIRIES.map((enquiry) => (
-          <div
-            key={enquiry.title}
-            className="grid gap-4 py-9 md:grid-cols-[1fr_1.4fr] md:gap-12"
-          >
-            <dt className="font-display text-display-sm">{enquiry.title}</dt>
-            <dd>
-              <p className="text-espresso-soft">{enquiry.body}</p>
+      <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
+        <ol className="border-t hairline lg:col-span-7">
+          {ENQUIRIES.map((enquiry, index) => (
+            <li key={enquiry.title} data-reveal className="border-b hairline">
               <a
                 href={`mailto:${SITE.contactEmail}?subject=${encodeURIComponent(enquiry.subject)}`}
-                className="eyebrow link-underline mt-4 inline-block text-gold-ink"
+                className="group grid gap-x-6 gap-y-2 py-8 sm:grid-cols-[3rem_1fr_auto] sm:items-baseline md:py-10"
               >
-                {SITE.contactEmail}
+                <span className="numeral text-xl text-gold-ink">{toRoman(index + 1)}</span>
+                <span>
+                  <span className="block font-display text-display-sm text-espresso transition-colors group-hover:text-gold-ink">
+                    {enquiry.title}
+                  </span>
+                  <span className="mt-2 block max-w-md text-espresso-soft">{enquiry.body}</span>
+                </span>
+                <span className="eyebrow mt-3 inline-flex items-center gap-3 text-espresso sm:mt-0">
+                  Write
+                  <span aria-hidden className="h-px w-5 origin-left bg-current transition-transform duration-500 ease-out group-hover:scale-x-[1.8]" />
+                </span>
               </a>
-            </dd>
-          </div>
-        ))}
-      </dl>
+            </li>
+          ))}
+        </ol>
 
-      <p className="mt-12 max-w-xl text-espresso-muted">
-        Correspondence is read Monday to Friday. Anything sent over a weekend is
-        answered on the Monday.
-      </p>
-
-      <dl className="mt-12 grid max-w-xl gap-x-8 gap-y-3 text-espresso-soft sm:grid-cols-[auto_1fr]">
-        <dt className="eyebrow text-espresso-muted">Telephone</dt>
-        <dd>
-          <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:text-gold-ink">
-            {SITE.phone}
-          </a>
-        </dd>
-        <dt className="eyebrow text-espresso-muted">Company</dt>
-        <dd>
-          {SITE.legalName}, registered in South Africa, no. {SITE.registrationNumber}
-        </dd>
-      </dl>
+        <aside className="lg:col-span-4 lg:col-start-9">
+          <Plate
+            form="single-sprig"
+            colorway="warm-stone"
+            alt=""
+            className="hidden lg:block"
+            frameClassName="aspect-[4/3]"
+            artClassName="object-contain"
+            marks
+            reveal
+          />
+          <dl className="grid gap-x-8 gap-y-5 text-espresso-soft lg:mt-12">
+            <div>
+              <dt className="eyebrow text-espresso-muted">Write</dt>
+              <dd className="mt-2">
+                <a href={`mailto:${SITE.contactEmail}`} className="font-display text-2xl text-espresso hover:text-gold-ink [overflow-wrap:anywhere]">
+                  {SITE.contactEmail}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="eyebrow text-espresso-muted">Telephone</dt>
+              <dd className="mt-2">
+                <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="font-display text-2xl text-espresso hover:text-gold-ink">
+                  {SITE.phone}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="eyebrow text-espresso-muted">Hours</dt>
+              <dd className="mt-2 text-pretty">
+                Correspondence is read Monday to Friday. Anything sent over a weekend is answered on
+                the Monday.
+              </dd>
+            </div>
+            <div>
+              <dt className="eyebrow text-espresso-muted">Company</dt>
+              <dd className="mt-2">
+                {SITE.legalName}, registered in South Africa, no. {SITE.registrationNumber}
+              </dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
     </Container>
   );
 }

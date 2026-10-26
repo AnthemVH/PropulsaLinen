@@ -66,18 +66,18 @@ export function RecentlyViewed({ current }: { current: ViewedProduct }) {
   return (
     <section>
       <SectionHeading eyebrow="Recently viewed" title="Where you have been" />
-      <ul className="mt-12 grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-4 md:gap-x-8">
+      <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 md:mt-16 md:grid-cols-4 md:gap-x-8">
         {others.map((item) => (
           <li key={item.handle}>
             <Link href={`/products/${item.handle}`} className="group block">
-              <div className="relative aspect-[4/5] overflow-hidden bg-stone/30">
+              <div className="relative aspect-[4/5] overflow-hidden bg-stone/45">
                 <Media image={item.image} sizes="(min-width: 768px) 23vw, 48vw" />
               </div>
               <p className="eyebrow mt-4 text-espresso-muted">{item.type}</p>
-              <h3 className="mt-2 font-display text-lg leading-snug text-espresso transition-colors duration-500 group-hover:text-gold-ink">
+              <h3 className="mt-2 font-display text-lg leading-snug text-pretty text-espresso [overflow-wrap:anywhere] transition-colors group-hover:text-gold-ink md:text-[1.375rem]">
                 {item.title}
               </h3>
-              <p className="mt-1 text-sm text-espresso-muted tabular-nums">{item.price}</p>
+              <p className="mt-1.5 text-sm text-espresso-soft tabular-nums">{item.price}</p>
             </Link>
           </li>
         ))}

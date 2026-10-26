@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
-import { Container, Eyebrow, Prose, Rule } from "@/components/ui/primitives";
+import Link from "next/link";
+
+import { Container, PageHeader, Prose } from "@/components/ui/primitives";
+import { slugify } from "@/lib/catalog";
+import { toRoman } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Shipping & returns",
@@ -52,25 +56,43 @@ const SECTIONS = [
 
 export default function ShippingReturnsPage() {
   return (
-    <Container className="pt-16 pb-section md:pt-24">
-      <header>
-        <Eyebrow>Practicalities</Eyebrow>
-        <h1 className="mt-5 text-display-lg">Shipping & returns</h1>
-      </header>
+    <Container width="wide" className="pb-section">
+      <PageHeader
+        runningHead="Practicalities"
+        title="Shipping & returns"
+        lede="How an order is made, sent and, if something is wrong, put right."
+      />
 
-      <Rule className="my-12" />
+      <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        {/* Contents */}
+        <nav aria-label="On this page" className="lg:col-span-3">
+          <ol className="space-y-3 lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
+            {SECTIONS.map((section, index) => (
+              <li key={section.title}>
+                <Link href={`#${slugify(section.title)}`} className="group flex items-baseline gap-4">
+                  <span className="numeral w-6 text-gold-ink">{toRoman(index + 1)}</span>
+                  <span className="text-espresso-soft transition-colors group-hover:text-gold-ink">{section.title}</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-      <div className="space-y-14">
-        {SECTIONS.map((section) => (
-          <section key={section.title}>
-            <h2 className="font-display text-display-sm">{section.title}</h2>
-            <Prose className="mt-5">
-              {section.body.map((paragraph) => (
-                <p key={paragraph.slice(0, 24)}>{paragraph}</p>
-              ))}
-            </Prose>
-          </section>
-        ))}
+        <div className="space-y-16 lg:col-span-8 lg:col-start-5">
+          {SECTIONS.map((section, index) => (
+            <section key={section.title} id={slugify(section.title)} data-reveal className="border-t hairline pt-10">
+              <h2 className="flex items-baseline gap-5 font-display text-display-sm text-espresso">
+                <span className="numeral text-xl text-gold-ink">{toRoman(index + 1)}</span>
+                {section.title}
+              </h2>
+              <Prose className="mt-6">
+                {section.body.map((paragraph) => (
+                  <p key={paragraph.slice(0, 24)}>{paragraph}</p>
+                ))}
+              </Prose>
+            </section>
+          ))}
+        </div>
       </div>
     </Container>
   );

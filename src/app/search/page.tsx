@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { EmptyState, ProductGrid } from "@/components/product/product-grid";
-import { Container, Eyebrow, Rule } from "@/components/ui/primitives";
+import { Container } from "@/components/ui/primitives";
 import { buildRoomNav, matchRoomsAndTypes } from "@/lib/catalog";
 import { safeGetProducts, safeSearchProducts } from "@/lib/shopify/safe";
+import { toRoman } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -28,11 +29,11 @@ export default async function SearchPage({
   const rooms = buildRoomNav(catalogue);
 
   return (
-    <Container width="wide" className="pt-12 pb-section md:pt-16">
-      <header className="max-w-3xl">
-        <Eyebrow>Search</Eyebrow>
+    <Container width="wide" className="pb-section">
+      <header className="pt-12 pb-10 md:pt-20 md:pb-14">
+        <p className="eyebrow intro-fade text-espresso-muted">Search the house</p>
         {/* A plain GET form, so search works before JavaScript loads. */}
-        <form action="/search" role="search" className="mt-5 flex items-end gap-4">
+        <form action="/search" role="search" className="intro-rise mt-6 flex items-end gap-4 md:gap-8">
           <label htmlFor="search-page-input" className="sr-only">
             Search the shop
           </label>
@@ -42,21 +43,26 @@ export default async function SearchPage({
             name="q"
             defaultValue={query}
             maxLength={80}
-            placeholder="Search the shop"
-            className="min-w-0 flex-1 border-0 border-b hairline bg-transparent py-2 font-display text-display-sm text-espresso placeholder:text-espresso-muted/60 focus:border-gold focus:outline-none"
+            enterKeyHint="search"
+            placeholder="A glass, a throw, a room…"
+            className="min-w-0 flex-1 rounded-none border-0 border-b hairline-strong bg-transparent py-3 font-display text-[2rem] font-light text-espresso placeholder:text-espresso-muted/70 focus:border-gold focus:outline-none md:text-display-lg"
           />
-          <button type="submit" className="eyebrow shrink-0 border hairline px-6 py-3 text-espresso hover:border-gold hover:text-gold-ink">
+          <button
+            type="submit"
+            className="eyebrow press mb-2 min-h-12 shrink-0 border hairline-strong px-5 py-3 text-espresso hover:border-gold hover:text-gold-ink md:px-8"
+          >
             Search
           </button>
         </form>
       </header>
 
-      <Rule className="my-10 md:my-12" />
-
       {query ? (
         <>
-          <p className="eyebrow text-espresso-muted">
-            {results.length} {results.length === 1 ? "piece" : "pieces"} for “{query}”
+          <p className="eyebrow text-espresso-muted" aria-live="polite">
+            <span className="numeral mr-2 text-base normal-case tracking-normal text-gold-ink">
+              {results.length}
+            </span>
+            {results.length === 1 ? "piece" : "pieces"} for “<span className="[overflow-wrap:anywhere]">{query}</span>”
           </p>
 
           {links.length ? (
@@ -65,7 +71,7 @@ export default async function SearchPage({
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="eyebrow inline-flex items-center gap-2 border hairline px-4 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
+                    className="eyebrow press inline-flex items-center gap-2 border hairline bg-ivory-light px-4 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
                   >
                     {link.label}
                     <span className="text-espresso-muted">· {link.detail}</span>
@@ -75,11 +81,12 @@ export default async function SearchPage({
             </ul>
           ) : null}
 
-          <div className="mt-10">
+          <div className="mt-12">
             {results.length ? (
               <ProductGrid products={results} />
             ) : (
               <EmptyState
+                label="No match"
                 title={`Nothing matches “${query}”`}
                 body="Try a kind of piece, like a throw or a glass, or browse by room below."
               />
@@ -88,21 +95,24 @@ export default async function SearchPage({
         </>
       ) : null}
 
-      {!query || !results.length ? (
-        <div className="mt-12">
-          <Eyebrow>Browse by room</Eyebrow>
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {rooms.map((nav) => (
-              <li key={nav.room.slug}>
+      {(!query || !results.length) && rooms.length ? (
+        <div className="mt-16">
+          <p className="eyebrow text-espresso-muted">Or browse by room</p>
+          <ol className="mt-6 grid border-t hairline sm:grid-cols-2 lg:grid-cols-4">
+            {rooms.map((nav, index) => (
+              <li key={nav.room.slug} className="border-b hairline">
                 <Link
                   href={`/rooms/${nav.room.slug}`}
-                  className="eyebrow inline-block border hairline px-4 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
+                  className="group flex items-baseline gap-4 py-5 pr-4"
                 >
-                  {nav.room.name}
+                  <span className="numeral text-gold-ink">{toRoman(index + 1)}</span>
+                  <span className="font-display text-2xl text-espresso transition-colors group-hover:text-gold-ink">
+                    {nav.room.name}
+                  </span>
                 </Link>
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
       ) : null}
     </Container>
