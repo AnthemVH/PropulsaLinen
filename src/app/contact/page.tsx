@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { Plate } from "@/components/brand/plate";
 import { Container, PageHeader } from "@/components/ui/primitives";
-import { toRoman } from "@/lib/utils";
 import { SITE } from "@/lib/content/site";
 
 export const metadata: Metadata = {
@@ -41,13 +40,12 @@ export default function ContactPage() {
 
       <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
         <ol className="border-t hairline lg:col-span-7">
-          {ENQUIRIES.map((enquiry, index) => (
+          {ENQUIRIES.map((enquiry) => (
             <li key={enquiry.title} data-reveal className="border-b hairline">
               <a
                 href={`mailto:${SITE.contactEmail}?subject=${encodeURIComponent(enquiry.subject)}`}
-                className="group grid gap-x-6 gap-y-2 py-8 sm:grid-cols-[3rem_1fr_auto] sm:items-baseline md:py-10"
+                className="group grid gap-x-6 gap-y-2 py-8 sm:grid-cols-[1fr_auto] sm:items-baseline md:py-10"
               >
-                <span className="numeral text-xl text-gold-ink">{toRoman(index + 1)}</span>
                 <span>
                   <span className="block font-display text-display-sm text-espresso transition-colors group-hover:text-gold-ink">
                     {enquiry.title}
@@ -72,7 +70,6 @@ export default function ContactPage() {
             frameClassName="aspect-[4/3]"
             artClassName="object-contain"
             marks
-            reveal
           />
           <dl className="grid gap-x-8 gap-y-5 text-espresso-soft lg:mt-12">
             <div>

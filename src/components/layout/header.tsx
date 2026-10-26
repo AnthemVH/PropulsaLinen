@@ -114,7 +114,7 @@ export function Header({ rooms }: { rooms: RoomNav[] }) {
               <MenuGlyph open={indexOpen} />
               <span className="max-sm:sr-only">{indexOpen ? "Close" : "Index"}</span>
             </button>
-            <nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
+            <nav aria-label="Primary" className="hidden items-center gap-8 xl:flex">
               <HeaderLink href="/shop" current={pathname === "/shop"}>
                 Shop
               </HeaderLink>
@@ -176,7 +176,7 @@ function HouseIndex({
 }) {
   const [active, setActive] = useState(0);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const firstLink = useRef<HTMLAnchorElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const activeRoom = rooms[active] ?? null;
 
   // Lock the page behind the open index and move focus into it.
@@ -184,7 +184,9 @@ function HouseIndex({
     if (!open) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    firstLink.current?.focus({ preventScroll: true });
+    // The first link in the index: a room, or the house links when no rooms
+    // are published yet.
+    panelRef.current?.querySelector<HTMLAnchorElement>("a[href]")?.focus({ preventScroll: true });
     return () => {
       document.body.style.overflow = previous;
     };
@@ -192,6 +194,7 @@ function HouseIndex({
 
   return (
     <div
+      ref={panelRef}
       id="house-index"
       inert={!open}
       aria-hidden={!open}
@@ -199,10 +202,12 @@ function HouseIndex({
       // containing block, so "fixed" would be sized to the header.
       className={cn(
         "absolute inset-x-0 top-full h-[calc(100dvh-var(--header-h))] overflow-y-auto overscroll-contain bg-ivory-light",
-        "transition-[clip-path,visibility] ease-drawer",
+        "ease-drawer",
+        // Visible at once when opening (so focus can move in on the same
+        // frame); hidden only after the wipe when closing.
         open
-          ? "visible duration-500 [clip-path:inset(0_0_0_0)]"
-          : "invisible duration-300 [clip-path:inset(0_0_100%_0)]",
+          ? "visible transition-[clip-path] duration-500 [clip-path:inset(0_0_0_0)]"
+          : "invisible transition-[clip-path,visibility] duration-300 [clip-path:inset(0_0_100%_0)]",
       )}
     >
       <div className="mx-auto grid min-h-full max-w-[1760px] gap-10 px-[var(--gutter)] py-8 md:py-12 lg:grid-cols-12 lg:gap-12 lg:py-16">
@@ -224,7 +229,6 @@ function HouseIndex({
                 >
                   <div className="flex items-center">
                     <Link
-                      ref={index === 0 ? firstLink : undefined}
                       href={`/rooms/${nav.room.slug}`}
                       onClick={onClose}
                       onMouseEnter={() => setActive(index)}

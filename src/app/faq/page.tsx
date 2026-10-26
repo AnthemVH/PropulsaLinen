@@ -5,7 +5,6 @@ import { JsonLd } from "@/components/ui/json-ld";
 
 import { Container, PageHeader } from "@/components/ui/primitives";
 import { SITE } from "@/lib/content/site";
-import { toRoman } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Frequently asked",
@@ -118,11 +117,38 @@ export default function FaqPage() {
         lede="Ordering first, because that is what most letters are about; then the house and its collection."
       />
 
-      <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <aside className="lg:col-span-4">
-          <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
+      <div className="max-w-[52rem]">
+          <div className="border-t hairline">
+            {FAQS.map((faq, index) => (
+              <details key={faq.question} className="group/faq border-b hairline" open={index === 0}>
+                <summary className="press flex min-h-16 items-baseline justify-between gap-6 py-6">
+                  <span className="flex-1 font-display text-xl text-pretty text-espresso transition-colors group-hover/faq:text-gold-ink md:text-display-sm">
+                    {faq.question}
+                  </span>
+                  <span aria-hidden className="relative mt-2 block size-3 shrink-0 self-start text-gold-ink md:mt-3">
+                    <span className="absolute inset-x-0 top-1/2 h-px bg-current" />
+                    <span className="absolute inset-y-0 left-1/2 w-px bg-current transition-transform duration-300 ease-out group-open/faq:scale-y-0" />
+                  </span>
+                </summary>
+                <div className="pb-8">
+                  <p className="max-w-[32rem] text-pretty text-espresso-soft">
+                    {faq.answer}
+                    {faq.link ? (
+                      <>
+                        {" "}
+                        <Link href={faq.link.href} className="text-espresso underline decoration-gold/50 underline-offset-4 hover:text-gold-ink">
+                          {faq.link.label}
+                        </Link>
+                      </>
+                    ) : null}
+                  </p>
+                </div>
+              </details>
+            ))}
+          </div>
+        <aside className="mt-16 border-t hairline pt-10 md:mt-20">
             <p className="font-display text-display-sm text-espresso">Not answered here?</p>
-            <p className="mt-3 max-w-xs text-espresso-soft">
+            <p className="mt-3 max-w-sm text-espresso-soft">
               Write to the atelier. Letters are read and answered by a person, Monday to Friday.
             </p>
             <a
@@ -131,38 +157,7 @@ export default function FaqPage() {
             >
               {SITE.contactEmail}
             </a>
-          </div>
         </aside>
-
-        <div className="border-t hairline lg:col-span-8">
-          {FAQS.map((faq, index) => (
-            <details key={faq.question} className="group/faq border-b hairline" open={index === 0}>
-              <summary className="press flex min-h-16 items-baseline gap-5 py-6 md:gap-8">
-                <span className="numeral w-10 shrink-0 text-lg text-gold-ink">{toRoman(index + 1)}</span>
-                <span className="flex-1 font-display text-xl text-pretty text-espresso transition-colors group-hover/faq:text-gold-ink md:text-display-sm">
-                  {faq.question}
-                </span>
-                <span aria-hidden className="relative mt-2 block size-3 shrink-0 self-start text-gold-ink md:mt-3">
-                  <span className="absolute inset-x-0 top-1/2 h-px bg-current" />
-                  <span className="absolute inset-y-0 left-1/2 w-px bg-current transition-transform duration-300 ease-out group-open/faq:scale-y-0" />
-                </span>
-              </summary>
-              <div className="pb-8 pl-[3.75rem] md:pl-[4.5rem]">
-                <p className="max-w-[32rem] text-pretty text-espresso-soft">
-                  {faq.answer}
-                  {faq.link ? (
-                    <>
-                      {" "}
-                      <Link href={faq.link.href} className="text-espresso underline decoration-gold/50 underline-offset-4 hover:text-gold-ink">
-                        {faq.link.label}
-                      </Link>
-                    </>
-                  ) : null}
-                </p>
-              </div>
-            </details>
-          ))}
-        </div>
       </div>
     </Container>
   );

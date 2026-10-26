@@ -84,6 +84,11 @@ export default async function SearchPage({
           <div className="mt-12">
             {results.length ? (
               <ProductGrid products={results} />
+            ) : !catalogue.length ? (
+              <EmptyState
+                title="The range is being prepared"
+                body="There is nothing to search yet. Pieces appear here as they are published to the store."
+              />
             ) : (
               <EmptyState
                 label="No match"

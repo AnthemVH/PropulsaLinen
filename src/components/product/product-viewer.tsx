@@ -226,7 +226,7 @@ function Gallery({
                     "press relative block aspect-[4/5] w-full overflow-hidden bg-stone/45 outline outline-1 outline-offset-2 transition-[outline-color,opacity] duration-300",
                     index === activeIndex
                       ? "outline-gold"
-                      : "opacity-70 outline-transparent hover:opacity-100",
+                      : "opacity-80 outline-transparent hover:opacity-100 hover:outline-stone-dark",
                   )}
                 >
                   <Media image={image} sizes="80px" />

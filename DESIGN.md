@@ -38,7 +38,7 @@ Tailwind v4 generates utilities from `@theme`, so `bg-espresso`, `text-gold-ink`
 | `Plate` | `components/brand/plate.tsx` | Mounts one of the nine motif files. Props: `marks`, `mount` (inner gold rule), `reveal` (tissue-guard unveil on scroll, or `"intro"` above the fold), `drift` (scroll parallax), `breathe` (the one ambient loop), `vertical` (turns a hairline border to run down the plate) and `caption`. |
 | `PLATE_SEQUENCE` / `plateFor` | `components/brand/plates.ts` | The fixed order the house turns through its plates, one per room. |
 | `Container` / `PageHeader` / `SectionHeading` / `Ornament` / `Rule` / `Button` / `ButtonLink` / `Prose` | `components/ui/primitives.tsx` | `PageHeader` opens every interior page: display title, lede and a gold rule that draws itself (a running head only when it adds a place or a count). `SectionHeading` takes a `tone` (light/dark); its `eyebrow`/`numeral` props exist but are deliberately unused. Buttons have a hairline "leader" that lengthens on hover, and they press to 0.97. |
-| Header + house index | `components/layout/header.tsx` | One row: Index · Shop · the collection · The House · monogram · search · cart. **Index** opens a full-height folio index, with rooms in large numbered type, the hovered room's pieces, and a plate that turns per room (cross-fade + settle). On phones the rooms open as an accordion. The header floats transparent over dark plates, tucks away while reading down and returns on scroll up. |
+| Header + house index | `components/layout/header.tsx` | One row: Index, monogram, search and cart, plus Shop / the collection / The House as text links from 1280px wide (below that they live in the Index). **Index** opens a full-height folio index, with rooms in large numbered type, the hovered room's pieces, and a plate that turns per room (cross-fade + settle). On phones the rooms open as an accordion. The header floats transparent over dark plates, tucks away while reading down and returns on scroll up. |
 | `RoomIndex` | `components/home/room-index.tsx` | The home page's rooms: a sticky frame on the left turns to each room as the list is hovered or focused. When no rooms are live it lists them unlinked as *In preparation*. |
 | `GroupCard` / `GroupGrid` / `ProductRail` / `EmptyState` | `components/product/*` | Cards gain plate marks and a slow 1.035 zoom on hover. Titles clamp to 3 lines, with the full title in `title`. `GroupGrid layout="folio"` makes the first piece a 2×2 lead. `ProductRail` is native scroll-snap for "new in". `EmptyState` is a mounted sprig plate with a label (*In preparation* / *No match*). |
 | `ProductViewer` | `components/product/product-viewer.tsx` | Desktop: thumbnails column + mounted main view (keyed `view-in` cross-fade with a 3px blur). Phones: native snap carousel with a roman counter and hairline dots, kept in sync with colour choice. The sticky panel takes `heading` and `notes` from the page. Notes are native `<details>` ("The piece", "Sizes & prices", "Material & craft", "Care", "Making & delivery"). |
@@ -90,3 +90,25 @@ What remains is deliberate:
 
 - The `cream-palette` flag on the ivory ground: the brand mandates it.
 - The 11px tracked-caps labels on UI chrome (nav, buttons, filters): the brand guidelines specify them.
+
+## Second review pass
+
+**Benchmark.** The Awesome DESIGN.md set was used as a polish benchmark only. Apple, Bugatti and Ferrari were the main references. The lessons applied:
+
+- Chrome recedes.
+- One signature element. Here that is the mounted plate.
+- One section rhythm.
+- No decoration beyond the signature.
+
+The Folio concept and the Propulsa brand are unchanged.
+
+**Changes in this pass:**
+
+- **Numbering.**
+  - Numerals were removed wherever the content is not a sequence: house standards, the four principles, contact enquiries and FAQ questions.
+  - Numbers stay on plates (Pl.), the collection (N°), product cards and gallery views.
+  - Rooms keep their numerals as a reference system (the house index, and "Room II of VIII").
+- **Measure.** Prose measure is capped at 32rem.
+- **Empty states.** These are full-size: a 19rem plate and a display-md title. Search without a catalogue says "being prepared" rather than "no match".
+- **Header.** The house index is visible on the frame it opens, so keyboard focus lands on its first link.
+- **Motion boot script.** The script that runs before paint is a `next/script` with `beforeInteractive`. This replaces a raw `<script>`, which a not-found boundary re-rendered with a React warning.

@@ -15,9 +15,16 @@ import { getBlueprint, getMotifForm } from "@/lib/content/designs";
 import { DUTIES_NOTE, SITE } from "@/lib/content/site";
 import { getProduct, getProductHandles } from "@/lib/shopify";
 import { safeGetProduct, safeGetProducts } from "@/lib/shopify/safe";
-import { formatPrice, isFetchableImage, isSizeOption } from "@/lib/utils";
+import { cn, formatPrice, isFetchableImage, isSizeOption } from "@/lib/utils";
 
 type Params = { handle: string };
+
+// Every page here reads the cart cookie through the root layout, so it is
+// rendered per request in any case. Saying so explicitly matters when the
+// build runs without Shopify credentials: generateStaticParams then returns
+// nothing, the route stays "static", and the first visit failed with a 500
+// ("static to dynamic at runtime") instead of rendering or returning 404.
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams(): Promise<Params[]> {
   // A catalogue outage — or a deployment whose Shopify credentials are not set
@@ -174,7 +181,13 @@ export default async function ProductPage({
           </Link>
         </p>
       ) : null}
-      <h1 className="mt-4 font-display text-display-md text-balance text-espresso [overflow-wrap:anywhere]">
+      {/* Supplier-length titles step down a size rather than fill the panel. */}
+      <h1
+        className={cn(
+          "mt-4 font-display text-balance text-espresso [overflow-wrap:anywhere]",
+          product.title.length > 60 ? "text-display-sm" : "text-display-md",
+        )}
+      >
         {product.title}
       </h1>
       <p className="eyebrow mt-3 text-espresso-muted">{typeName(product.productType)}</p>
@@ -239,7 +252,7 @@ export default async function ProductPage({
 
       <Container width="wide" className="pt-6 md:pt-10">
         <nav aria-label="Breadcrumb" className="mb-6 md:mb-10">
-          <ol className="running-head flex flex-wrap items-center gap-3 text-espresso-muted">
+          <ol className="flex flex-wrap items-center gap-3 text-sm text-espresso-muted">
             <li>
               <Link href="/shop" className="hover:text-gold-ink">
                 Shop

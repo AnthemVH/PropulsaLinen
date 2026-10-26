@@ -218,19 +218,19 @@ export default async function HomePage() {
               title="Every piece carries one of three forms, never a fourth"
               className="lg:col-span-7"
             />
-            <p data-reveal style={d(120)} className="max-w-md text-espresso-soft lg:col-span-4 lg:col-start-9">
+            <p data-reveal style={d(120)} className="max-w-md text-pretty text-espresso-soft lg:col-span-4 lg:col-start-9">
               Nothing is redrawn for a product. The plate is cropped, edged or set
               alone, and the linework stays exactly as it was engraved.
             </p>
           </div>
 
-          <ol className="mt-16 grid gap-x-8 gap-y-16 md:mt-24 md:grid-cols-3 lg:gap-x-14">
+          <ol className="mt-16 grid gap-x-8 gap-y-16 sm:grid-cols-2 md:mt-24 lg:grid-cols-3 lg:gap-x-14">
             {MOTIF_FORMS.map((form, index) => {
               const plate = FORM_PLATES[form.slug];
               return (
                 <li
                   key={form.slug}
-                  className={cn(index === 1 && "md:mt-24", index === 2 && "md:mt-48")}
+                  className={cn(index === 1 && "sm:mt-24", index === 2 && "lg:mt-48")}
                 >
                   <Plate
                     form={form.slug}
@@ -314,11 +314,8 @@ export default async function HomePage() {
                   key={standard.title}
                   data-reveal
                   style={d(index * 120)}
-                  className="grid gap-4 border-t border-gold-light/25 py-9 sm:grid-cols-[5rem_1fr] md:py-11"
+                  className="border-t border-gold-light/25 py-9 md:py-11"
                 >
-                  <span className="numeral text-4xl leading-none text-gold-light">
-                    {toRoman(index + 1)}
-                  </span>
                   <div>
                     <h3 className="font-display text-display-sm text-ivory-light">{standard.title}</h3>
                     <p className="mt-3 max-w-lg text-pretty text-ivory/75">{standard.body}</p>
@@ -370,7 +367,7 @@ export default async function HomePage() {
                   In preparation
                 </p>
                 <h3 className="mt-3 font-display text-display-sm text-espresso-soft">{entry.title}</h3>
-                <p className="mt-2 text-espresso-muted">{entry.summary}</p>
+                <p className="mt-2 text-pretty text-espresso-muted">{entry.summary}</p>
               </li>
             ))}
           </ul>

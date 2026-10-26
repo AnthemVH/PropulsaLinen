@@ -6,7 +6,6 @@ import { MotifArt } from "@/components/brand/motif-art";
 import { Plate } from "@/components/brand/plate";
 import { ButtonLink, Container, Ornament, SectionHeading } from "@/components/ui/primitives";
 import { DESIGN_NAV } from "@/lib/content/site";
-import { toRoman } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "The house",
@@ -113,16 +112,15 @@ export default function AboutPage() {
       <section className="bg-espresso py-section text-ivory-light">
         <Container width="wide">
           <SectionHeading tone="dark" title="How the house works" />
-          <ol className="mt-14 grid gap-px bg-gold-light/20 md:mt-20 md:grid-cols-2">
+          <ol className="mt-14 grid md:mt-20 md:grid-cols-2 md:gap-px md:bg-gold-light/20">
             {PRINCIPLES.map((principle, index) => (
               <li
                 key={principle.title}
                 data-reveal
                 style={d((index % 2) * 120)}
-                className="bg-espresso py-10 md:p-12 lg:p-16"
+                className="border-t border-gold-light/20 py-10 md:border-t-0 md:bg-espresso md:p-12 lg:p-16"
               >
-                <span className="numeral text-5xl leading-none text-gold-light">{toRoman(index + 1)}</span>
-                <h3 className="mt-6 font-display text-display-sm text-ivory-light">{principle.title}</h3>
+                <h3 className="font-display text-display-sm text-ivory-light">{principle.title}</h3>
                 <p className="mt-4 max-w-md text-pretty text-ivory/75">{principle.body}</p>
               </li>
             ))}

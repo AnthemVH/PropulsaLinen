@@ -94,7 +94,7 @@ export default async function RoomPage({
         <div className="grid items-end gap-10 pt-10 pb-12 md:pt-16 lg:grid-cols-12 lg:gap-12 lg:pb-16">
           <header className="lg:col-span-7">
             <nav aria-label="Breadcrumb" className="intro-fade">
-              <ol className="running-head flex flex-wrap items-center gap-3 text-espresso-muted">
+              <ol className="flex flex-wrap items-center gap-3 text-sm text-espresso-muted">
                 <li>
                   <Link href="/shop" className="hover:text-gold-ink">
                     Shop
@@ -138,9 +138,11 @@ export default async function RoomPage({
 
         <div className="flex flex-col gap-6 py-6 md:flex-row md:items-center md:justify-between">
           {nav ? <TypeChips basePath={`/rooms/${room.slug}`} types={nav.types} active={activeType} /> : <span />}
-          <p className="eyebrow shrink-0 text-espresso-muted">
-            {shown.length} {shown.length === 1 ? "piece" : "pieces"}
-          </p>
+          {shown.length ? (
+            <p className="eyebrow shrink-0 text-espresso-muted">
+              {shown.length} {shown.length === 1 ? "piece" : "pieces"}
+            </p>
+          ) : null}
         </div>
       </Container>
 

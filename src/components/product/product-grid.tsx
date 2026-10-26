@@ -93,7 +93,7 @@ export function EmptyState({
     <div
       data-reveal
       className={cn(
-        "grid items-center gap-10 border-y hairline py-14 md:grid-cols-[minmax(0,14rem)_1fr] md:gap-16 md:py-20",
+        "grid items-center gap-10 border-y hairline py-14 md:grid-cols-[minmax(0,15rem)_1fr] md:gap-16 md:py-24 lg:grid-cols-[minmax(0,19rem)_1fr] lg:gap-24",
         className,
       )}
     >
@@ -107,8 +107,8 @@ export function EmptyState({
       />
       <div className="text-center md:text-left">
         <p className="eyebrow text-gold-ink">{label}</p>
-        <p className="mt-4 font-display text-display-sm text-balance text-espresso">{title}</p>
-        <p className="mx-auto mt-4 max-w-md text-pretty text-espresso-soft md:mx-0">{body}</p>
+        <p className="mt-4 font-display text-display-md text-balance text-espresso">{title}</p>
+        <p className="mx-auto mt-5 max-w-md text-lede text-pretty text-espresso-soft md:mx-0">{body}</p>
         {children ? <div className="mt-8 flex flex-wrap justify-center gap-6 md:justify-start">{children}</div> : null}
       </div>
     </div>

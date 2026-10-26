@@ -77,7 +77,7 @@ export default async function DesignsPage() {
                       {design.name}
                     </Link>
                   </h2>
-                  <p data-reveal style={{ "--d": 160 } as CSSProperties} className="mt-4 font-display text-display-sm italic text-espresso-soft">
+                  <p data-reveal style={{ "--d": 160 } as CSSProperties} className="mt-4 font-display text-display-sm italic text-balance text-espresso-soft">
                     {design.tagline}
                   </p>
                   <p data-reveal style={{ "--d": 220 } as CSSProperties} className="mt-7 max-w-xl text-pretty text-espresso-soft">

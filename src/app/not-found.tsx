@@ -22,8 +22,7 @@ export default function NotFound() {
           }
         />
         <div className="text-center md:col-span-6 md:col-start-7 md:text-left">
-          <p className="eyebrow intro-fade text-espresso-muted">Error 404</p>
-          <h1 className="intro-rise mt-6 text-display-lg text-balance text-espresso">
+          <h1 className="intro-rise text-display-lg text-balance text-espresso">
             This page is not in the house
           </h1>
           <p className="intro-rise mt-6 max-w-md text-lede text-pretty text-espresso-soft md:max-w-lg">

@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { ViewTransition } from "react";
 import { Cormorant_Garamond, EB_Garamond, Pinyon_Script } from "next/font/google";
 
@@ -95,10 +96,13 @@ export default async function RootLayout({
       // The boot script adds data-motion before React hydrates.
       suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT }} />
-      </head>
       <body className="flex min-h-full flex-col">
+        {/* Injected into the initial HTML ahead of any app code (see MOTION_BOOT).
+            next/script, not a raw <script>, so a client re-render of the
+            layout (e.g. a not-found boundary) never re-emits it. */}
+        <Script id="motion-boot" strategy="beforeInteractive">
+          {MOTION_BOOT}
+        </Script>
         <CartProvider initialCart={cart}>
           {/* First thing a keyboard reaches: jump past the header and menu. */}
           <a

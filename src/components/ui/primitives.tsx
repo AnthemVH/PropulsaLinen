@@ -284,7 +284,7 @@ export function Prose({ children, className }: { children: ReactNode; className?
   return (
     <div
       className={cn(
-        "max-w-[40rem] space-y-6 text-espresso-soft [overflow-wrap:anywhere] [&_a]:text-gold-ink [&_a]:underline [&_a]:decoration-gold/40 [&_a]:underline-offset-4 [&_a:hover]:text-espresso [&_h2]:mt-14 [&_h2]:mb-4 [&_h2]:font-display [&_h2]:text-display-sm [&_h2]:text-espresso [&_h3]:mt-12 [&_h3]:mb-4 [&_h3]:font-display [&_h3]:text-display-sm [&_h3]:text-espresso [&_li]:pl-1 [&_ol]:list-decimal [&_ol]:space-y-3 [&_ol]:pl-6 [&_strong]:font-normal [&_strong]:text-espresso [&_table]:w-full [&_table]:text-sm [&_td]:border-b [&_td]:border-stone [&_td]:py-2 [&_ul]:list-none [&_ul]:space-y-3 [&_ul>li]:relative [&_ul>li]:pl-6 [&_ul>li]:before:absolute [&_ul>li]:before:left-0 [&_ul>li]:before:top-[0.85em] [&_ul>li]:before:h-px [&_ul>li]:before:w-3 [&_ul>li]:before:bg-gold",
+        "max-w-[32rem] space-y-6 text-pretty text-espresso-soft [overflow-wrap:anywhere] [&_a]:text-gold-ink [&_a]:underline [&_a]:decoration-gold/40 [&_a]:underline-offset-4 [&_a:hover]:text-espresso [&_h2]:mt-14 [&_h2]:mb-4 [&_h2]:font-display [&_h2]:text-display-sm [&_h2]:text-espresso [&_h3]:mt-12 [&_h3]:mb-4 [&_h3]:font-display [&_h3]:text-display-sm [&_h3]:text-espresso [&_li]:pl-1 [&_ol]:list-decimal [&_ol]:space-y-3 [&_ol]:pl-6 [&_strong]:font-normal [&_strong]:text-espresso [&_table]:w-full [&_table]:text-sm [&_td]:border-b [&_td]:border-stone [&_td]:py-2 [&_ul]:list-none [&_ul]:space-y-3 [&_ul>li]:relative [&_ul>li]:pl-6 [&_ul>li]:before:absolute [&_ul>li]:before:left-0 [&_ul>li]:before:top-[0.85em] [&_ul>li]:before:h-px [&_ul>li]:before:w-3 [&_ul>li]:before:bg-gold",
         className,
       )}
     >

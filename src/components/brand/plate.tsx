@@ -75,8 +75,9 @@ export function Plate({
     <figure
       data-reveal={reveal === true ? "unveil" : undefined}
       style={delayStyle}
-      className={cn(marks && "plate-marks", className)}
+      className={className}
     >
+      <div className={cn(marks && "plate-marks")}>
       <div
         data-unveil={reveal === true ? "" : undefined}
         style={delayStyle}
@@ -118,6 +119,7 @@ export function Plate({
           </div>
         </div>
         {children}
+      </div>
       </div>
       {caption ? (
         <figcaption className="running-head mt-4 flex items-baseline justify-between gap-4 text-espresso-muted">

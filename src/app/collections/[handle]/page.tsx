@@ -16,6 +16,13 @@ import { isFetchableImage } from "@/lib/utils";
 
 type Params = { handle: string };
 
+// Every page here reads the cart cookie through the root layout, so it is
+// rendered per request in any case. Saying so explicitly matters when the
+// build runs without Shopify credentials: generateStaticParams then returns
+// nothing, the route stays "static", and the first visit failed with a 500
+// ("static to dynamic at runtime") instead of rendering or returning 404.
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams(): Promise<Params[]> {
   try {
     const collections = await getCollections();
