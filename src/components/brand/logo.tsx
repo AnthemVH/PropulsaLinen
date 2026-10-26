@@ -56,10 +56,13 @@ export function Logo({
   className,
   monogramSize = 34,
   stacked = false,
+  compact = false,
 }: {
   className?: string;
   monogramSize?: number;
   stacked?: boolean;
+  /** On the narrowest screens, the monogram alone. */
+  compact?: boolean;
 }) {
   return (
     <Link
@@ -73,9 +76,14 @@ export function Logo({
     >
       <Monogram
         size={monogramSize}
-        className="transition-opacity duration-500 group-hover:opacity-70"
+        className="transition-transform duration-700 ease-out group-hover:-rotate-6"
       />
-      <Wordmark className="transition-colors duration-500 group-hover:text-gold" />
+      <Wordmark
+        className={cn(
+          "transition-colors duration-500 group-hover:text-gold-ink",
+          compact && "max-[380px]:hidden",
+        )}
+      />
     </Link>
   );
 }

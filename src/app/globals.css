@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
-/* ---------------------------------------------------------------------------
-   Propulsa design tokens
-   Heritage luxury: ivory ground, espresso ink, gold used only as a hairline.
-   --------------------------------------------------------------------------- */
+/* ===========================================================================
+   Propulsa — "The Folio"
+   The house as a bound naturalist's folio: ivory leaves, espresso night
+   plates, gold used only as a hairline or plate mark. See DESIGN.md.
+   =========================================================================== */
 
 @theme {
   /* Neutrals */
@@ -12,15 +13,15 @@
   --color-stone: #d9cfc1;
   --color-stone-dark: #b9ab98;
   --color-espresso: #2a211a;
+  --color-espresso-deep: #1f1813;
   --color-espresso-soft: #4a3e33;
   --color-espresso-muted: #6b5d50;
 
-  /* Accent — warm gold/bronze. Sparingly: rules, hovers, foil details. */
+  /* Accent — warm gold/bronze. Hairlines, plate marks, rings. Never a fill. */
   --color-gold: #a67c3d;
   --color-gold-light: #c9a15e;
   --color-gold-pale: #e0cfae;
-  /* Gold for text on ivory. The brand gold is 3.3:1 there, below the 4.5:1 that
-     small text needs, so it stays for hairlines, rings and swatches only. */
+  /* Gold for small text on ivory (5.0:1). Brand gold is 3.3:1 there. */
   --color-gold-ink: #886632;
 
   /* Type */
@@ -28,43 +29,75 @@
   --font-body: var(--font-eb-garamond), ui-serif, Georgia, serif;
   --font-script: var(--font-pinyon), cursive;
 
-  /* Editorial type scale */
+  /* Editorial type scale. Tracking tightens as size grows. */
   --text-eyebrow: 0.6875rem;
   --text-eyebrow--line-height: 1.2;
   --text-eyebrow--letter-spacing: 0.22em;
 
-  --text-display-xl: clamp(3rem, 8vw, 6.5rem);
-  --text-display-xl--line-height: 1.02;
-  --text-display-xl--letter-spacing: -0.015em;
+  --text-folio: clamp(4.5rem, 14vw, 13rem);
+  --text-folio--line-height: 0.86;
+  --text-folio--letter-spacing: -0.035em;
 
-  --text-display-lg: clamp(2.5rem, 5.5vw, 4.25rem);
-  --text-display-lg--line-height: 1.06;
-  --text-display-lg--letter-spacing: -0.01em;
+  --text-display-xl: clamp(3.25rem, 9vw, 8.5rem);
+  --text-display-xl--line-height: 0.94;
+  --text-display-xl--letter-spacing: -0.025em;
 
-  --text-display-md: clamp(1.875rem, 3.6vw, 2.875rem);
-  --text-display-md--line-height: 1.14;
+  --text-display-lg: clamp(2.6rem, 6vw, 5.25rem);
+  --text-display-lg--line-height: 1;
+  --text-display-lg--letter-spacing: -0.018em;
 
-  --text-display-sm: clamp(1.375rem, 2.2vw, 1.875rem);
-  --text-display-sm--line-height: 1.24;
+  --text-display-md: clamp(1.95rem, 3.8vw, 3.25rem);
+  --text-display-md--line-height: 1.08;
+  --text-display-md--letter-spacing: -0.01em;
 
-  --text-lede: clamp(1.0625rem, 1.4vw, 1.3125rem);
-  --text-lede--line-height: 1.68;
+  --text-display-sm: clamp(1.4rem, 2.2vw, 1.9rem);
+  --text-display-sm--line-height: 1.22;
 
-  /* Slow, elegant motion — nothing snappy or bouncy. */
+  --text-lede: clamp(1.0625rem, 1.35vw, 1.3125rem);
+  --text-lede--line-height: 1.66;
+
+  /* Motion. Two speeds: UI that answers (≤300ms) and the folio that turns
+     (reveals, 900–1400ms). Curves are fixed; durations below. */
   --ease-editorial: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --default-transition-duration: 550ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-duration: 300ms;
   --default-transition-timing-function: var(--ease-editorial);
 
-  /* Editorial gutters */
-  --spacing-section: 7rem;
-  --spacing-section-lg: 11rem;
+  /* Rhythm */
+  --spacing-section: clamp(5rem, 10vw, 9rem);
+  --spacing-section-lg: clamp(7rem, 14vw, 13rem);
+  --spacing-header: 4rem;
+
+  --breakpoint-3xl: 1760px;
 }
 
 @layer base {
+  :root {
+    --header-h: 4rem;
+    --gutter: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    :root {
+      --header-h: 5rem;
+      --gutter: 2.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    :root {
+      --gutter: 3.5rem;
+    }
+  }
+
   html {
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    background-color: var(--color-ivory);
   }
 
   body {
@@ -73,6 +106,7 @@
     font-family: var(--font-body);
     font-size: 1.0625rem;
     line-height: 1.72;
+    font-feature-settings: "kern", "liga", "onum";
   }
 
   h1,
@@ -81,7 +115,13 @@
   h4 {
     font-family: var(--font-display);
     font-weight: 300;
-    color: var(--color-espresso);
+    color: inherit;
+    font-feature-settings: "kern", "liga", "lnum";
+  }
+
+  /* Prices, counts and quantities line up. */
+  .tabular-nums {
+    font-feature-settings: "lnum", "tnum";
   }
 
   ::selection {
@@ -94,16 +134,52 @@
     outline-offset: 3px;
   }
 
+  /* Controls answer on press, and never get their labels selected. */
+  button,
+  a,
+  [role="button"],
+  summary {
+    touch-action: manipulation;
+  }
+  button,
+  [role="button"],
+  summary {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* iOS zooms into anything smaller than 16px. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
     *,
     *::before,
     *::after {
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
+      animation-iteration-count: 1 !important;
     }
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Typography utilities
+   --------------------------------------------------------------------------- */
 
 /* Small-caps label used above headings and on UI chrome. */
 @utility eyebrow {
@@ -112,11 +188,37 @@
   line-height: 1.2;
   letter-spacing: 0.22em;
   text-transform: uppercase;
+  font-feature-settings: "lnum", "tnum";
 }
 
-/* Thin gold hairline — the recurring structural motif of the brand. */
+/* Roman/plate numerals and folio figures in the display face. */
+@utility numeral {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-feature-settings: "lnum";
+  letter-spacing: 0.02em;
+}
+
+/* Running head: the line of small caps along the top of a folio leaf. */
+@utility running-head {
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   Gold hairlines and plate marks
+   --------------------------------------------------------------------------- */
+
 @utility hairline {
   border-color: color-mix(in srgb, var(--color-gold) 30%, transparent);
+}
+
+@utility hairline-strong {
+  border-color: color-mix(in srgb, var(--color-gold) 60%, transparent);
 }
 
 @utility rule-gold {
@@ -130,6 +232,52 @@
   );
 }
 
+/*
+  Printer's plate marks: four gold L-corners just outside a frame, the way an
+  engraved plate's edge shows on the paper around it. Drawn with gradients so
+  they cost no extra DOM.
+*/
+@utility plate-marks {
+  --mark: 14px;
+  --mark-colour: color-mix(in srgb, var(--color-gold) 75%, transparent);
+  --mark-inset: -8px;
+  position: relative;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: var(--mark-inset);
+    pointer-events: none;
+    z-index: 2;
+    background:
+      linear-gradient(var(--mark-colour), var(--mark-colour)) top left / var(--mark) 1px no-repeat,
+      linear-gradient(var(--mark-colour), var(--mark-colour)) top left / 1px var(--mark) no-repeat,
+      linear-gradient(var(--mark-colour), var(--mark-colour)) top right / var(--mark) 1px no-repeat,
+      linear-gradient(var(--mark-colour), var(--mark-colour)) top right / 1px var(--mark) no-repeat;
+  }
+
+  &::after {
+    background:
+      linear-gradient(var(--mark-colour), var(--mark-colour)) bottom left / var(--mark) 1px no-repeat,
+      linear-gradient(var(--mark-colour), var(--mark-colour)) bottom left / 1px var(--mark) no-repeat,
+      linear-gradient(var(--mark-colour), var(--mark-colour)) bottom right / var(--mark) 1px no-repeat,
+      linear-gradient(var(--mark-colour), var(--mark-colour)) bottom right / 1px var(--mark) no-repeat;
+  }
+}
+
+/* A passe-partout: the inner gold rule a mounted plate sits behind. */
+@utility mount {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid color-mix(in srgb, var(--color-gold) 40%, transparent);
+    pointer-events: none;
+  }
+}
+
 /* Slow underline reveal for editorial links. */
 @utility link-underline {
   background-image: linear-gradient(currentColor, currentColor);
@@ -138,19 +286,56 @@
   background-size: 0% 1px;
   transition: background-size 550ms var(--ease-editorial);
 
-  &:hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-size: 100% 1px;
+    }
+  }
+  &:focus-visible {
     background-size: 100% 1px;
   }
 }
 
-@utility fade-up {
-  animation: propulsa-fade-up 1100ms var(--ease-editorial) both;
+/* Always-underlined link whose rule turns gold. */
+@utility link-ruled {
+  background-image:
+    linear-gradient(var(--color-gold), var(--color-gold)),
+    linear-gradient(color-mix(in srgb, currentColor 30%, transparent), color-mix(in srgb, currentColor 30%, transparent));
+  background-position: 0 100%, 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px, 100% 1px;
+  padding-bottom: 0.2em;
+  transition: background-size 550ms var(--ease-editorial);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-size: 100% 1px, 100% 1px;
+    }
+  }
 }
 
-@keyframes propulsa-fade-up {
+/* Press feedback for anything tappable. */
+@utility press {
+  transition-property: transform, color, background-color, border-color, opacity;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-out);
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Entrance choreography
+   Elements marked `data-reveal` are hidden only once JavaScript has booted
+   (html[data-motion]); the observer in components/motion/reveal-observer.tsx
+   sets `data-shown` as each one enters. Content is never hostage to JS: a
+   failsafe in the layout un-hides everything if the observer never starts.
+   --------------------------------------------------------------------------- */
+
+@keyframes folio-rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translate3d(0, 28px, 0);
   }
   to {
     opacity: 1;
@@ -158,20 +343,274 @@
   }
 }
 
+@keyframes folio-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The tissue guard lifting off an engraved plate. */
+@keyframes folio-unveil {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes folio-settle {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes folio-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Above-the-fold intro: pure CSS, starts at first paint. */
+@utility intro-rise {
+  animation: folio-rise 1200ms var(--ease-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+@utility intro-fade {
+  animation: folio-fade 1600ms var(--ease-editorial) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+@utility intro-unveil {
+  animation: folio-unveil 1500ms var(--ease-in-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+@utility intro-settle {
+  animation: folio-settle 2600ms var(--ease-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+@utility intro-draw {
+  transform-origin: left center;
+  animation: folio-draw 1400ms var(--ease-in-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+
+html[data-motion] [data-reveal]:not([data-shown]) {
+  opacity: 0;
+}
+/* An observed element's own clip-path hides it from IntersectionObserver, so
+   the unveil is observed on the wrapper and clips the [data-unveil] inside. */
+html[data-motion] [data-reveal="unveil"]:not([data-shown]) {
+  opacity: 1;
+}
+html[data-motion] [data-reveal="unveil"]:not([data-shown]) [data-unveil] {
+  clip-path: inset(0 0 100% 0);
+}
+html[data-motion] [data-reveal="draw"]:not([data-shown]) {
+  opacity: 1;
+  transform: scaleX(0);
+}
+
+[data-reveal][data-shown] {
+  animation: folio-rise 1100ms var(--ease-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+[data-reveal="fade"][data-shown] {
+  animation-name: folio-fade;
+  animation-duration: 1400ms;
+}
+[data-reveal="unveil"][data-shown] {
+  animation: none;
+}
+[data-reveal="unveil"][data-shown] [data-unveil] {
+  animation: folio-unveil 1400ms var(--ease-in-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+[data-reveal="draw"][data-shown] {
+  transform-origin: left center;
+  animation: folio-draw 1300ms var(--ease-in-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+/* A plate inside an unveiling frame settles from a slight enlargement. */
+[data-reveal="unveil"][data-shown] [data-settle] {
+  animation: folio-settle 2400ms var(--ease-out) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Fewer and gentler, not none: keep the fade, drop the travel. */
+  [data-reveal][data-shown],
+  [data-reveal="unveil"][data-shown] [data-unveil],
+  [data-reveal="draw"][data-shown] {
+    animation: folio-fade 400ms ease both !important;
+    clip-path: none;
+    transform: none;
+  }
+  [data-reveal="unveil"][data-shown] [data-settle] {
+    animation: none !important;
+  }
+  .intro-rise,
+  .intro-unveil,
+  .intro-settle,
+  .intro-draw {
+    animation: folio-fade 400ms ease both !important;
+  }
+}
+
 /* ---------------------------------------------------------------------------
-   Header over a dark hero.
+   Scroll choreography. Scroll-driven animations run on the compositor; where
+   unsupported (or with reduced motion) the plate simply sits still.
+   --------------------------------------------------------------------------- */
+
+@keyframes folio-drift {
+  from {
+    transform: translate3d(0, -6%, 0) scale(1.14);
+  }
+  to {
+    transform: translate3d(0, 6%, 0) scale(1.14);
+  }
+}
+
+@keyframes folio-recede {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -48px, 0);
+  }
+}
+
+@keyframes folio-scrub-x {
+  from {
+    transform: translate3d(4%, 0, 0);
+  }
+  to {
+    transform: translate3d(-4%, 0, 0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-drift {
+      animation: folio-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    .scroll-recede {
+      animation: folio-recede linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80vh;
+    }
+    .scroll-scrub-x {
+      animation: folio-scrub-x linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* A slow, near-still breathing of the hero plate. One ambient loop, site-wide. */
+@keyframes folio-breathe {
+  0%,
+  100% {
+    transform: scale(1.02);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+@utility breathe {
+  animation: folio-breathe 28s var(--ease-in-out) infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   Page turns: route changes cross-fade the content while the header holds
+   still. React <ViewTransition> + next.config experimental.viewTransition.
+   --------------------------------------------------------------------------- */
+
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(.page-turn) {
+  animation: 220ms var(--ease-out) both folio-turn-out;
+}
+::view-transition-new(.page-turn) {
+  animation: 520ms var(--ease-out) 120ms both folio-turn-in;
+}
+
+@keyframes folio-turn-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes folio-turn-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Header over a dark plate.
    Deliberately unlayered: it must outrank the Tailwind utility classes on the
    individual nav links rather than fighting them one by one.
    --------------------------------------------------------------------------- */
 header[data-floating="true"] :where(a, button, span) {
   color: var(--color-ivory-light);
-  transition: color 550ms var(--ease-editorial);
 }
 
-header[data-floating="true"] :where(a, button):hover {
-  color: var(--color-gold-light);
+@media (hover: hover) and (pointer: fine) {
+  header[data-floating="true"] :where(a, button):hover {
+    color: var(--color-gold-light);
+  }
 }
 
 header[data-floating="true"] [data-mark="monogram"] {
   color: var(--color-gold-light);
+}
+
+/* Scrollbars on horizontal rails stay out of sight; the rail still scrolls. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sheets that drop from the header (search). UI speed, not folio speed. */
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+.sheet-in {
+  animation: sheet-in 260ms var(--ease-out) both;
 }

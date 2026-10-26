@@ -1,11 +1,13 @@
 import { Analytics } from "@vercel/analytics/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { ViewTransition } from "react";
 import { Cormorant_Garamond, EB_Garamond, Pinyon_Script } from "next/font/google";
 
 import { CartProvider } from "@/components/cart/cart-context";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { RevealObserver } from "@/components/motion/reveal-observer";
 import { readCart } from "@/lib/cart/cookies";
 import { buildRoomNav } from "@/lib/catalog";
 import { SITE } from "@/lib/content/site";
@@ -62,6 +64,20 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  // The status bar takes the ivory of the page; the site has no dark scheme.
+  themeColor: "#f5f0e8",
+  colorScheme: "light",
+};
+
+// Runs before first paint: marks the document so `data-reveal` elements start
+// hidden, and un-hides them after three seconds if the reveal observer never
+// boots (a failed script must not leave the page blank).
+const MOTION_BOOT = `(function(){var d=document.documentElement;d.setAttribute('data-motion','');setTimeout(function(){if(!window.__folio){d.removeAttribute('data-motion')}},3000)})();`;
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -76,7 +92,12 @@ export default async function RootLayout({
       lang="en-GB"
       data-scroll-behavior="smooth"
       className={`${cormorant.variable} ${ebGaramond.variable} ${pinyon.variable} h-full`}
+      // The boot script adds data-motion before React hydrates.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         <CartProvider initialCart={cart}>
           {/* First thing a keyboard reaches: jump past the header and menu. */}
@@ -87,11 +108,14 @@ export default async function RootLayout({
             Skip to content
           </a>
           <Header rooms={rooms} />
-          <main id="main" tabIndex={-1} className="flex-1 pt-16 outline-none md:pt-20 lg:pt-32">
-            {children}
+          <main id="main" tabIndex={-1} className="flex-1 pt-[var(--header-h)] outline-none">
+            {/* Route changes turn the page: the content cross-fades while the
+                header (named in its own view transition) holds still. */}
+            <ViewTransition default="page-turn">{children}</ViewTransition>
           </main>
           <Footer />
           <CartDrawer shopifyConfigured={shopifyConfigured} />
+          <RevealObserver />
           {/* Cookieless page-view counts; see the privacy policy's "On this website". */}
           <Analytics />
         </CartProvider>

@@ -95,3 +95,25 @@ export function isColourOption(name: string): boolean {
 export function isSizeOption(name: string): boolean {
   return /size/i.test(name);
 }
+
+/** 1 → "I", 14 → "XIV". Plate and chapter numerals across the folio. */
+export function toRoman(value: number): string {
+  const numerals: [number, string][] = [
+    [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"],
+    [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+  ];
+  let remaining = Math.max(0, Math.floor(value));
+  let out = "";
+  for (const [amount, numeral] of numerals) {
+    while (remaining >= amount) {
+      out += numeral;
+      remaining -= amount;
+    }
+  }
+  return out;
+}
+
+/** 7 → "007". Catalogue numbers on cards. */
+export function catalogueNumber(value: number, width = 3): string {
+  return String(Math.max(0, Math.floor(value))).padStart(width, "0");
+}

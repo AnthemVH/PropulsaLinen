@@ -1,44 +1,56 @@
 import Link from "next/link";
 
-import { Monogram, Wordmark } from "@/components/brand/logo";
-import { Container, Rule } from "@/components/ui/primitives";
+import { Monogram } from "@/components/brand/logo";
+import { MotifArt } from "@/components/brand/motif-art";
+import { Ornament } from "@/components/ui/primitives";
 import { FOOTER_NAV, HOUSE_NOTE, SITE } from "@/lib/content/site";
 
+/**
+ * The colophon: the last leaf of the folio. A strip of the hairline border
+ * plate, the house note, the index, and the details South African law asks an
+ * online shop to show (ECTA s43) — registration number and telephone.
+ */
 export function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="mt-section-lg bg-ivory">
-      <Rule />
-      <Container width="wide">
-        <div className="grid gap-14 py-16 md:grid-cols-[1.2fr_2fr] md:py-20">
-          <div className="max-w-sm">
-            <div className="flex items-center gap-3">
-              <Monogram size={44} />
-              <Wordmark />
-            </div>
-            <p className="mt-7 text-espresso-soft">{HOUSE_NOTE}</p>
+    <footer className="mt-section-lg bg-espresso-deep text-ivory/80">
+      {/* The plate's own edge, as the top of the colophon. */}
+      <div aria-hidden className="relative h-14 overflow-hidden border-b border-gold-light/20 md:h-20">
+        <MotifArt form="hairline-border" colorway="signature" alt="" className="scale-x-[1.02]" />
+      </div>
+
+      <div className="mx-auto max-w-[1760px] px-[var(--gutter)]">
+        <div className="grid gap-14 py-16 md:py-24 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5" data-reveal>
+            <Monogram size={72} className="text-gold-light" />
+            <p className="mt-8 max-w-md font-display text-display-sm text-balance text-ivory-light">
+              {HOUSE_NOTE}
+            </p>
             <a
               href={`mailto:${SITE.contactEmail}`}
-              className="eyebrow mt-7 inline-block text-gold-ink link-underline"
+              className="eyebrow link-ruled mt-10 inline-block text-gold-light"
             >
               {SITE.contactEmail}
             </a>
           </div>
 
-          <nav className="grid grid-cols-2 gap-10 lg:grid-cols-4">
-            {FOOTER_NAV.map((group) => (
-              <div key={group.title}>
-                <p className="eyebrow text-espresso-muted">{group.title}</p>
-                <ul className="mt-5 space-y-3">
+          <nav
+            aria-label="Footer"
+            className="grid grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-4 lg:col-span-7"
+          >
+            {FOOTER_NAV.map((group, index) => (
+              <div key={group.title} data-reveal style={{ "--d": index * 70 } as React.CSSProperties}>
+                <p className="eyebrow text-gold-light">{group.title}</p>
+                <ul className="mt-6 space-y-3">
                   {group.items.map((item) => (
                     <li key={`${group.title}-${item.href}`}>
                       {item.disabled ? (
-                        <span className="text-espresso-muted/70">
-                          {item.label}
-                        </span>
+                        <span className="text-ivory/55">{item.label}</span>
                       ) : (
                         <Link
                           href={item.href}
-                          className="text-espresso-soft transition-colors duration-500 hover:text-gold-ink"
+                          className="link-underline text-ivory/80 transition-colors hover:text-ivory-light"
                         >
                           {item.label}
                         </Link>
@@ -51,19 +63,27 @@ export function Footer() {
           </nav>
         </div>
 
-        <Rule />
+        <Ornament tone="dark" />
 
-        <div className="flex flex-col gap-3 py-8 text-sm text-espresso-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} {SITE.legalName}. Registration no.{" "}
-            {SITE.registrationNumber}.{" "}
-            <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="whitespace-nowrap hover:text-gold-ink">
+        <div className="flex flex-col gap-4 py-10 text-sm text-ivory/70 md:flex-row md:items-baseline md:justify-between">
+          <p className="max-w-xl">
+            © {year} {SITE.legalName}. Registered in South Africa, registration no.{" "}
+            <span className="whitespace-nowrap">{SITE.registrationNumber}</span>. Telephone{" "}
+            <a
+              href={`tel:${SITE.phone.replace(/\s/g, "")}`}
+              className="whitespace-nowrap text-ivory/85 hover:text-gold-light"
+            >
               {SITE.phone}
             </a>
+            .
           </p>
-          <p className="eyebrow">{SITE.tagline}</p>
+          <p className="running-head text-ivory/60">
+            {SITE.tagline} · Set in Cormorant &amp; EB Garamond
+          </p>
         </div>
-      </Container>
+        {/* Clears the phone's home indicator. */}
+        <div className="h-[env(safe-area-inset-bottom,0px)]" />
+      </div>
     </footer>
   );
 }

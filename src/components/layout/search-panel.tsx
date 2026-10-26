@@ -62,9 +62,10 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
   const nothingFound = current && !current.products.length && !current.links.length;
 
   return (
-    <div className="border-b hairline bg-ivory">
+    <div className="sheet-in border-b hairline bg-ivory-light shadow-[0_24px_60px_-30px_rgba(42,33,26,0.25)]">
       <Container width="wide">
-        <form onSubmit={submit} role="search" className="flex items-center gap-4 py-5">
+        <p className="eyebrow pt-6 text-espresso-muted md:pt-8">Search the house</p>
+        <form onSubmit={submit} role="search" className="flex items-end gap-4 pt-2 pb-6">
           <label htmlFor="site-search" className="sr-only">
             Search the shop
           </label>
@@ -77,15 +78,16 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
             placeholder="Search for a glass, a throw, a room…"
             autoComplete="off"
             maxLength={80}
-            className="min-w-0 flex-1 border-0 border-b hairline bg-transparent py-2 font-display text-2xl text-espresso placeholder:text-espresso-muted/60 focus:border-gold focus:outline-none md:text-3xl"
+            enterKeyHint="search"
+            className="min-w-0 flex-1 rounded-none border-0 border-b hairline-strong bg-transparent py-2 font-display text-[1.75rem] font-light text-espresso placeholder:text-espresso-muted/70 focus:border-gold focus:outline-none md:text-5xl"
           />
-          <button type="button" onClick={onClose} className="eyebrow shrink-0 text-espresso-muted hover:text-gold-ink">
+          <button type="button" onClick={onClose} className="eyebrow press shrink-0 py-3 text-espresso-muted hover:text-gold-ink">
             Close
           </button>
         </form>
 
         {ready ? (
-          <div className="max-h-[60vh] overflow-y-auto pb-8">
+          <div className="max-h-[60dvh] overflow-y-auto overscroll-contain pb-8">
             {loading ? <p className="eyebrow text-espresso-muted">Searching…</p> : null}
             {nothingFound ? (
               <p className="text-espresso-muted">Nothing matches “{trimmed}”. Try a room or a kind of piece.</p>
@@ -98,7 +100,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
                     <Link
                       href={link.href}
                       onClick={onClose}
-                      className="eyebrow inline-flex items-center gap-2 border hairline px-4 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
+                      className="eyebrow press inline-flex items-center gap-2 border hairline px-4 py-2.5 text-espresso hover:border-gold hover:text-gold-ink"
                     >
                       {link.label}
                       <span className="text-espresso-muted">· {link.detail}</span>
@@ -109,11 +111,11 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
             ) : null}
 
             {current?.products.length ? (
-              <ul className="grid gap-x-8 gap-y-4 md:grid-cols-2">
+              <ul className="grid gap-x-10 gap-y-5 md:grid-cols-2 xl:grid-cols-3">
                 {current.products.map((product) => (
                   <li key={product.key}>
                     <Link href={`/products/${product.handle}`} onClick={onClose} className="group flex items-center gap-4">
-                      <div className="relative size-16 shrink-0 overflow-hidden bg-stone/30">
+                      <div className="relative h-20 w-16 shrink-0 overflow-hidden bg-stone/40">
                         <Media image={product.image} sizes="64px" />
                       </div>
                       <div className="min-w-0">
@@ -125,7 +127,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
                             <span
                               key={swatch.name}
                               title={swatch.name}
-                              className="size-2.5 rounded-full border border-espresso/20"
+                              className="size-2.5 border border-espresso/25"
                               style={{ backgroundColor: swatch.hex }}
                             />
                           ))}

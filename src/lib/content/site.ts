@@ -48,7 +48,7 @@ export const FOOTER_NAV: { title: string; items: NavItem[] }[] = [
     title: "Shop",
     items: [
       { label: "All pieces", href: "/shop" },
-      { label: "By collection", href: "/collections" },
+      { label: "The house collections", href: "/designs" },
     ],
   },
   {

@@ -38,6 +38,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Don't advertise the framework in every response.
   poweredByHeader: false,
+  // Route changes play as a page turn (see globals.css, "Page turns").
+  experimental: {
+    viewTransition: true,
+  },
   headers() {
     return Promise.resolve([{ source: "/(.*)", headers: securityHeaders }]);
   },
@@ -58,6 +62,10 @@ const nextConfig: NextConfig = {
   redirects() {
     return Promise.resolve([
       { source: "/products", destination: "/shop", permanent: true },
+      // /collections and /designs were two indexes of the same thing. The house
+      // collections at /designs are the one index now; a Shopify collection
+      // that mirrors a house collection redirects there from its own page.
+      { source: "/collections", destination: "/designs", permanent: true },
     ]);
   },
 };
