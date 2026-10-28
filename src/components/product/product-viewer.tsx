@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { addToCart } from "@/lib/cart/actions";
 import type { Product, ProductVariant } from "@/lib/shopify/types";
-import { cn, formatPrice, isColourOption, swatchColour, toRoman } from "@/lib/utils";
+import { cn, formatPrice, isColourOption, isPlaceholderOption, swatchColour, toRoman } from "@/lib/utils";
 import { useCart } from "@/components/cart/cart-context";
 import { Media } from "@/components/ui/media";
 
@@ -315,7 +315,7 @@ function PurchasePanel({
 
       <div className="mt-8 space-y-8 border-t hairline pt-8">
         {colourways.length > 1 ? <ColourwayGroup colourways={colourways} /> : null}
-        {product.options.map((option) => (
+        {product.options.filter((option) => !isPlaceholderOption(option)).map((option) => (
           <OptionGroup
             key={option.id}
             product={product}

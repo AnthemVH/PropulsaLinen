@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { removeCartLine, updateCartLine } from "@/lib/cart/actions";
 import { DUTIES_NOTE } from "@/lib/content/site";
 import type { CartLine } from "@/lib/shopify/types";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, isPlaceholderOption } from "@/lib/utils";
 import { MotifArt } from "@/components/brand/motif-art";
 import { Media } from "@/components/ui/media";
 
@@ -205,6 +205,7 @@ function CartLineRow({
   onNavigate: () => void;
 }) {
   const options = line.merchandise.selectedOptions
+    .filter((option) => !isPlaceholderOption(option))
     .map((option) => option.value)
     .join(" · ");
 

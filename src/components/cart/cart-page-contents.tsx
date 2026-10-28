@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { removeCartLine, updateCartLine } from "@/lib/cart/actions";
 import { DUTIES_NOTE } from "@/lib/content/site";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, isPlaceholderOption } from "@/lib/utils";
 import { MotifArt } from "@/components/brand/motif-art";
 import { Media } from "@/components/ui/media";
 import { ButtonLink } from "@/components/ui/primitives";
@@ -72,6 +72,7 @@ export function CartPageContents({
 
               <p className="mt-2 text-sm text-espresso-soft [overflow-wrap:anywhere] md:text-base">
                 {line.merchandise.selectedOptions
+                  .filter((option) => !isPlaceholderOption(option))
                   .map((option) => `${option.name}: ${option.value}`)
                   .join(" · ")}
               </p>

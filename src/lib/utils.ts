@@ -117,3 +117,12 @@ export function toRoman(value: number): string {
 export function catalogueNumber(value: number, width = 3): string {
   return String(Math.max(0, Math.floor(value))).padStart(width, "0");
 }
+
+/**
+ * Shopify gives a product with no real options a single "Title" option whose
+ * only value is "Default Title". It is not a choice, so it is never shown.
+ */
+export function isPlaceholderOption(option: { name: string; value?: string; values?: string[] }): boolean {
+  const values = option.values ?? (option.value !== undefined ? [option.value] : []);
+  return values.length === 1 && /^default title$/i.test(values[0].trim());
+}
